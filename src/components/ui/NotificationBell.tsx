@@ -1,0 +1,288 @@
+import { useState, useEffect } from "react";
+import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc, where } from "firebase/firestore";
+import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { Bell, X, Info, CheckCircle2, AlertTriangle, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import { cn } from "../../lib/utils";
+import { useAuth } from "../../hooks/useAuth";
+
+interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: "info" | "warning" | "success";
+  category?: string;
+  createdAt: any;
+  isRead: boolean;
+  targetId?: string;
+  readBy?: string[];
+}
+
+const getNotifStyles = (type: string) => {
+  switch (type) {
+    case "success":
+      return {
+        icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />,
+        bg: "bg-emerald-50",
+        border: "border-emerald-100",
+        dot: "bg-emerald-500"
+      };
+    case "warning":
+      return {
+        icon: <AlertTriangle className="w-4 h-4 text-amber-500" />,
+        bg: "bg-amber-50",
+        border: "border-amber-100",
+        dot: "bg-amber-500"
+      };
+    default:
+      return {
+        icon: <Info className="w-4 h-4 text-blue-500" />,
+        bg: "bg-blue-50",
+        border: "border-blue-100",
+        dot: "bg-blue-500"
+      };
+  }
+};
+
+export default function NotificationBell({ userId, userRole, notificationPrefs }: { userId?: string, userRole?: string, notificationPrefs?: Record<string, boolean> }) {
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { user } = useAuth(); // Add useAuth to get user details for code check
+
+  useEffect(() => {
+    // Determine which notifications to show
+    const q = query(
+      collection(db, "notifications"),
+      orderBy("createdAt", "desc"),
+      limit(20)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as AppNotification)).filter(n => {
+        // Preference check
+        if (notificationPrefs && n.category && notificationPrefs[n.category] === false) {
+          return false;
+        }
+
+        const targetRole = (n as any).targetRole;
+        const targetId = (n as any).targetId;
+        const targetGroups = (n as any).targetGroups as string[] || [];
+        
+        // If it's targeted to a specific user, only show to them
+        if (targetId && targetId !== userId) return false;
+
+        // Target group logic
+        if (targetGroups.length > 0) {
+            const upperCode = user?.code?.toUpperCase() || "";
+            const matchesAny = targetGroups.some(group => {
+                if (group === 'admin' && userRole === 'admin') return true;
+                if (group === 'servant' && userRole === 'student' && upperCode.startsWith('S')) return true;
+                if (group === 'OT' && userRole === 'student' && upperCode.startsWith('H')) return true;
+                if (group === 'NT' && userRole === 'student' && upperCode.startsWith('N')) return true;
+                if (group === 'all') return true;
+                return false;
+            });
+            if (!matchesAny) return false;
+        }
+
+        if (!targetRole && !targetId && targetGroups.length === 0) return true; // Public
+        if (targetRole === 'admin' && userRole !== 'admin') return false;
+        if (targetRole === 'student' && userRole === 'admin') return true; 
+        return targetRole === userRole;
+      });
+      
+      setNotifications(data);
+      
+      // Count unread - if userId is provided, check if it's in readBy
+      const unread = data.filter(n => {
+        if (!userId) return !n.isRead;
+        return !(n.readBy || []).includes(userId);
+      });
+      setUnreadCount(unread.length);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, "notifications");
+    });
+
+    return () => unsubscribe();
+  }, [userId, userRole, notificationPrefs, user]);
+
+  const markAsRead = async (notifId: string) => {
+    if (!userId) return;
+    try {
+      const notifRef = doc(db, "notifications", notifId);
+      const notif = notifications.find(n => n.id === notifId);
+      if (notif) {
+        const readBy = [...(notif.readBy || []), userId];
+        await updateDoc(notifRef, {
+          readBy: Array.from(new Set(readBy))
+        });
+      }
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!userId) return;
+    try {
+      const unread = notifications.filter(n => !(n.readBy || []).includes(userId));
+      await Promise.all(unread.map(n => markAsRead(n.id)));
+    } catch (err) {
+      console.error("Error marking all as read:", err);
+    }
+  };
+
+  const deleteNotification = async (notifId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userId) return;
+    try {
+      const notifRef = doc(db, "notifications", notifId);
+      const notif = notifications.find(n => n.id === notifId);
+      if (notif) {
+        // We don't actually delete for everyone, we just hide for this user
+        // Or if it's targeted directly to them, we might delete it
+        const hiddenFrom = [...((notif as any).hiddenFrom || []), userId];
+        await updateDoc(notifRef, {
+          hiddenFrom: Array.from(new Set(hiddenFrom))
+        });
+      }
+    } catch (err) {
+      console.error("Error hiding notification:", err);
+    }
+  };
+
+  const visibleNotifications = notifications.filter(n => 
+    !((n as any).hiddenFrom || []).includes(userId)
+  );
+
+  return (
+    <div className="relative z-50">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="relative p-3 bg-white rounded-2xl shadow-sm hover:scale-110 transition-transform group"
+        aria-label="Notifications"
+      >
+        <Bell className={cn("w-6 h-6 text-brand-beige group-hover:text-brand-red transition-colors", unreadCount > 0 && "animate-tada")} />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-brand-red text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-brand-text/5 backdrop-blur-sm z-40"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="absolute right-0 mt-4 w-[calc(100vw-2rem)] sm:w-96 max-w-sm bg-white rounded-3xl shadow-2xl border border-brand-beige/10 overflow-hidden z-50 transform sm:translate-x-0 origin-top-right md:left-auto font-sans"
+              dir="rtl"
+            >
+              <div className="p-6 border-b border-brand-cream/50 flex items-center justify-between bg-brand-cream/10">
+                <div className="flex items-center gap-3 text-right">
+                   <div className="w-10 h-10 bg-brand-red/10 rounded-xl flex items-center justify-center">
+                     <Bell className="w-5 h-5 text-brand-red" />
+                   </div>
+                   <div>
+                     <h3 className="font-black text-brand-text">الإشعارات</h3>
+                     <p className="text-[10px] text-brand-beige uppercase tracking-widest leading-none mt-1">آخر التحديثات</p>
+                   </div>
+                </div>
+                <button 
+                  onClick={markAllAsRead}
+                  className="text-xs font-black text-brand-red hover:underline"
+                >
+                  تحديد الكل كمقروء
+                </button>
+              </div>
+
+              <div className="max-h-[32rem] overflow-y-auto custom-scrollbar">
+                {visibleNotifications.length === 0 ? (
+                  <div className="p-12 text-center flex flex-col items-center gap-4">
+                     <div className="w-16 h-16 bg-brand-cream/30 rounded-full flex items-center justify-center">
+                        <Info className="w-8 h-8 text-brand-beige" />
+                     </div>
+                     <p className="text-brand-beige font-bold text-sm">لا توجد إشعارات حالياً</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-brand-cream/30">
+                    {visibleNotifications.map((notif) => {
+                      const isRead = userId ? (notif.readBy || []).includes(userId) : notif.isRead;
+                      const styles = getNotifStyles(notif.type);
+                      return (
+                        <div 
+                          key={notif.id}
+                          className={cn(
+                            "p-5 hover:bg-brand-cream/20 transition-all cursor-pointer group relative",
+                            !isRead && "bg-brand-red/[0.01]"
+                          )}
+                          onClick={() => markAsRead(notif.id)}
+                        >
+                          <div className="flex gap-4">
+                            <div className={cn(
+                              "w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border",
+                              styles.bg,
+                              styles.border
+                            )}>
+                              {styles.icon}
+                            </div>
+                            <div className="flex-1 min-w-0 pr-4">
+                              <div className="flex items-center justify-between mb-1">
+                                <h4 className="font-black text-brand-text text-sm truncate">{notif.title}</h4>
+                                <div className="flex items-center gap-2">
+                                  {notif.createdAt && (
+                                    <span className="text-[9px] font-bold text-brand-beige whitespace-nowrap">
+                                      {(() => {
+                                        try {
+                                          const date = typeof notif.createdAt.toDate === 'function' 
+                                            ? notif.createdAt.toDate() 
+                                            : new Date(notif.createdAt);
+                                          return format(date, "d MMM", { locale: ar });
+                                        } catch (e) {
+                                          return "";
+                                        }
+                                      })()}
+                                    </span>
+                                  )}
+                                  <button 
+                                    onClick={(e) => deleteNotification(notif.id, e)}
+                                    className="p-1 text-brand-beige hover:text-brand-red opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                              <p className="text-[11px] text-brand-beige leading-relaxed font-medium line-clamp-2">{notif.message}</p>
+                            </div>
+                          </div>
+                          {!isRead && (
+                             <div className={cn("absolute top-6 right-2 w-1.5 h-1.5 rounded-full", styles.dot)} />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

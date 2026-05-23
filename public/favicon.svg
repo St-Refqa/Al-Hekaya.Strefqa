@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&amp;family=Cairo:wght@900&amp;display=swap');
+      .background-circle {
+        fill: #E5C39A;
+      }
+      .stroke-dark {
+        stroke: #120303;
+        stroke-width: 12;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .book-page {
+        stroke: #120303;
+        stroke-width: 12;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: #E5C39A;
+      }
+      .arabic-text {
+        font-family: 'Aref Ruqaa', 'Cairo', 'Amiri', 'Arial', sans-serif;
+        fill: #120303;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        font-weight: bold;
+      }
+      .title-line-1 {
+        font-size: 85px;
+      }
+      .title-line-2 {
+        font-size: 75px;
+      }
+    </style>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" class="background-circle" />
+  
+  <!-- Three Light Rays at the Top -->
+  <path d="M 256,60 L 256,90" class="stroke-dark" />
+  <path d="M 216,75 L 235,105" class="stroke-dark" />
+  <path d="M 296,75 L 277,105" class="stroke-dark" />
+  
+  <!-- Arabic Calligraphy Text -->
+  <text x="256" y="195" class="arabic-text title-line-1">الحكاية</text>
+  <text x="256" y="285" class="arabic-text title-line-2">ومافيها</text>
+  
+  <!-- Open Book Drawing -->
+  <!-- Left page -->
+  <path d="M 256,375 C 215,348 155,348 115,375 L 115,410 C 155,385 215,385 256,410 Z" class="book-page" />
+  <!-- Right page -->
+  <path d="M 256,375 C 297,348 357,348 397,375 L 397,410 C 357,385 297,385 256,410 Z" class="book-page" />
+  
+  <!-- Lower decorative swoop wave -->
+  <path d="M 105,432 C 180,408 332,408 407,432" class="stroke-dark" />
+</svg>

@@ -1,0 +1,6 @@
+{
+  "name": "al-hekaya.vercel.app",
+  "description": "المنصة التعليمية الرسمية لكنيسة القديسة رفقة وأولادها الخمسة - برنامج الحكاية ومافيها.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
