@@ -1,0 +1,260 @@
+{
+  "entities": {
+    "Question": {
+      "title": "Question",
+      "description": "A single comprehension question",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "type": { "type": "string", "enum": ["multiple-choice", "true-false", "short-answer"] },
+        "options": { "type": "array" },
+        "correctAnswer": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+        "points": { "type": "number" }
+      }
+    },
+    "Assessment": {
+      "title": "Assessment",
+      "description": "A reading assessment created by admin",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "text": { "type": "string" },
+        "language": { "type": "string" },
+        "readingDuration": { "type": "number" },
+        "answerDuration": { "type": "number" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "hideTextDuringQuestions": { "type": "boolean" },
+        "allowReturnToText": { "type": "boolean" },
+        "fullscreenMode": { "type": "boolean" },
+        "antiCopyMode": { "type": "boolean" },
+        "questions": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "expired"] }
+      }
+    },
+    "Participant": {
+      "title": "Participant",
+      "description": "A user taking assessments",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phoneOrId": { "type": "string" },
+        "streakCount": { "type": "number" },
+        "lastCompletedDate": { "type": "string", "format": "date" },
+        "totalBonusPoints": { "type": "number" }
+      }
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "A completed reading assessment",
+      "type": "object",
+      "properties": {
+        "participantId": { "type": "string" },
+        "assessmentId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "readingTimeSeconds": { "type": "number" },
+        "answeringTimeSeconds": { "type": "number" },
+        "answers": { "type": "array" },
+        "baseScore": { "type": "number" },
+        "maxScore": { "type": "number" },
+        "bonusPoints": { "type": "number" },
+        "finalScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["completed", "incomplete", "expired"] }
+      }
+    },
+    "User": {
+      "title": "User",
+      "description": "System user (Admin or Student)",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "normalizedName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "student"] },
+        "code": { "type": "string" },
+        "password": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "disabled"] },
+        "registrationDate": { "type": "string", "format": "date-time" },
+        "isActive": { "type": "boolean" },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "loginCount": { "type": "number" },
+        "streak": { "type": "number" },
+        "totalExams": { "type": "number" },
+        "totalPoints": { "type": "number" },
+        "averageScore": { "type": "number" },
+        "xp": { "type": "number" },
+        "level": { "type": "string" },
+        "achievements": { "type": "array" },
+        "badges": { "type": "array" },
+        "isExamCreator": { "type": "boolean" },
+        "isAttendanceScanner": { "type": "boolean" },
+        "isMeetingScheduler": { "type": "boolean" }
+      }
+    },
+    "LoginLog": {
+      "title": "LoginLog",
+      "description": "Records of login attempts",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string", "enum": ["ناجح", "فشل"] },
+        "loginTime": { "type": "string" },
+        "loginAt": { "type": "string", "format": "date-time" },
+        "deviceInfo": { "type": "string" }
+      }
+    },
+    "AppNotification": {
+      "title": "AppNotification",
+      "description": "System-wide or targeted notifications",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "warning", "success"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isRead": { "type": "boolean" },
+        "targetId": { "type": "string" },
+        "readBy": { "type": "array" }
+      }
+    },
+    "StoreItem": {
+      "title": "StoreItem",
+      "description": "Item available in the rewards shop",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "category": { "type": "string", "enum": ["gift", "workshop"] },
+        "stock": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "A record of a student buying a store item",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "itemId": { "type": "string" },
+        "itemTitle": { "type": "string" },
+        "pricePaid": { "type": "number" },
+        "purchaseDate": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Season": {
+      "title": "Season",
+      "description": "An attendance season or cycle",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "isActive": { "type": "boolean" }
+      }
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "A logged student attendance entry",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "studentCode": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "seasonId": { "type": "string" },
+        "meetingType": { "type": "string", "enum": ["OT", "NT", "general"] },
+        "points": { "type": "number" },
+        "lectureId": { "type": "string" },
+        "lectureName": { "type": "string" },
+        "scanTime": { "type": "string" },
+        "isSimulated": { "type": "boolean" }
+      }
+    },
+    "Lecture": {
+      "title": "Lecture",
+      "description": "A scheduled lecture or meeting",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "startTime": { "type": "string" },
+        "meetingType": { "type": "string", "enum": ["OT", "NT", "general"] },
+        "isActive": { "type": "boolean" }
+      }
+    },
+    "PreparationMeeting": {
+      "title": "PreparationMeeting",
+      "description": "A scheduled main preparation meeting for servants to prepare for the day",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dateTime": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" },
+        "reminderSent12h": { "type": "boolean" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores user profiles and credentials"
+    },
+    "/loginLogs/{logId}": {
+      "schema": "LoginLog",
+      "description": "Stores login tracking records"
+    },
+    "/notifications/{notifId}": {
+      "schema": "AppNotification",
+      "description": "Stores system notifications"
+    },
+    "/assessments/{assessmentId}": {
+      "schema": "Assessment",
+      "description": "Stores reading assessments"
+    },
+    "/participants/{participantId}": {
+      "schema": "Participant",
+      "description": "Stores participant streak and info"
+    },
+    "/submissions/{submissionId}": {
+      "schema": "Submission",
+      "description": "Stores assessment results"
+    },
+    "/storeItems/{itemId}": {
+      "schema": "StoreItem",
+      "description": "Stores items for the reward shop"
+    },
+    "/purchases/{purchaseId}": {
+      "schema": "Purchase",
+      "description": "Stores record of purchases"
+    },
+    "/seasons/{seasonId}": {
+      "schema": "Season",
+      "description": "Stores attendance seasons"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "Attendance",
+      "description": "Stores attendance log entries"
+    },
+    "/lectures/{lectureId}": {
+      "schema": "Lecture",
+      "description": "Stores lecture schedules and names"
+    },
+    "/preparationMeetings/{meetingId}": {
+      "schema": "PreparationMeeting",
+      "description": "Stores preparation meetings scheduled for servants"
+    }
+  }
+}

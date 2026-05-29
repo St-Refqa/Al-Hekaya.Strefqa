@@ -1,0 +1,429 @@
+491-            onConfirm: () => executeSave(undefined, finalVersion + 1),
+492-            onSecondary: () => executeSave(id, finalVersion),
+493-          });
+494-          // We need a custom way to handle the "Modify direct" option since it's a 3-way choice conceptually (Cancel modal, Action 1, Action 2)
+495-          // Actually, let's make it simpler: Confirm = New Version, Cancel = Modify Direct, X = Close/Abort.
+496:          // But that's confusing. Let's add a custom component for this choice or use 2 buttons.
+497:          // I will use a custom message or just stick to the 2 buttons for now.
+498-          return;
+499-        }
+500-      }
+501-      executeSave(finalId, finalVersion);
+502-    };
+--
+545-              <p className="text-brand-beige/80 text-[11px] font-semibold mt-1 leading-relaxed max-w-2xl">
+546-                مرحباً بك يا خادم! يتيح لك هذا النظام صياغة وإضافة اختبار رائع ومسابقات تفاعلية لأبنائك وبناتك الطلاب. اضغط للرجوع وبدء المشاركة وحل الاختبارات في أي وقت.
+547-              </p>
+548-            </div>
+549-          </div>
+550:          <button
+551-            onClick={() => navigate("/student")}
+552-            className="px-6 py-3.5 bg-brand-red text-white hover:bg-brand-red/90 text-xs font-black rounded-2xl transition-all shadow-lg shadow-brand-red/10 flex items-center gap-2 whitespace-nowrap group hover:scale-[1.02] active:scale-[0.98]"
+553-          >
+554-            <span>بوابة الطلاب للرجوع ↩️</span>
+555:          </button>
+556-        </div>
+557-      )}
+558-
+559-      <AnimatePresence>
+560-        {confirmModal.show && (
+--
+585-              <p className="text-brand-beige font-bold text-sm leading-relaxed mb-8">
+586-                {confirmModal.message}
+587-              </p>
+588-              
+589-              <div className="flex flex-col gap-3">
+590:                <button
+591-                  onClick={confirmModal.onConfirm}
+592-                  className={cn(
+593-                    "w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg transition-all",
+594-                    confirmModal.type === 'danger' ? "bg-rose-500 text-white shadow-rose-200 hover:bg-rose-600" :
+595-                    confirmModal.type === 'warning' ? "bg-amber-500 text-white shadow-amber-200 hover:bg-amber-600" :
+596-                    "bg-brand-red text-white shadow-brand-red/20 hover:bg-red-700"
+597-                  )}
+598-                >
+599-                  {confirmModal.confirmText}
+600:                </button>
+601-
+602-                {/* Handle Versioning specific second choice if needed, otherwise standard cancel */}
+603-                {confirmModal.title === "تحديث الاختبار" && confirmModal.onSecondary ? (
+604:                   <button
+605-                    onClick={confirmModal.onSecondary}
+606-                    className="w-full py-4 bg-brand-cream text-brand-beige rounded-2xl font-black text-xs hover:bg-brand-beige/10 transition-all"
+607-                  >
+608-                    تعديل النسخة الحالية
+609:                  </button>
+610-                ) : null}
+611-
+612:                <button
+613-                  onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+614-                  className="w-full py-4 bg-transparent text-brand-beige rounded-2xl font-black text-xs hover:bg-brand-cream transition-all"
+615-                >
+616-                  {confirmModal.cancelText || "إلغاء"}
+617:                </button>
+618-              </div>
+619-            </motion.div>
+620-          </motion.div>
+621-        )}
+622-      </AnimatePresence>
+--
+639-        )}
+640-      </AnimatePresence>
+641-
+642-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+643-        <div className="flex items-center gap-6">
+644:          <button
+645-            onClick={() => navigate(isAdmin ? "/admin" : "/student")}
+646-            className="p-4 bg-white border border-brand-beige/20 rounded-2xl hover:bg-brand-cream transition-colors shadow-sm"
+647-          >
+648-            <ArrowLeft className="w-5 h-5 text-brand-beige rotate-180" />
+649:          </button>
+650-          <div className="flex items-center gap-4">
+651-            <div className="flex items-center -space-x-4">
+652-              <div className="w-16 h-16 rounded-full bg-white border-2 border-brand-beige/20 shadow-xl flex items-center justify-center overflow-hidden z-10">
+653-                <SmartImage
+654-                  src="/assets/logo-red.png"
+--
+687-              </p>
+688-            </div>
+689-          </div>
+690-        </div>
+691-        <div className="flex items-center gap-4">
+692:          <button
+693-            onClick={(e) => handleSave(e as any, false)}
+694-            disabled={isSaving}
+695-            className="px-6 py-4 bg-white border border-brand-beige/20 text-brand-text rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-brand-cream transition-all shadow-sm flex items-center gap-2"
+696-          >
+697-            {isSaving ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
+698-            حفظ كمسودة
+699:          </button>
+700:          <button
+701-            onClick={(e) => handleSave(e as any, true)}
+702-            disabled={isSaving}
+703-            className="px-8 py-4 bg-brand-red text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-brand-red/10 hover:bg-red-700 transition-all flex items-center gap-2"
+704-          >
+705-            {isSaving ? <Loader2 className="animate-spin" /> : <Globe className="w-4 h-4 ml-2" />}
+706-            نشر الاختبار
+707:          </button>
+708-        </div>
+709-      </div>
+710-
+711-      <form onSubmit={(e) => handleSave(e, false)} className="space-y-10 pb-24">
+712-        {/* Core Info */}
+--
+796-            <div className="md:col-span-2 space-y-4">
+797-              <label className="block text-[11px] font-black tracking-widest text-brand-beige mb-3 text-right">
+798-                شكل ونظام الاختبار 📋
+799-              </label>
+800-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+801:                <button
+802:                  type="button"
+803-                  onClick={() => setFormData({ ...formData, assessmentType: 'reading-questions' })}
+804-                  className={cn(
+805-                    "p-6 rounded-3xl border text-right transition-all flex flex-col justify-between min-h-[170px]",
+806-                    (formData.assessmentType || 'reading-questions') === 'reading-questions'
+807-                      ? "border-brand-red bg-brand-red/5 text-brand-text shadow-lg shadow-brand-red/5"
+--
+828-                    </h4>
+829-                    <p className="text-[10px] font-semibold opacity-70 leading-relaxed text-right">
+830-                      يقرأ الطالب النص أولاً بوقت محدد، ثم يغلق النص ويبدأ بحل الأسئلة المخصصة.
+831-                    </p>
+832-                  </div>
+833:                </button>
+834-
+835:                <button
+836:                  type="button"
+837-                  onClick={() => setFormData({ ...formData, assessmentType: 'questions-only' })}
+838-                  className={cn(
+839-                    "p-6 rounded-3xl border text-right transition-all flex flex-col justify-between min-h-[170px]",
+840-                    formData.assessmentType === 'questions-only'
+841-                      ? "border-brand-red bg-brand-red/5 text-brand-text shadow-lg shadow-brand-red/5"
+--
+862-                    </h4>
+863-                    <p className="text-[10px] font-semibold opacity-70 leading-relaxed text-right">
+864-                      يدخل الطالب مباشرةً على حل الأسئلة مع وجود مؤقت زمني تنازلي لكامل الاختبار.
+865-                    </p>
+866-                  </div>
+867:                </button>
+868-              </div>
+869-            </div>
+870-
+871-            <div className="md:col-span-2 space-y-4">
+872-              <label className="block text-[11px] font-black uppercase tracking-widest text-brand-beige mb-3 text-right">
+--
+877-                  { id: 'all', label: 'الجميع', count: participantCounts.total, icon: <Globe className="w-4 h-4" /> },
+878-                  { id: 'OT', label: 'العهد القديم', count: participantCounts.OT, icon: <Church className="w-4 h-4" /> },
+879-                  { id: 'NT', label: 'العهد الجديد', count: participantCounts.NT, icon: <Sparkles className="w-4 h-4" /> },
+880-                  { id: 'servant', label: 'الخدام', count: participantCounts.servant, icon: <Shield className="w-4 h-4" /> },
+881-                ].map((group) => (
+882:                  <button
+883-                    key={group.id}
+884:                    type="button"
+885-                    onClick={() => setFormData({ ...formData, targetGroup: group.id as any })}
+886-                    className={cn(
+887-                      "p-5 rounded-3xl border-2 transition-all flex flex-col items-center gap-3 group relative overflow-hidden",
+888-                      formData.targetGroup === group.id 
+889-                        ? "bg-brand-red border-brand-red text-white shadow-xl shadow-brand-red/20 scale-[1.02]" 
+--
+903-                        formData.targetGroup === group.id ? "bg-white/20 text-white" : "bg-brand-cream text-brand-beige"
+904-                      )}>
+905-                        {group.count} مشترك
+906-                      </div>
+907-                    </div>
+908:                  </button>
+909-                ))}
+910-              </div>
+911-            </div>
+912-          </div>
+913-        </section>
+--
+931-            required={formData.assessmentType !== 'questions-only'}
+932-          />
+933-
+934-          {isAdmin && (
+935-            <div className="flex items-center gap-3 mb-6 bg-brand-cream/10 p-2 rounded-2xl w-fit mr-0 ml-auto mr-2">
+936:              <button
+937:                type="button"
+938-                onClick={() => setCreatorMode('manual')}
+939-                className={cn("px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all tracking-wider", creatorMode === 'manual' ? "bg-white text-brand-text shadow-sm" : "text-brand-beige hover:text-brand-text")}
+940-              >
+941-                إضافة يدوية
+942:              </button>
+943:              <button
+944:                type="button"
+945-                onClick={() => setCreatorMode('ai')}
+946-                className={cn("px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all tracking-wider", creatorMode === 'ai' ? "bg-white text-brand-text shadow-sm" : "text-brand-beige hover:text-brand-text")}
+947-              >
+948-                توليد بالذكاء الاصطناعي
+949:              </button>
+950-            </div>
+951-          )}
+952-
+953-          {isAdmin && creatorMode === 'ai' ? (
+954-            <>
+955:              <motion.button
+956:                type="button"
+957-                whileHover={{ scale: 1.01 }}
+958-                whileTap={{ scale: 0.99 }}
+959-                onClick={handleAIQuestions}
+960-                disabled={isGenerating}
+961-                className="w-full py-6 bg-brand-text text-white rounded-[32px] font-black flex items-center justify-center gap-4 shadow-2xl shadow-brand-text/20 disabled:opacity-50 relative overflow-hidden group"
+--
+970-                  <>
+971-                    <Sparkles className="w-6 h-6 text-brand-beige" />
+972-                    توليد الأسئلة بالذكاء الاصطناعي (Gemini)
+973-                  </>
+974-                )}
+975:              </motion.button>
+976-              <p className="text-[10px] text-center text-brand-beige font-bold uppercase tracking-wider">
+977-                الأسئلة المقفولة مش هتتغير لما تطلب توليد أسئلة جديدة.
+978-              </p>
+979-            </>
+980-          ) : (
+--
+1113-
+1114-                  {manualQuestion.type === "multiple-choice" && (
+1115-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+1116-                      {manualQuestion.options.map((opt, idx) => (
+1117-                        <div key={idx} className="flex gap-2 items-center flex-row-reverse bg-white/40 p-2.5 rounded-xl border border-brand-beige/5">
+1118:                          <button
+1119:                            type="button"
+1120-                            onClick={() => {
+1121-                              if (opt.trim()) setManualQuestion({ ...manualQuestion, correctAnswer: opt });
+1122-                            }}
+1123-                            title="تحديد كإجابة صحيحة"
+1124-                            className={cn(
+--
+1127-                                ? "bg-emerald-500 text-white border-emerald-600 animate-pulse font-black"
+1128-                                : "bg-brand-cream text-brand-beige border-brand-beige/10 hover:bg-brand-cream/80"
+1129-                            )}
+1130-                          >
+1131-                            ✓
+1132:                          </button>
+1133-                          <input
+1134-                            type="text"
+1135-                            value={opt}
+1136-                            onChange={e => {
+1137-                              const nextOpts = [...manualQuestion.options];
+--
+1153-                  )}
+1154-
+1155-                  {manualQuestion.type === "true-false" && (
+1156-                    <div className="flex gap-3">
+1157-                      {["صح", "خطأ"].map(val => (
+1158:                        <button
+1159-                          key={val}
+1160:                          type="button"
+1161-                          onClick={() => setManualQuestion({ ...manualQuestion, correctAnswer: val })}
+1162-                          className={cn(
+1163-                            "flex-1 py-3 text-xs font-black rounded-xl border-2 transition-all",
+1164-                            manualQuestion.correctAnswer === val
+1165-                              ? "bg-brand-red text-white border-brand-red shadow-lg"
+1166-                              : "bg-white text-brand-beige border-brand-beige/10 hover:border-brand-red/10"
+1167-                          )}
+1168-                        >
+1169-                          {val === "صح" ? "صح ✓" : "خطأ ✗"}
+1170:                        </button>
+1171-                      ))}
+1172-                    </div>
+1173-                  )}
+1174-
+1175-                  {manualQuestion.type === "short-answer" && (
+--
+1208-                    className="w-full px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
+1209-                    placeholder="شرح مبسط للإجابة الصحيحة للطلاب..."
+1210-                  />
+1211-                </div>
+1212-
+1213:                {/* Submit button for custom question adding */}
+1214-                <div className="pt-2 flex justify-end">
+1215:                  <motion.button
+1216:                    type="button"
+1217-                    whileHover={{ scale: 1.01 }}
+1218-                    whileTap={{ scale: 0.99 }}
+1219-                    onClick={handleAddManualQuestion}
+1220-                    className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs flex items-center gap-2 hover:bg-emerald-700 shadow-md shadow-emerald-100 transition-all"
+1221-                  >
+1222-                    <Plus className="w-4 h-4 ml-1" />
+1223-                    إضافة هذا السؤال للاختبار
+1224:                  </motion.button>
+1225-                </div>
+1226-              </div>
+1227-            </div>
+1228-          )}
+1229-        </section>
+--
+1429-        )}
+1430-
+1431-        {/* Global Save */}
+1432-        <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-2xl border-t border-brand-beige/10 p-6 z-50">
+1433-          <div className="max-w-5xl mx-auto flex flex-row-reverse gap-4">
+1434:            <button
+1435:              type="button"
+1436-              onClick={() => navigate(isAdmin ? "/admin" : "/student")}
+1437-              className="flex-1 py-4 bg-brand-cream text-brand-beige rounded-2xl font-black hover:bg-brand-beige/10 transition-all text-xs uppercase tracking-widest"
+1438-            >
+1439-              إلغاء التغييرات
+1440:            </button>
+1441:            <button
+1442-              type="submit"
+1443-              disabled={isSaving}
+1444-              className="flex-1 py-4 bg-white border border-brand-beige/20 text-brand-text rounded-2xl font-black hover:bg-brand-cream transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+1445-            >
+1446-              {isSaving ? (
+1447-                <Loader2 className="w-4 h-4 animate-spin" />
+1448-              ) : (
+1449-                <Save className="w-4 h-4" />
+1450-              )}
+1451-              حفظ كمسودة
+1452:            </button>
+1453:            <button
+1454:              type="button"
+1455-              onClick={() => handleSave(null as any, true)}
+1456-              disabled={isSaving}
+1457-              className="flex-[2] py-4 bg-brand-red text-white rounded-2xl font-black shadow-xl shadow-brand-red/10 hover:bg-red-700 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest"
+1458-            >
+1459-              {isSaving ? (
+1460-                <Loader2 className="w-4 h-4 animate-spin" />
+1461-              ) : (
+1462-                <Globe className="w-4 h-4 ml-2" />
+1463-              )}
+1464-              {isSaving ? "جاري النشر..." : "نشر الاختبار للطلاب"}
+1465:            </button>
+1466-          </div>
+1467-        </div>
+1468-      </form>
+1469-    </div>
+1470-  );
+--
+1478-  label: string;
+1479-  value: boolean;
+1480-  onChange: (v: boolean) => void;
+1481-}) {
+1482-  return (
+1483:    <button
+1484:      type="button"
+1485-      onClick={() => onChange(!value)}
+1486-      className="flex items-center justify-between p-4 bg-brand-cream/10 rounded-2xl hover:bg-brand-cream/30 transition-colors text-right w-full"
+1487-    >
+1488-      <div
+1489-        className={cn(
+--
+1497-            value ? "translate-x-0" : "translate-x-6",
+1498-          )}
+1499-        />
+1500-      </div>
+1501-      <span className="text-xs font-black text-brand-text">{label}</span>
+1502:    </button>
+1503-  );
+1504-}
+1505-
+1506-function DifficultyColumn({
+1507-  title,
+--
+1531-            color,
+1532-          )}
+1533-        >
+1534-          {title}
+1535-        </span>
+1536:        <button
+1537:          type="button"
+1538-          onClick={onAdd}
+1539-          className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-brand-beige hover:text-white"
+1540-        >
+1541-          <Plus className="w-4 h-4" />
+1542:        </button>
+1543-      </div>
+1544-      <div className="space-y-4">
+1545-        {questions.length === 0 ? (
+1546-          <p className="text-[10px] text-brand-beige/40 italic font-black uppercase tracking-widest text-center mt-8">
+1547-            مفيش أسئلة لسه
+--
+1564-                        title="مقفول من التعديل التلقائي"
+1565-                      />
+1566-                    )}
+1567-                  </div>
+1568-                  <div className="flex items-center gap-1">
+1569:                    <button
+1570:                      type="button"
+1571-                      onClick={() => onMove(i, "up")}
+1572-                      disabled={i === 0}
+1573-                      className="p-1.5 hover:bg-white/10 rounded-lg disabled:opacity-20 text-brand-beige"
+1574-                    >
+1575-                      <ArrowUp className="w-3 h-3" />
+1576:                    </button>
+1577:                    <button
+1578:                      type="button"
+1579-                      onClick={() => onMove(i, "down")}
+1580-                      disabled={i === questions.length - 1}
+1581-                      className="p-1.5 hover:bg-white/10 rounded-lg disabled:opacity-20 text-brand-beige"
+1582-                    >
+1583-                      <ArrowDown className="w-3 h-3" />
+1584:                    </button>
+1585-                  </div>
+1586-                </div>
+1587-                <p className="text-xs font-bold leading-relaxed line-clamp-3 text-brand-cream">
+1588-                  {q.text}
+1589-                </p>
+1590-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all flex-row-reverse">
+1591-                  <div className="flex flex-row-reverse gap-2">
+1592:                    <button
+1593:                      type="button"
+1594-                      onClick={() => onEdit(q)}
+1595-                      className="py-1 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-black uppercase tracking-widest text-white transition-all text-right"
+1596-                    >
+1597-                      تعديل
+1598:                    </button>
+1599-                    {!q.isReviewed && (
+1600:                      <button
+1601:                        type="button"
+1602-                        onClick={(e) => { e.stopPropagation(); onReview(q); }}
+1603-                         className="py-1 px-3 bg-brand-red hover:bg-red-700 rounded-lg text-[9px] font-black uppercase tracking-widest text-white transition-all text-right shadow-sm shadow-brand-red/20"
+1604-                      >
+1605-                        اعتماد
+1606:                      </button>
+1607-                    )}
+1608-                  </div>
+1609-                  {!q.isReviewed && (
+1610-                    <span className="flex items-center gap-1 text-[8px] font-black uppercase text-brand-red animate-pulse">
+1611-                      <AlertCircle className="w-3 h-3" />

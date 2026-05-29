@@ -1,0 +1,388 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AssessmentCreator from './pages/admin/AssessmentCreator';
+import ResultsDashboard from './pages/admin/ResultsDashboard';
+import AdminLeaderboard from './pages/admin/Leaderboard';
+import StudentLeaderboard from './pages/student/Leaderboard';
+import UserManager from './pages/admin/UserManager';
+import LoginLogs from './pages/admin/LoginLogs';
+import StudentDetail from './pages/admin/StudentDetail';
+import PublicAssessment from './pages/public/PublicAssessment';
+import Home from './pages/public/Home';
+import UnifiedLogin from './pages/public/UnifiedLogin';
+import Register from './pages/public/Register';
+import StudentDashboard from './pages/student/StudentDashboard';
+import AvailableAssessments from './pages/student/AvailableAssessments';
+import StudentAchievements from './pages/student/Achievements';
+import StudentAnalytics from './pages/student/StudentAnalytics';
+import PostExamReview from './pages/student/PostExamReview';
+import Store from './pages/student/Store';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import StoreManager from './pages/admin/StoreManager';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminAttendance from './pages/admin/AdminAttendance';
+import QuestionBank from './pages/admin/QuestionBank';
+import Announcements from './pages/admin/Announcements';
+import PreparationMeetings from './pages/admin/PreparationMeetings';
+import { useAuth } from './hooks/useAuth';
+import NetworkStatus from './components/ui/NetworkStatus';
+import { AntiCheatGuard } from './components/AntiCheatGuard';
+import { AutoRefreshHandler } from './components/AutoRefreshHandler';
+import { StudentLayout } from './components/StudentLayout';
+import { AdminLayout } from './components/AdminLayout';
+import { useTranslation } from 'react-i18next';
+import { useSoundEffects } from './hooks/useSoundEffects';
+
+function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
+  const { isAuthenticated, isLoading, isAdmin, isStudent, user } = useAuth();
+  const { t } = useTranslation();
+
+  if (isLoading) return <div className="flex items-center justify-center min-h-screen font-black text-brand-beige">{t('common.loading')}</div>;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  const userRole = (user?.role || '').toLowerCase();
+  const isExamCreator = user?.isExamCreator === true || userRole === 'creator';
+  const isAttendanceScanner = user?.isAttendanceScanner === true || userRole === 'attendance';
+  const isStoreManager = user?.isStoreManager === true || userRole === 'store';
+  const isServant = isExamCreator || isAttendanceScanner || isStoreManager || userRole === 'servant';
+
+  if (role === 'admin' && !isAdmin) return <Navigate to="/" />;
+  if (role === 'student' && !isStudent) return <Navigate to="/" />;
+  if (role === 'creator' && !isAdmin && !isExamCreator) return <Navigate to="/" />;
+  if (role === 'attendance' && !isAdmin && !isAttendanceScanner) return <Navigate to="/" />;
+  if (role === 'store' && !isAdmin && !isStoreManager) return <Navigate to="/" />;
+  if (role === 'servant' && !isAdmin && !isServant) return <Navigate to="/" />;
+
+  if (role === 'student') {
+    return <StudentLayout>{children}</StudentLayout>;
+  }
+
+  if (role === 'admin' || role === 'creator' || role === 'attendance' || role === 'store' || role === 'servant') {
+    return <AdminLayout>{children}</AdminLayout>;
+  }
+
+  return <>{children}</>;
+}
+
+const pageTransition = {
+  initial: { opacity: 0, y: 15, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -15, scale: 0.98 },
+  transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+};
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  const { user } = useAuth();
+  const [quotaExceeded, setQuotaExceeded] = React.useState(false);
+  useSoundEffects(); // Attach global sounds inside router context so it works everywhere
+
+  React.useEffect(() => {
+    const handleQuota = () => {
+      setQuotaExceeded(true);
+    };
+    window.addEventListener('firestore-quota-exceeded', handleQuota);
+    
+    const handleError = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      if (reason && typeof reason === 'object') {
+        const msg = String((reason as any).message || '');
+        const code = String((reason as any).code || '');
+        if (
+          code === 'resource-exhausted' || 
+          msg.includes('quota') || 
+          msg.includes('Quota limit exceeded') ||
+          msg.includes('resource-exhausted')
+        ) {
+          setQuotaExceeded(true);
+        }
+      }
+    };
+    window.addEventListener('unhandledrejection', handleError);
+    
+    return () => {
+      window.removeEventListener('firestore-quota-exceeded', handleQuota);
+      window.removeEventListener('unhandledrejection', handleError);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    // Only admins should trigger the check and generation of weekly reminders to save Firestore quota
+    if (user?.role !== 'admin') return;
+
+    // Run weekly meeting reminder checks
+    import('./lib/notificationService').then(({ notificationService }) => {
+      notificationService.checkAndInjectWeeklyReminders().catch(console.error);
+    }).catch(console.error);
+  }, [user?.role]);
+
+  React.useEffect(() => {
+    if (!user) return;
+    const userRole = (user?.role || '').toLowerCase();
+    const isServantOrAdmin = ['admin', 'creator', 'attendance', 'store', 'servant'].includes(userRole) || 
+                             user?.isExamCreator || 
+                             user?.isAttendanceScanner || 
+                             user?.isStoreManager || 
+                             user?.isMeetingScheduler || 
+                             user?.code?.toUpperCase().startsWith('S');
+
+    if (!isServantOrAdmin) return;
+
+    // Run custom preparation meetings 12h check
+    import('./lib/notificationService').then(({ notificationService }) => {
+      notificationService.checkAndInjectPrepMeetingReminders().catch(console.error);
+    }).catch(console.error);
+  }, [user]);
+
+  React.useEffect(() => {
+    if (!user) return;
+
+    // Run custom fixed meetings 12-hour checks & favorite lecture alerts
+    import('./lib/notificationService').then(({ notificationService }) => {
+      notificationService.checkAndInjectFixedMeetings12hReminders().catch(console.error);
+      if (user?.uid) {
+        notificationService.checkAndInjectFavorites12hReminders(user.uid).catch(console.error);
+      }
+    }).catch(console.error);
+  }, [user]);
+
+  React.useEffect(() => {
+    // Play a gentle swish sound on every route change (after First Interaction)
+    import('./lib/audio').then(module => {
+      module.playTransitionSound();
+    }).catch(console.error);
+  }, [location.pathname]);
+
+  // Online / Offline Heartbeat
+  React.useEffect(() => {
+    if (!user || !user.uid || user.uid === "admin-fixed-id") return;
+    
+    const updateActiveStatus = async () => {
+      try {
+        const now = Date.now();
+        const cacheKey = `last_active_write_${user.uid}`;
+        const sessKey = `last_active_write_sess_${user.uid}`;
+        
+        // Check session storage first (survives tab reloads but guaranteed to avoid duplicate writes in same tab session)
+        if (sessionStorage.getItem(sessKey)) {
+          return;
+        }
+
+        const lastWrite = localStorage.getItem(cacheKey);
+        if (lastWrite) {
+          const diff = now - parseInt(lastWrite, 10);
+          if (diff < 10800000) { // 3-hour cache/cooldown in milliseconds to extremely save write quotas
+            sessionStorage.setItem(sessKey, "true");
+            return;
+          }
+        }
+
+        const { doc, updateDoc } = await import('firebase/firestore');
+        const { db } = await import('./lib/firebase');
+        await updateDoc(doc(db, 'users', user.uid), {
+          lastActive: new Date().toISOString()
+        });
+
+        localStorage.setItem(cacheKey, now.toString());
+        sessionStorage.setItem(sessKey, "true");
+      } catch (err: any) {
+        console.warn("Heartbeat update failed:", err);
+        if (err?.code === 'resource-exhausted' || String(err?.message || '').includes('quota')) {
+          setQuotaExceeded(true);
+        }
+      }
+    };
+
+    // Update once on mount/auth change
+    updateActiveStatus();
+
+    // Removed pulse heartbeat interval to save Cloud Firestore quota
+  }, [user?.uid]);
+
+  return (
+    <>
+      {quotaExceeded && (
+        <div className="bg-amber-600 text-white font-black text-center py-3 px-6 shadow-xl text-sm relative z-[999999] flex items-center justify-center gap-2 animate-pulse" dir="rtl">
+          <span>⚠️ تنبيه هام: تم تجاوز حصة الاستخدام اليومية المجانية لقاعدة البيانات (Quota Exceeded). بعض العمليات قد لا تعمل بشكل صحيح الآن حتى يتم إعادة التصفير تلقائياً من جوجل.</span>
+          <button 
+            onClick={() => setQuotaExceeded(false)} 
+            className="bg-white/20 hover:bg-white/30 text-white rounded-full px-3 py-1 text-xs transition-colors cursor-pointer mr-3"
+          >
+            تجاهل
+          </button>
+        </div>
+      )}
+      <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* Public Routes */}
+        <Route path="/" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Home /></motion.div>} />
+        <Route path="/login" element={<motion.div {...pageTransition} className="w-full min-h-screen"><UnifiedLogin /></motion.div>} />
+        <Route path="/register" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Register /></motion.div>} />
+        <Route path="/assessment/:id" element={<motion.div {...pageTransition} className="w-full min-h-screen"><PublicAssessment /></motion.div>} />
+        {/* Compatibility link */}
+        <Route path="/a/:id" element={<Navigate to={(params) => `/assessment/${params.id}`} replace />} />
+        
+        {/* Student Routes */}
+        <Route path="/student" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentDashboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/assessments" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AvailableAssessments /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/leaderboard" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentLeaderboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/achievements" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentAchievements /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/analytics" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentAnalytics /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/review/:submissionId" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><PostExamReview /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/store" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><Store /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/meetings" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><PreparationMeetings /></motion.div>
+          </ProtectedRoute>
+        } />
+
+
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<Navigate to="/login" replace />} />
+        
+        <Route path="/admin" element={
+          <ProtectedRoute role="servant">
+            {user?.role?.toLowerCase() === 'admin' ? (
+              <motion.div {...pageTransition} className="w-full min-h-screen"><AdminDashboard /></motion.div>
+            ) : (user?.isExamCreator || user?.role?.toLowerCase() === 'creator') ? (
+              <Navigate to="/admin/create" replace />
+            ) : (user?.isStoreManager || user?.role?.toLowerCase() === 'store') ? (
+              <Navigate to="/admin/store" replace />
+            ) : (
+              <Navigate to="/admin/attendance" replace />
+            )}
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/assessments" element={
+          <ProtectedRoute role="creator">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AdminDashboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/create" element={
+          <ProtectedRoute role="creator">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AssessmentCreator /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/edit/:id" element={
+          <ProtectedRoute role="creator">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AssessmentCreator /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/results" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><ResultsDashboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/leaderboard" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AdminLeaderboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/settings" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AdminSettings /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/users" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><UserManager /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/students/:studentId" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentDetail /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/logs" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><LoginLogs /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/analytics" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AdminAnalytics /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/store" element={
+          <ProtectedRoute role="store">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StoreManager /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/attendance" element={
+          <ProtectedRoute role="attendance">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AdminAttendance /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/question-bank" element={
+          <ProtectedRoute role="creator">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><QuestionBank /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/announcements" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><Announcements /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/meetings" element={
+          <ProtectedRoute role="servant">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><PreparationMeetings /></motion.div>
+          </ProtectedRoute>
+        } />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </AnimatePresence>
+    </>
+  );
+}
+
+export default function App() {
+  const { i18n } = useTranslation();
+  const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+
+  return (
+    <div className="relative min-h-screen" dir={dir}>
+      <NetworkStatus />
+      <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[9999] bg-textured" />
+      <BrowserRouter>
+        <AntiCheatGuard />
+        <AutoRefreshHandler />
+        <AnimatedRoutes />
+      </BrowserRouter>
+    </div>
+  );
+}
+

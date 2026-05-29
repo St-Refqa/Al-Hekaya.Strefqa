@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Helpers
+    // Helper to check if a user is the custom admin defined in the app
+    function isCustomAdmin(userId) {
+      return userId == 'admin-fixed-id';
+    }
+    
+    // Check if the current request is from a legitimate student (by presence in users collection)
+    // Note: Since we use custom auth, request.auth might be null.
+    // For admin operations, we'll rely on a manual check or specific ID.
+    
+    function isAdmin(userId) { 
+       // This is a bit tricky with custom auth. We'll allow specific IDs or check roles if possible.
+       // However, for this architecture, we usually pass the admin ID from the client.
+       // For security, we'll check the document data directly if we have an ID.
+       return userId == 'admin-fixed-id' || (get(/databases/$(database)/documents/users/$(userId)).data.role == 'admin');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // 3. Resource Match Blocks
+
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    match /assessments/{assessmentId} {
+      allow read, write: if true;
+    }
+
+    match /submissions/{submissionId} {
+      allow read, write: if true;
+    }
+
+    match /notifications/{notifId} {
+      allow read, write: if true;
+    }
+
+    match /loginLogs/{logId} {
+      allow read, write: if true;
+    }
+
+    match /participants/{participantId} {
+      allow read, write: if true;
+    }
+
+    match /storeItems/{itemId} {
+      allow read, write: if true;
+    }
+
+    match /purchases/{purchaseId} {
+      allow read, write: if true;
+    }
+
+    match /seasons/{seasonId} {
+      allow read, write: if true;
+    }
+
+    match /attendance/{attendanceId} {
+      allow read, write: if true;
+    }
+
+    match /lectures/{lectureId} {
+      allow read, write: if true;
+    }
+
+    match /preparationMeetings/{meetingId} {
+      allow read, write: if true;
+    }
+
+    match /pointLogs/{logId} {
+      allow read, write: if true;
+    }
+    
+    // Alias for purchases if needed
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    match /favorites/{favoriteId} {
+      allow read, write: if true;
+    }
+  }
+}
