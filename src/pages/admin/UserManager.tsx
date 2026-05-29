@@ -57,7 +57,7 @@ export default function UserManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<"OT" | "NT" | "servants">("OT");
-  const [rolePermissionFilter, setRolePermissionFilter] = useState<"all" | "examCreator" | "attendanceScanner" | "storeManager" | "meetingScheduler">("all");
+  const [rolePermissionFilter, setRolePermissionFilter] = useState<"all" | "examCreator" | "attendanceScanner" | "storeManager" | "meetingScheduler" | "libraryManager">("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -370,6 +370,23 @@ export default function UserManager() {
     }
   };
 
+  const handleToggleLibraryManager = async (targetUser: User) => {
+    try {
+      const userRef = doc(db, "users", targetUser.uid);
+      const newStatus = !targetUser.isLibraryManager;
+      await updateDoc(userRef, { isLibraryManager: newStatus });
+      setNotification({
+        type: "success",
+        text: newStatus 
+          ? `تم تعيين (${targetUser.fullName}) كمسئول للمكتبة` 
+          : `تم إلغاء تعيين (${targetUser.fullName}) من مسئولية المكتبة`
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (err: any) {
+      handleFirestoreError(err, OperationType.UPDATE, `users/${targetUser.uid}`);
+    }
+  };
+
   const handleToggleMeetingScheduler = async (targetUser: User) => {
     try {
       const userRef = doc(db, "users", targetUser.uid);
@@ -518,7 +535,8 @@ export default function UserManager() {
           (rolePermissionFilter === 'examCreator' && u.isExamCreator) ||
           (rolePermissionFilter === 'attendanceScanner' && u.isAttendanceScanner) ||
           (rolePermissionFilter === 'storeManager' && u.isStoreManager) ||
-          (rolePermissionFilter === 'meetingScheduler' && u.isMeetingScheduler);
+          (rolePermissionFilter === 'meetingScheduler' && u.isMeetingScheduler) ||
+          (rolePermissionFilter === 'libraryManager' && u.isLibraryManager);
 
         return permissionMatch;
       }
@@ -720,7 +738,8 @@ export default function UserManager() {
                 { id: 'examCreator', label: 'الاختبارات 📝' },
                 { id: 'attendanceScanner', label: 'الحضور 📅' },
                 { id: 'storeManager', label: 'المتجر 🪙' },
-                { id: 'meetingScheduler', label: 'المواعيد ⏰' }
+                { id: 'meetingScheduler', label: 'المواعيد ⏰' },
+                { id: 'libraryManager', label: 'المكتبة 📚' }
               ].map((item) => (
                 <button
                   key={item.id}
@@ -814,7 +833,7 @@ export default function UserManager() {
                         </div>
 
                         {/* Special Role indicators if set */}
-                        {(user.isExamCreator || user.isAttendanceScanner || user.isStoreManager) && (
+                        {(user.isExamCreator || user.isAttendanceScanner || user.isStoreManager || user.isLibraryManager) && (
                           <div className="flex flex-wrap justify-end gap-1 mt-2 border-t border-dashed border-brand-cream/50 pt-1.5">
                             {user.isExamCreator && (
                               <span className="px-1.5 py-0.5 bg-amber-500 text-white rounded-full text-[7.5px] md:text-[8px] font-black uppercase tracking-wide flex items-center gap-0.5">
@@ -832,6 +851,12 @@ export default function UserManager() {
                               <span className="px-1.5 py-0.5 bg-blue-500 text-white rounded-full text-[7.5px] md:text-[8px] font-black uppercase tracking-wide flex items-center gap-0.5">
                                 <ShoppingBag className="w-2 h-2" />
                                 مدير المتجر
+                              </span>
+                            )}
+                            {user.isLibraryManager && (
+                              <span className="px-1.5 py-0.5 bg-purple-500 text-white rounded-full text-[7.5px] md:text-[8px] font-black uppercase tracking-wide flex items-center gap-0.5">
+                                <BookOpen className="w-2 h-2" />
+                                مسئول مكتبة
                               </span>
                             )}
                           </div>
@@ -942,6 +967,19 @@ export default function UserManager() {
                             >
                               <Calendar className={cn("w-3.5 h-3.5 md:w-4 md:h-4", user.isMeetingScheduler ? "animate-pulse" : "")} />
                             </button>
+
+                            <button
+                              onClick={() => handleToggleLibraryManager(user)}
+                              className={cn(
+                                "w-8 h-8 rounded-lg flex items-center justify-center transition-all border shrink-0",
+                                user.isLibraryManager
+                                  ? "bg-fuchsia-500 text-white border-fuchsia-600 hover:bg-fuchsia-600"
+                                  : "bg-white text-fuchsia-600 border-brand-beige/20 shadow-sm hover:bg-fuchsia-50 hover:border-fuchsia-100"
+                              )}
+                              title={user.isLibraryManager ? 'إلغاء تعيين كمسؤول مكتبة' : 'تعيين كمسؤول مكتبة'}
+                            >
+                              <BookOpen className={cn("w-3.5 h-3.5 md:w-4 md:h-4", user.isLibraryManager ? "animate-pulse" : "")} />
+                            </button>
                           </div>
                         )}
                         
@@ -951,7 +989,7 @@ export default function UserManager() {
                             const upperCode = user.code?.toUpperCase() || "";
                             const group = upperCode.startsWith('H') ? "OT" : upperCode.startsWith('N') ? "NT" : upperCode.startsWith('S') ? "K" : "";
                             setEditingUser(user);
-                            setUserName(user.fullName);
+                            setUserName(user.fullName || "");
                             setUserWhatsApp(user.whatsappNumber || "");
                             setUserCode(user.code || "");
                             setUserPass(user.password || "");
@@ -1159,7 +1197,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.table_name')}</label>
                     <input
                       type="text"
-                      value={userName}
+                      value={userName || ""}
                       onChange={(e) => setUserName(e.target.value)}
                       required
                       className="w-full bg-brand-cream rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none border-2 border-transparent focus:border-brand-red/10 font-bold text-sm md:text-base"
@@ -1170,7 +1208,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.label_church')}</label>
                     <input
                       type="text"
-                      value={userChurch}
+                      value={userChurch || ""}
                       onChange={(e) => setUserChurch(e.target.value)}
                       required
                       placeholder={t('userManager.placeholder_church')}
@@ -1182,7 +1220,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.label_birth_date')}</label>
                     <input
                       type="date"
-                      value={userBirthDate}
+                      value={userBirthDate || ""}
                       onChange={(e) => setUserBirthDate(e.target.value)}
                       required
                       className="w-full bg-brand-cream rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none border-2 border-transparent focus:border-brand-red/10 font-bold text-sm md:text-base"
@@ -1193,7 +1231,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.table_whatsapp')}</label>
                     <input
                       type="text"
-                      value={userWhatsApp}
+                      value={userWhatsApp || ""}
                       onChange={(e) => setUserWhatsApp(e.target.value)}
                       required
                       className="w-full bg-brand-cream rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none border-2 border-transparent focus:border-brand-red/10 font-bold text-sm md:text-base"
@@ -1240,7 +1278,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.table_code')}</label>
                     <input
                       type="text"
-                      value={userCode}
+                      value={userCode || ""}
                       onChange={(e) => setUserCode(e.target.value)}
                       required
                       className="w-full bg-brand-cream rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none border-2 border-transparent focus:border-brand-red/10 font-bold uppercase text-sm md:text-base"
@@ -1251,7 +1289,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.label_address')}</label>
                     <input
                       type="text"
-                      value={userAddress}
+                      value={userAddress || ""}
                       onChange={(e) => setUserAddress(e.target.value)}
                       required
                       className="w-full bg-brand-cream rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none border-2 border-transparent focus:border-brand-red/10 font-bold text-sm md:text-base"
@@ -1262,7 +1300,7 @@ export default function UserManager() {
                     <label className={cn("text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest", i18n.language === 'ar' ? 'mr-1' : 'ml-1')}>{t('userManager.table_password')}</label>
                     <input
                       type="text"
-                      value={userPass}
+                      value={userPass || ""}
                       onChange={(e) => setUserPass(e.target.value)}
                       required
                       className="w-full bg-brand-cream rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 outline-none border-2 border-transparent focus:border-brand-red/10 font-bold text-sm md:text-base"

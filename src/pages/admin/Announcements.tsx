@@ -90,8 +90,8 @@ export default function Announcements() {
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
         <h2 className="text-xl font-bold mb-4 text-brand-text">نشر إشعار جديد للطلاب</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          <input className="w-full p-4 border border-gray-200 rounded-xl" placeholder="عنوان الإشعار..." value={title} onChange={e => setTitle(e.target.value)} />
-          <select className="w-full p-4 border border-gray-200 rounded-xl" value={type} onChange={e => setType(e.target.value)}>
+          <input className="w-full p-4 border border-gray-200 rounded-xl" placeholder="عنوان الإشعار..." value={title || ''} onChange={e => setTitle(e.target.value)} />
+          <select className="w-full p-4 border border-gray-200 rounded-xl" value={type || 'info'} onChange={e => setType(e.target.value)}>
             <option value="info">معلومة عامة (أزرق)</option>
             <option value="success">نجاح / إنجاز (أخضر)</option>
             <option value="warning">تنبيه هام (أحمر)</option>
@@ -135,7 +135,7 @@ export default function Announcements() {
                 type="text"
                 placeholder="اكتب الاسم أو الكود للبحث..."
                 className="w-full p-3 pr-10 border border-gray-200 rounded-xl bg-white text-sm"
-                value={userSearchText}
+                value={userSearchText || ''}
                 onChange={e => setUserSearchText(e.target.value)}
               />
               <Search className="w-4 h-4 text-brand-beige absolute right-3.5 top-3.5" />
@@ -169,7 +169,7 @@ export default function Announcements() {
           </div>
         )}
 
-        <textarea className="w-full p-4 border border-gray-200 rounded-xl h-32" placeholder="محتوى الإشعار..." value={message} onChange={e => setMessage(e.target.value)} />
+        <textarea className="w-full p-4 border border-gray-200 rounded-xl h-32" placeholder="محتوى الإشعار..." value={message || ''} onChange={e => setMessage(e.target.value)} />
         <button onClick={handleCreate} className="px-6 py-3 bg-brand-red text-white font-bold rounded-xl flex gap-2 items-center">
           <Plus className="w-5 h-5"/> نشر الإشعار
         </button>

@@ -1138,7 +1138,7 @@ export default function PreparationMeetings() {
                       required
                       placeholder="مثال: تحضير نهضة العذراء مريم وتنسيق الكوادر..."
                       className="w-full p-4 border border-brand-cream bg-brand-cream/20 text-brand-text text-sm rounded-xl focus:border-brand-red outline-none transition-colors"
-                      value={title}
+                      value={title || ''}
                       onChange={(e) => setTitle(e.target.value)}
                     />
                   </div>
@@ -1150,7 +1150,7 @@ export default function PreparationMeetings() {
                       type="datetime-local"
                       required
                       className="w-full p-4 border border-brand-cream bg-brand-cream/20 text-brand-text text-sm rounded-xl focus:border-brand-red outline-none transition-colors"
-                      value={dateTime}
+                      value={dateTime || ''}
                       onChange={(e) => setDateTime(e.target.value)}
                     />
                     <p className="text-[10px] text-brand-beige/80 leading-relaxed font-semibold">
@@ -1166,7 +1166,7 @@ export default function PreparationMeetings() {
                       rows={5}
                       placeholder="اكتب الأجندة بالتفصيل وموضوعات النقاش للخدام لتحضيرها مسبقاً..."
                       className="w-full p-4 border border-brand-cream bg-brand-cream/20 text-brand-text text-sm rounded-xl focus:border-brand-red outline-none transition-colors"
-                      value={description}
+                      value={description || ''}
                       onChange={(e) => setDescription(e.target.value)}
                     />
                   </div>

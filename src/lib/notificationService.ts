@@ -298,7 +298,7 @@ ${meeting.description}
   async sendWhatsAppReminders(phones: string[], message: string) {
     if (phones.length === 0) return;
     try {
-      const response = await fetch("/api/whatsapp/send-bulk", {
+      const response = await fetch("/api/system/dispatch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

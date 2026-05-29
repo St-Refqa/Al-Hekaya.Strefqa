@@ -726,7 +726,7 @@ export default function AssessmentCreator() {
                 اسم الاختبار
               </label>
               <input
-                value={formData.title}
+                value={formData.title || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
@@ -741,7 +741,7 @@ export default function AssessmentCreator() {
                 اللغة الأساسية
               </label>
               <select
-                value={formData.language}
+                value={formData.language || "Arabic"}
                 onChange={(e) =>
                   setFormData({ ...formData, language: e.target.value })
                 }
@@ -926,7 +926,7 @@ export default function AssessmentCreator() {
           </div>
 
           <textarea
-            value={formData.text}
+            value={formData.text || ""}
             onChange={(e) => setFormData({ ...formData, text: e.target.value })}
             className="w-full h-80 px-8 py-8 bg-brand-cream/20 border border-brand-beige/10 rounded-3xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-xl leading-relaxed transition-all resize-none text-right placeholder:text-brand-beige/30"
             placeholder={formData.assessmentType === 'questions-only' ? "اختياري: يمكنك وضع آيات مرجعية أو إرشادات حل إضافية للطلاب هنا..." : "مطلوب: اكتب أو انسخ النص الذي تريد بناء مسابقة حل الأسئلة عليه هنا..."}
@@ -1018,7 +1018,7 @@ export default function AssessmentCreator() {
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        value={manualQuestion.category}
+                        value={manualQuestion.category || ''}
                         onChange={e => setManualQuestion({ ...manualQuestion, category: e.target.value })}
                         className="flex-1 px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
                         placeholder="مثال: عهد جديد، عهد قديم، طقوس..."
@@ -1048,7 +1048,7 @@ export default function AssessmentCreator() {
                     <div className="relative">
                       <input
                         type="text"
-                        value={manualQuestion.reference}
+                        value={manualQuestion.reference || ''}
                         onChange={e => setManualQuestion({ ...manualQuestion, reference: e.target.value })}
                         className="w-full px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
                         placeholder="مثال: لوقا ٢: ١-١٤، خروج ٢٠"
@@ -1101,7 +1101,7 @@ export default function AssessmentCreator() {
                 <div className="space-y-2">
                   <label className="block text-[11px] font-black uppercase tracking-widest text-brand-beige">صيغة ونص السؤال</label>
                   <textarea
-                    value={manualQuestion.text}
+                    value={manualQuestion.text || ''}
                     onChange={e => setManualQuestion({ ...manualQuestion, text: e.target.value })}
                     className="w-full px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs leading-relaxed"
                     placeholder="اكتب هنا صيغة السؤال الموجه للطلبة..."
@@ -1179,7 +1179,7 @@ export default function AssessmentCreator() {
                       <div className="space-y-1">
                         <label className="block text-[10px] font-black text-[#8c7a6b]">الإجابة النموذجية الصحيحة</label>
                         <textarea
-                          value={manualQuestion.modelAnswer}
+                          value={manualQuestion.modelAnswer || ''}
                           onChange={e => setManualQuestion({ ...manualQuestion, modelAnswer: e.target.value, correctAnswer: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-brand-beige/10 rounded-xl outline-none font-bold text-brand-text text-right text-xs leading-relaxed"
                           placeholder="اكتب الإجابة الكاملة..."
@@ -1190,7 +1190,7 @@ export default function AssessmentCreator() {
                         <label className="block text-[10px] font-black text-[#8c7a6b]">محددات التصحيح أو الكلمات الدلالية الهامة (اختياري)</label>
                         <input
                           type="text"
-                          value={manualQuestion.aiRubric}
+                          value={manualQuestion.aiRubric || ''}
                           onChange={e => setManualQuestion({ ...manualQuestion, aiRubric: e.target.value })}
                           className="w-full px-3 py-2 bg-white border border-brand-beige/10 rounded-xl outline-none font-bold text-brand-text text-right text-xs"
                           placeholder="مثال: يذكر العشور، اسم الملك، إلخ..."
@@ -1205,7 +1205,7 @@ export default function AssessmentCreator() {
                   <label className="block text-[11px] font-black uppercase tracking-widest text-[#8c7a6b]">توضيح وتفسير الإجابة (تظهر بعد انتهاء الاختبار)</label>
                   <input
                     type="text"
-                    value={manualQuestion.explanation}
+                    value={manualQuestion.explanation || ''}
                     onChange={e => setManualQuestion({ ...manualQuestion, explanation: e.target.value })}
                     className="w-full px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
                     placeholder="شرح مبسط للإجابة الصحيحة للطلاب..."
@@ -1252,7 +1252,7 @@ export default function AssessmentCreator() {
                     type="range"
                     min="1"
                     max="30"
-                    value={formData.readingDuration}
+                    value={formData.readingDuration || 5}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -1274,7 +1274,7 @@ export default function AssessmentCreator() {
                   type="range"
                   min="1"
                   max="30"
-                  value={formData.answerDuration}
+                  value={formData.answerDuration || 5}
                   onChange={(e) =>
                     setFormData({
                       ...formData,

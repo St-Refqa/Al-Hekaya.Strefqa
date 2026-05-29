@@ -5,7 +5,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_un
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const db = {};
+export const db: any = {};
 export const auth = { currentUser: null };
 export const adminAuth = auth;
 

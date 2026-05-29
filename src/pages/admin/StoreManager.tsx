@@ -158,10 +158,10 @@ export default function StoreManager() {
     setFormData({
       title: item.title,
       description: item.description,
-      price: item.price,
+      price: item.price || 0,
       images: item.images && item.images.length > 0 ? item.images : [""],
-      category: item.category,
-      stock: item.stock
+      category: item.category || 'gift',
+      stock: item.stock || 0
     });
     setIsEditing(item.id!);
     setIsAdding(true);
@@ -267,7 +267,7 @@ export default function StoreManager() {
                     <input
                       type="text"
                       required
-                      value={formData.title}
+                      value={formData.title || ""}
                       onChange={e => setFormData({ ...formData, title: e.target.value })}
                       className="w-full bg-brand-cream rounded-[24px] px-8 py-5 outline-none border-2 border-transparent focus:border-brand-red/20 transition-all font-bold text-brand-text"
                       placeholder="مثال: كتاب حكايات من الميدان"
@@ -277,7 +277,7 @@ export default function StoreManager() {
                   <div className="space-y-2">
                     <label className="text-xs font-black text-brand-text uppercase tracking-widest block pr-4">الوصف</label>
                     <textarea
-                      value={formData.description}
+                      value={formData.description || ""}
                       onChange={e => setFormData({ ...formData, description: e.target.value })}
                       className="w-full bg-brand-cream rounded-[24px] px-8 py-5 outline-none border-2 border-transparent focus:border-brand-red/20 transition-all font-bold text-brand-text h-32"
                       placeholder="اوصف المنتج في سطرين تلاتة..."

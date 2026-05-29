@@ -419,7 +419,7 @@ export default function StudentDashboard() {
     submissions.forEach(sub => {
       logs.push({
         id: sub.id,
-        amount: sub.finalScore || sub.score || sub.baseScore || 0,
+        amount: sub.finalScore || sub.baseScore || 0,
         reason: "أداء امتحان " + sub.assessmentTitle,
         type: "add",
         createdAt: sub.date,
@@ -786,7 +786,7 @@ export default function StudentDashboard() {
                     >
                       {stat.value}
                     </motion.p>
-                    {stat.value > 0 && (
+                    {Number(stat.value) > 0 && (
                       <motion.div
                         initial={{ opacity: 0, y: 0 }}
                         animate={{ opacity: [0, 1, 0], y: [-8, -20, -28] }}
@@ -1660,7 +1660,7 @@ function InfoItem({
             (e.currentTarget as HTMLElement).style.color = "";
           }}
         >
-          {React.cloneElement(icon, { className: "w-3.5 h-3.5" })}
+          {React.cloneElement(icon as React.ReactElement, { className: "w-3.5 h-3.5" })}
         </div>
         <span className="text-[8px] font-black text-brand-beige uppercase tracking-widest">
           {label}

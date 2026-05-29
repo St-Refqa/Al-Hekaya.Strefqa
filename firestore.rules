@@ -80,6 +80,14 @@ service cloud.firestore {
       allow read, write: if true;
     }
     
+    match /library/{libraryId} {
+      allow read, write: if true;
+    }
+
+    match /questionBank/{questionId} {
+      allow read, write: if true;
+    }
+
     // Alias for purchases if needed
     match /orders/{orderId} {
       allow read, write: if true;

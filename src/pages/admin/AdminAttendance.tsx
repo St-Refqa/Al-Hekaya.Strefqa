@@ -29,6 +29,7 @@ import {
   XCircle, 
   Search, 
   Download, 
+  Printer,
   Info,
   CalendarDays,
   Award,
@@ -229,10 +230,10 @@ export default function AdminAttendance() {
       const activeObj = list.find(l => l.isActive);
       if (activeObj) {
         setActiveLecture(activeObj);
-        setMeetingType(activeObj.meetingType);
+        setMeetingType(activeObj.meetingType || "general");
       } else if (list.length > 0) {
         setActiveLecture(list[0]);
-        setMeetingType(list[0].meetingType);
+        setMeetingType(list[0].meetingType || "general");
       } else {
         // Create a default lecture first
         const defaultId = `lecture_${Date.now()}`;
@@ -929,6 +930,72 @@ export default function AdminAttendance() {
     }
   };
 
+  const handlePrintTodayPDF = () => {
+    if (todaysMeetingLogs.length === 0) return;
+
+    const tableBody = todaysMeetingLogs.map((log, idx) => `
+      <tr>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${idx + 1}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${log.studentName}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-family: monospace;">${log.studentCode}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.scanTime || '--:--'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.studentCode?.toUpperCase().startsWith('S') ? 'خادم' : (log.studentCode?.toUpperCase().startsWith('N') ? 'عهد جديد' : (log.studentCode?.toUpperCase().startsWith('H') ? 'عهد قديم' : 'طالب'))}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.points}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <html dir="rtl">
+        <head>
+          <title>تقرير حضور اليوم - ${todayDateStr}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+            th { background-color: #fce7f3; padding: 10px; border: 1px solid #ddd; font-weight: bold; text-align: center; }
+            h1 { text-align: center; color: #b91c1c; font-size: 24px; margin-bottom: 5px; }
+            .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
+            .summary { background: #f9fafb; padding: 15px; border-radius: 8px; margin-top: 20px; display: flex; justify-content: space-around; font-weight: bold; font-size: 16px; border: 1px solid #eee; }
+            .summary span { color: #111827; }
+            .summary span.highlight { color: #b91c1c; }
+          </style>
+        </head>
+        <body onload="window.print(); setTimeout(()=>window.close(), 500);">
+          <h1>تقرير الحضور اليومي - الكنيسة</h1>
+          <div class="subtitle">التاريخ: ${todayDateStr} | الاجتماع: ${activeLecture ? activeLecture.name : (meetingType === 'OT' ? 'العهد القديم' : meetingType === 'NT' ? 'العهد الجديد' : 'عام')}</div>
+          
+          <div class="summary">
+            <span>إجمالي الحاضرين: <span class="highlight">${totalAttendedToday}</span></span>
+            <span>الطلاب: <span class="highlight">${studentsAttendedCount}</span></span>
+            <span>الخدام: <span class="highlight">${servantsAttendedCount}</span></span>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th width="5%">م</th>
+                <th>اسم الحاضر</th>
+                <th width="15%">الكود</th>
+                <th width="15%">وقت الحضور</th>
+                <th width="15%">الفئة</th>
+                <th width="10%">النقاط</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableBody}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }
+  };
+
   // Setup Today's variables for attendance summary
   const todayDateStr = getLocalDateStr();
   const todaysMeetingLogs = attendanceLogs
@@ -1414,6 +1481,17 @@ export default function AdminAttendance() {
                        <span>الخدام</span>
                        <span className="bg-amber-600 text-white px-2 py-0.5 rounded-md font-sans">{servantsAttendedCount}</span>
                     </div>
+                    
+                    <button
+                      onClick={handlePrintTodayPDF}
+                      disabled={todaysMeetingLogs.length === 0}
+                      className="flex-1 md:flex-none bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="طباعة التقرير بصيغة PDF"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>طباعة PDF</span>
+                    </button>
+
                     <button
                       onClick={() => {
                         if (todaysMeetingLogs.length === 0) return;

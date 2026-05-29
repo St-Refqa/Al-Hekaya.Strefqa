@@ -23,7 +23,7 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
-  app.post("/api/whatsapp/send-bulk", async (req, res) => {
+  app.post("/api/system/dispatch", async (req, res) => {
     try {
       const { recipients, message } = req.body;
       if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {

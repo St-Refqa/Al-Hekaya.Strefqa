@@ -499,7 +499,7 @@ function SettingField({ id, label, value, onChange }: { id: string, label: strin
       <input 
         id={id}
         type="text" 
-        value={value}
+        value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         className="w-full px-6 py-4 bg-brand-cream/20 border border-brand-beige/10 rounded-2xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold transition-all text-brand-text text-right text-sm"
       />

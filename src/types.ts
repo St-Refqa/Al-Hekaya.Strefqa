@@ -29,9 +29,15 @@ export interface User {
     showLatestResult?: boolean;
     showLocation?: boolean;
   };
+  notificationPrefs?: {
+    assessments?: boolean;
+    achievements?: boolean;
+    announcements?: boolean;
+  };
   isExamCreator?: boolean;
   isAttendanceScanner?: boolean;
   isStoreManager?: boolean;
+  isLibraryManager?: boolean;
 }
 
 export interface LoginLog {

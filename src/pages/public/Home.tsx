@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { 
   BookOpen, 
   Clock, 
@@ -12,6 +12,7 @@ import {
   User,
   Lock,
   Church,
+  Sparkles,
 } from "lucide-react";
 import { 
   FaFacebookF, 
@@ -69,8 +70,9 @@ export default function Home() {
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  // Auto-redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (!isLoggingIn && isAuthenticated && user) {
       const userRole = (user.role || '').toLowerCase();
       if (isAdmin || ['creator', 'attendance', 'store', 'servant', 'admin'].includes(userRole)) {
         navigate("/admin");
@@ -78,7 +80,31 @@ export default function Home() {
         navigate("/student");
       }
     }
-  }, [isAuthenticated, isAdmin, user, navigate]);
+  }, [user, isAuthenticated, isAdmin, navigate, isLoggingIn]);
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!identifier || !password) {
+      setLoginError("من فضلك ادخل البيانات كاملة");
+      return;
+    }
+
+    setLoginError("");
+    setIsLoggingIn(true);
+
+    try {
+      const result = await login(identifier, password);
+      if (!result.success) {
+        setLoginError(result.error || "بيانات الدخول غير صحيحة");
+      } else {
+        // Redirection will happen automatically via the useEffect above!
+      }
+    } catch (err) {
+      setLoginError("حدث خطأ غير متوقع");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   useEffect(() => {
     const q = query(
@@ -115,30 +141,6 @@ export default function Home() {
     return () => unsubscribe();
   }, [user]);
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!identifier || !password) {
-      setLoginError("من فضلك ادخل البيانات كاملة");
-      return;
-    }
-
-    setLoginError("");
-    setIsLoggingIn(true);
-
-    try {
-      const result = await login(identifier, password);
-      if (!result.success) {
-        setLoginError(result.error || "بيانات الدخول غير صحيحة");
-      }
-    } catch (err) {
-      setLoginError("حدث خطأ غير متوقع");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
-
-
   const socialLinks = [
     { name: "Facebook", icon: FaFacebookF, href: "https://www.facebook.com/share/1Cqc7Fuhi3/?mibextid=wwXIfr", color: "bg-[#1877F2]" },
     { name: "Instagram", icon: FaInstagram, href: "https://www.instagram.com/elhkaya0?igsh=MTQ5eGE3eHl4Mm5q&utm_source=qr", color: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]" },
@@ -146,163 +148,248 @@ export default function Home() {
     { name: "WhatsApp", icon: FaWhatsapp, href: "https://wa.me/201055082964", color: "bg-[#25D366]" },
   ];
 
+  if (isAuthenticated && user) {
+    // Show a highly visual transition while redirecting
+    return (
+      <div className="min-h-screen bg-brand-cream flex flex-col items-center justify-center relative overflow-hidden" dir="rtl">
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0 bg-brand-red/5 blur-3xl rounded-full"
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative z-10 flex flex-col items-center justify-center p-10 bg-white/50 backdrop-blur-md rounded-[48px] border border-white/50 shadow-2xl"
+        >
+          <div className="w-24 h-24 mb-6 rounded-full bg-brand-red text-white flex items-center justify-center shadow-lg animate-pulse">
+            <Sparkles className="w-12 h-12" />
+          </div>
+          <h2 className="text-3xl font-black text-brand-text mb-2">جاري دخولك للمنصة بحسابك...</h2>
+          <p className="text-brand-beige font-bold animate-pulse">يا مرحباً بك يا {user.fullName}</p>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-brand-cream relative overflow-x-hidden" dir="rtl">
-      {/* Hero / Login Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-20 px-6 lg:px-24 bg-brand-cream bg-curved-lines overflow-hidden">
-        {/* Coptic Background Ornament */}
-        <div className="absolute top-0 right-0 w-full h-full pointer-events-none opacity-[0.03] select-none scale-150 rotate-12">
-          <SmartImage src="/assets/coptic-pattern.png" alt="" className="w-full h-full object-cover" />
-        </div>
+      {/* Dynamic Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
+         <motion.div 
+           animate={{ y: [0, -30, 0], opacity: [0.2, 0.6, 0.2], scale: [1, 1.1, 1] }}
+           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+           className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-brand-red rounded-full blur-[120px]"
+         />
+         <motion.div 
+           animate={{ x: [0, 40, 0], opacity: [0.1, 0.3, 0.1], scale: [1, 1.2, 1] }}
+           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+           className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-500 rounded-full blur-[150px]"
+         />
+         <motion.div 
+           animate={{ rotate: 360 }}
+           transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
+           className="absolute top-[20%] left-[20%] w-[800px] h-[800px] bg-amber-400/5 rounded-full blur-[100px]"
+         />
+      </div>
 
-        <div className="max-w-7xl mx-auto w-full relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-20">
+      {/* Hero / Login Section */}
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-20 px-6 lg:px-24 overflow-hidden z-10">
+        {/* Coptic Background Ornament */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 0.05, scale: 1.5 }}
+          transition={{ duration: 2, ease: "easeOut" }}
+          className="absolute top-0 right-0 w-full h-full pointer-events-none select-none rotate-12"
+        >
+          <SmartImage src="/assets/coptic-pattern.png" alt="" className="w-full h-full object-cover" />
+        </motion.div>
+
+        <div className="max-w-7xl mx-auto w-full relative z-20">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-20">
             
             {/* Branding & Welcome */}
             <div className="lg:w-1/2 space-y-12 text-center lg:text-right">
               <motion.div
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
                 className="space-y-6"
               >
-                <div className="flex flex-col lg:flex-row items-center lg:items-end gap-6 justify-start">
-                  <div className="flex gap-4">
+                <div className="flex flex-col lg:flex-row items-center lg:items-end gap-6 justify-center lg:justify-start">
+                  <motion.div 
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="flex gap-4 relative"
+                  >
+                    <div className="absolute inset-0 bg-white/20 blur-xl rounded-full" />
                     <SmartImage 
                       src="/assets/logo-red.png" 
                       alt="كنيسة القديسة رفقة" 
-                      className="w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 object-contain animate-float"
+                      className="w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 object-contain drop-shadow-2xl animate-float relative z-10"
                       fallback={<div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 rounded-2xl sm:rounded-[32px] lg:rounded-[40px] bg-brand-red/10 flex items-center justify-center text-brand-red shadow-xl border border-brand-red/20"><Church className="w-10 h-10 sm:w-16 sm:h-16 lg:w-20 lg:h-20" /></div>}
                     />
                     <SmartImage 
                       src="/assets/logo-beige.png" 
                       alt="الحكاية ومافيها" 
-                      className="w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 object-contain animate-float [animation-delay:0.5s]"
+                      className="w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 object-contain drop-shadow-2xl animate-float [animation-delay:0.5s] relative z-10"
                       fallback={<div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 rounded-2xl sm:rounded-[32px] lg:rounded-[40px] bg-brand-beige/10 flex items-center justify-center text-brand-beige shadow-xl border border-brand-beige/20 text-2xl sm:text-4xl lg:text-5xl font-black">H</div>}
                     />
-                  </div>
+                  </motion.div>
                   <div className="space-y-2 text-center lg:text-right">
-                    <span className="text-brand-red font-black tracking-[0.2em] uppercase text-sm block">أهلاً بك في منصة</span>
-                    <h1 className="text-6xl lg:text-7xl font-black text-brand-text tracking-tighter leading-tight">
+                    <motion.span 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-brand-red font-black tracking-[0.2em] uppercase text-sm block"
+                    >
+                      أهلاً بك في منصة
+                    </motion.span>
+                    <motion.h1 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="text-6xl lg:text-7xl font-black text-brand-text tracking-tighter leading-tight"
+                    >
                       الحكاية <span className="text-brand-red">ومافيها</span>
-                    </h1>
+                    </motion.h1>
                   </div>
                 </div>
-                <p className="text-brand-text/70 text-xl lg:text-2xl font-bold max-w-2xl leading-relaxed">
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="text-brand-text/70 text-xl lg:text-2xl font-bold max-w-2xl leading-relaxed mx-auto lg:mx-0"
+                >
                   المنصة التعليمية الرسمية لكنيسة القديسة رفقة وأولادها الخمسة بالقناطر.
-                </p>
+                </motion.p>
                 
                 {/* Stats or trust factors */}
-                <div className="pt-8 flex flex-wrap justify-center lg:justify-start gap-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-red/10 flex items-center justify-center text-brand-red">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                  className="pt-8 flex flex-wrap justify-center lg:justify-start gap-8"
+                >
+                  <motion.div whileHover={{ scale: 1.05, y: -5 }} className="flex items-center gap-3 bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-white/60 shadow-lg cursor-default">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-red to-red-600 flex items-center justify-center text-white shadow-inner">
                       <Users className="w-6 h-6" />
                     </div>
                     <div>
                       <div className="font-black text-brand-text text-xl">+١٠٠٠</div>
-                      <div className="text-brand-beige text-[10px] font-black uppercase">طالب نشط</div>
+                      <div className="text-brand-beige text-[10px] font-black uppercase tracking-wider">طالب نشط</div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-red/10 flex items-center justify-center text-brand-red">
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05, y: -5 }} className="flex items-center gap-3 bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-white/60 shadow-lg cursor-default">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-red to-red-600 flex items-center justify-center text-white shadow-inner">
                       <BookOpen className="w-6 h-6" />
                     </div>
                     <div>
                       <div className="font-black text-brand-text text-xl">+٥٠٠</div>
-                      <div className="text-brand-beige text-[10px] font-black uppercase">اختبار شامل</div>
+                      <div className="text-brand-beige text-[10px] font-black uppercase tracking-wider">محتوى تفاعلي</div>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               </motion.div>
             </div>
 
             {/* Login Form Card */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4, type: "spring", bounce: 0.4 }}
               className="lg:w-[450px] w-full"
             >
-              <div className="bg-white rounded-[48px] p-10 lg:p-12 shadow-2xl shadow-brand-red/5 border border-brand-beige/10 relative overflow-hidden group">
-                {/* Decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-red/5 rounded-full -translate-y-16 translate-x-16 blur-3xl group-hover:bg-brand-red/10 transition-colors" />
+              <div className="bg-white/80 backdrop-blur-xl rounded-[48px] p-10 lg:p-12 shadow-[0_30px_60px_rgba(185,28,28,0.1)] border border-white/80 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-red/10 rounded-full -translate-y-16 translate-x-16 blur-2xl group-hover:bg-brand-red/20 transition-colors duration-700" />
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-brand-beige/10 rounded-full translate-y-16 -translate-x-16 blur-2xl group-hover:bg-brand-beige/20 transition-colors duration-700" />
 
                 <div className="relative z-10 space-y-8">
                   <div className="text-center space-y-2">
-                    <div className="w-16 h-16 bg-brand-cream rounded-2xl flex items-center justify-center mx-auto mb-4 text-brand-red">
-                      <LogIn className="w-8 h-8" />
-                    </div>
+                    <motion.div 
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                      className="w-20 h-20 bg-gradient-to-tr from-brand-cream to-white rounded-[24px] box-border border-2 border-brand-red/10 flex items-center justify-center mx-auto mb-6 text-brand-red shadow-xl"
+                    >
+                      <LogIn className="w-10 h-10" />
+                    </motion.div>
                     <h2 className="text-3xl font-black text-brand-text">تسجيل الدخول</h2>
                     <p className="text-brand-beige font-bold text-sm">ادخل بياناتك عشان تتابع رحلتك</p>
                   </div>
 
                   <form onSubmit={handleLoginSubmit} className="space-y-6">
                     <div className="space-y-2 text-right">
-                      <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-1">كود الطالب أو الاسم</label>
-                      <div className="relative">
-                        <User className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
+                      <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-2">كود الطالب أو الاسم</label>
+                      <div className="relative group/input">
+                        <User className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige group-focus-within/input:text-brand-red transition-colors" />
                         <input
                           type="text"
-                          value={identifier}
+                          value={identifier || ''}
                           onChange={(e) => setIdentifier(e.target.value)}
-                          className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
+                          className="w-full bg-white/60 backdrop-blur-sm border-2 border-white focus:border-brand-red rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] focus:shadow-[0_8px_16px_rgba(185,28,28,0.08)]"
                           placeholder="مثال: Kirolos أو G001"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2 text-right">
-                      <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-1">كلمة المرور</label>
-                      <div className="relative">
-                        <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
+                      <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-2">كلمة المرور</label>
+                      <div className="relative group/input">
+                        <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige group-focus-within/input:text-brand-red transition-colors" />
                         <input
                           type="password"
-                          value={password}
+                          value={password || ''}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
+                          className="w-full bg-white/60 backdrop-blur-sm border-2 border-white focus:border-brand-red rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] focus:shadow-[0_8px_16px_rgba(185,28,28,0.08)]"
                           placeholder="••••••••"
                         />
                       </div>
                     </div>
 
-                    {loginError && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-rose-50 text-brand-red p-4 rounded-2xl text-xs font-bold border border-brand-red/10 flex items-center gap-2"
-                      >
-                        <div className="w-1 h-1 bg-brand-red rounded-full animate-ping" />
-                        {loginError}
-                      </motion.div>
-                    )}
+                    <AnimatePresence>
+                      {loginError && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                          className="bg-rose-50 text-brand-red p-4 rounded-2xl text-xs font-bold border border-brand-red/10 flex items-center gap-2"
+                        >
+                          <div className="w-1.5 h-1.5 bg-brand-red rounded-full animate-ping" />
+                          {loginError}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       type="submit"
                       disabled={isLoggingIn}
-                      className="w-full py-5 bg-brand-red text-white text-xl font-black rounded-[28px] shadow-2xl shadow-brand-red/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3 group"
+                      className="w-full py-5 bg-brand-red text-white text-xl font-black rounded-[28px] shadow-[0_15px_30px_rgba(185,28,28,0.3)] hover:shadow-[0_20px_40px_rgba(185,28,28,0.4)] transition-all disabled:opacity-50 flex items-center justify-center gap-3 relative overflow-hidden"
                     >
-                      {isLoggingIn ? (
-                        <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <span>دخول</span>
-                          <ChevronLeft className="w-6 h-6 group-hover:translate-x-[-4px] transition-transform" />
-                        </>
-                      )}
-                    </button>
+                      <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300 rounded-[28px]" />
+                      <div className="relative flex items-center gap-3">
+                        {isLoggingIn ? (
+                          <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <span>دخول إلى حسابي</span>
+                            <ChevronLeft className="w-6 h-6" />
+                          </>
+                        )}
+                      </div>
+                    </motion.button>
                   </form>
 
-                  <div className="text-center pt-4 border-t border-brand-cream flex flex-col gap-3">
-                    <div className="pt-4 flex flex-col items-center gap-2">
-                       <p className="text-brand-beige font-bold text-[10px] uppercase tracking-widest">معندكش حساب؟</p>
-                       <button 
-                        type="button"
-                        onClick={() => navigate("/register")}
-                        className="text-brand-red font-black text-sm hover:underline"
-                       >
-                        سجل حساب جديد دلوقتي
-                       </button>
-                    </div>
+                  <div className="text-center pt-6 border-t border-brand-beige/10">
+                     <p className="text-brand-beige font-bold text-[10px] uppercase tracking-widest mb-2">ليس لديك حساب؟</p>
+                     <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => navigate("/register")}
+                      className="text-brand-red font-black text-sm bg-brand-red/5 px-6 py-3 rounded-full hover:bg-brand-red/10 transition-colors"
+                     >
+                      تسجيل حساب جديد الآن
+                     </motion.button>
                   </div>
                 </div>
               </div>
@@ -313,63 +400,77 @@ export default function Home() {
       </section>
 
       {/* Social & Contact Section */}
-      <section className="py-24 bg-white border-y border-brand-beige/10 relative overflow-hidden">
-        {/* Decorative background element */}
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-red/5 rounded-full blur-3xl opacity-50" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-brand-red/5 rounded-full blur-3xl opacity-50" />
-
+      <section className="py-24 bg-white border-y border-brand-beige/10 relative overflow-hidden z-10">
+        <div className="absolute top-0 right-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-beige/20 to-transparent" />
+        
         <div className="max-w-7xl mx-auto px-6 lg:px-24 relative z-10">
           <div className="flex flex-col items-center text-center space-y-16">
             
-            {/* Header */}
-            <div className="space-y-4 max-w-2xl">
-              <span className="text-[10px] font-black text-brand-red uppercase tracking-[0.3em]">خلينا قريبين</span>
-              <h2 className="text-4xl lg:text-5xl font-black text-brand-text leading-tight italic">
-                عندك أي سؤال؟ إحنا دايماً جنبك وبنحب نسمع منك!
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="space-y-4 max-w-3xl"
+            >
+              <span className="text-[10px] font-black text-brand-red uppercase tracking-[0.3em] bg-brand-red/5 px-4 py-1.5 rounded-full inline-block mb-2">تواصل معنا</span>
+              <h2 className="text-4xl lg:text-5xl font-black text-brand-text leading-tight">
+                عندك أي استفسار؟ <span className="text-brand-beige">إحنا دايماً معاك</span>
               </h2>
-              <p className="text-brand-beige font-bold text-lg">
-                سواء عندك سؤال عن المنصة أو عايز تقولنا رأيك، فريق "الحكاية ومافيها" معاك ومستني يسمع منك في أي وقت.
+              <p className="text-brand-beige font-bold text-lg leading-relaxed">
+                سواء عندك سؤال عن المنصة، أو واجهتك مشكلة، أو حابب تشاركنا رأيك، فريق "الحكاية ومافيها" مستني تواصلك في أي وقت.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full">
-              
-              {/* Social Links List */}
-              <div className="lg:col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 h-full">
-                {socialLinks.map((social) => (
-                  <motion.a
-                    key={social.name}
-                    whileHover={{ x: -10 }}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-6 rounded-[32px] bg-white border border-brand-beige/5 hover:border-brand-red/10 transition-all shadow-sm group"
-                  >
-                     <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white transition-all group-hover:scale-110 shadow-lg", social.color)}>
-                        <social.icon className="w-7 h-7" />
-                     </div>
-                     <div className="text-right">
-                        <span className="font-black text-brand-text text-xl block">{social.name}</span>
-                        <span className="text-[10px] font-black text-brand-beige uppercase">تابع حكاياتنا هناك</span>
-                     </div>
-                  </motion.a>
-                ))}
-              </div>
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: { staggerChildren: 0.1 }
+                }
+              }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full"
+            >
+              {socialLinks.map((social) => (
+                <motion.a
+                  key={social.name}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 }
+                  }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center p-8 rounded-[40px] bg-white border border-brand-beige/10 hover:border-transparent transition-all shadow-sm hover:shadow-2xl hover:shadow-brand-beige/20 group relative overflow-hidden"
+                >
+                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-cream/50 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                   <div className={cn("relative z-10 w-20 h-20 rounded-3xl flex items-center justify-center text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-xl mb-6", social.color)}>
+                      <social.icon className="w-10 h-10" />
+                   </div>
+                   <div className="relative z-10 text-center">
+                      <span className="font-black text-brand-text text-2xl block mb-1 group-hover:text-brand-red transition-colors">{social.name}</span>
+                      <span className="text-[10px] font-black text-brand-beige uppercase tracking-wider">تابع حكاياتنا</span>
+                   </div>
+                </motion.a>
+              ))}
+            </motion.div>
 
-            </div>
-
-            {/* Sub-footer friendly mark */}
-            <div className="pt-12 border-t border-brand-cream w-full flex flex-col items-center gap-6">
-               <div className="flex items-center gap-4">
-                  <div className="w-1.5 h-1.5 bg-brand-red rounded-full" />
-                  <p className="text-brand-beige font-black text-[10px] lg:text-xs uppercase tracking-[0.2em] text-center">
+            <div className="pt-16 border-t border-brand-cream/50 w-full flex flex-col items-center gap-8">
+               <div className="flex items-center justify-center gap-6 opacity-30 hover:opacity-100 transition-opacity duration-300">
+                  <SmartImage src="/assets/logo-red.png" className="w-12 h-12 object-contain grayscale hover:grayscale-0 transition-all duration-500" alt="" />
+                  <div className="w-px h-10 bg-brand-text/20" />
+                  <SmartImage src="/assets/logo-beige.png" className="w-12 h-12 object-contain grayscale hover:grayscale-0 transition-all duration-500" alt="" />
+               </div>
+               <div className="flex items-center gap-4 bg-brand-cream px-6 py-3 rounded-full">
+                  <div className="w-2 h-2 bg-brand-red rounded-full animate-pulse" />
+                  <p className="text-brand-beige font-black text-xs uppercase tracking-[0.2em] text-center">
                     كنيسة القديسة رفقة وأولادها الخمسة &copy; ٢٠٢٤ الحكاية ومافيها
                   </p>
-                  <div className="w-1.5 h-1.5 bg-brand-red rounded-full" />
-               </div>
-               <div className="flex items-center gap-4">
-                  <SmartImage src="/assets/logo-red.png" className="w-10 h-10 object-contain opacity-50 grayscale hover:grayscale-0 transition-all" alt="" />
-                  <SmartImage src="/assets/logo-beige.png" className="w-10 h-10 object-contain opacity-50 grayscale hover:grayscale-0 transition-all" alt="" />
+                  <div className="w-2 h-2 bg-brand-red rounded-full animate-pulse" />
                </div>
             </div>
           </div>

@@ -789,7 +789,7 @@ export default function ResultsDashboard() {
                            <button
                              onClick={(e) => {
                                e.stopPropagation();
-                               setAssessmentFilter(s.assessmentTitle);
+                               setAssessmentFilter(s.assessmentTitle || "");
                              }}
                              className="opacity-0 group-hover/cell:opacity-100 p-1 hover:bg-brand-cream rounded transition-all text-brand-beige hover:text-brand-red"
                              title="تصفية بهذا الاختبار"

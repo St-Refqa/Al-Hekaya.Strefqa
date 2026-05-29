@@ -26,6 +26,7 @@ import AdminAttendance from './pages/admin/AdminAttendance';
 import QuestionBank from './pages/admin/QuestionBank';
 import Announcements from './pages/admin/Announcements';
 import PreparationMeetings from './pages/admin/PreparationMeetings';
+import Library from './pages/Library';
 import { useAuth } from './hooks/useAuth';
 import NetworkStatus from './components/ui/NetworkStatus';
 import { AntiCheatGuard } from './components/AntiCheatGuard';
@@ -247,6 +248,11 @@ function AnimatedRoutes() {
             <motion.div {...pageTransition} className="w-full min-h-screen"><StudentAchievements /></motion.div>
           </ProtectedRoute>
         } />
+        <Route path="/student/library" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><Library /></motion.div>
+          </ProtectedRoute>
+        } />
         <Route path="/student/analytics" element={
           <ProtectedRoute role="student">
             <motion.div {...pageTransition} className="w-full min-h-screen"><StudentAnalytics /></motion.div>
@@ -343,6 +349,11 @@ function AnimatedRoutes() {
         <Route path="/admin/attendance" element={
           <ProtectedRoute role="attendance">
             <motion.div {...pageTransition} className="w-full min-h-screen"><AdminAttendance /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/library" element={
+          <ProtectedRoute role="servant">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><Library /></motion.div>
           </ProtectedRoute>
         } />
         <Route path="/admin/question-bank" element={

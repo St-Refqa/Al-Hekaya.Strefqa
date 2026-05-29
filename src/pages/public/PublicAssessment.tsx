@@ -71,7 +71,7 @@ export default function PublicAssessment() {
   useEffect(() => {
     if (isAuthenticated && isStudent && authUser && !participantName) {
       const t = setTimeout(() => {
-        setParticipantName(authUser.fullName);
+        setParticipantName(authUser.fullName || "");
         setParticipantPhone(authUser.code || "");
       }, 0);
       return () => clearTimeout(t);

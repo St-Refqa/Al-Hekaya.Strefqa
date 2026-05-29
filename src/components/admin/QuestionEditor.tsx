@@ -45,6 +45,10 @@ export default function QuestionEditor({
 }: QuestionEditorProps) {
   const [edited, setEdited] = useState<Question>({ 
     ...question,
+    text: question.text || '',
+    difficulty: question.difficulty || 'easy',
+    points: question.points || 2,
+    type: question.type || 'multiple-choice',
     options: question.options || (question.type === 'multiple-choice' ? ['', '', '', ''] : (question.type === 'true-false' ? ['صح', 'خطأ'] : [])),
     category: question.category || '',
     reference: question.reference || '',
