@@ -381,7 +381,7 @@ export default function AdminDashboard() {
                   <label className="text-[10px] font-black text-brand-beige uppercase tracking-widest block mb-2">{t('admin_dashboard.broadcast_placeholder_title')}</label>
                   <input
                     type="text"
-                    value={broadcastData.title}
+                    value={broadcastData.title || ''}
                     onChange={e => setBroadcastData(prev => ({ ...prev, title: e.target.value }))}
                     placeholder={t('admin_dashboard.broadcast_placeholder_title')}
                     className={cn(
@@ -393,7 +393,7 @@ export default function AdminDashboard() {
                 <div>
                   <label className="text-[10px] font-black text-brand-beige uppercase tracking-widest block mb-2">{t('admin_dashboard.broadcast_placeholder_msg')}</label>
                   <textarea
-                    value={broadcastData.message}
+                    value={broadcastData.message || ''}
                     onChange={e => setBroadcastData(prev => ({ ...prev, message: e.target.value }))}
                     placeholder={t('admin_dashboard.broadcast_placeholder_msg')}
                     rows={4}
@@ -518,7 +518,7 @@ export default function AdminDashboard() {
                     </label>
                     <input
                       type="text"
-                      value={deleteVerification}
+                      value={deleteVerification || ''}
                       onChange={(e) => setDeleteVerification(e.target.value)}
                       placeholder='اكتب "مسح" للتأكيد'
                       className="w-full px-4 py-3 bg-brand-cream border border-brand-beige/10 rounded-xl outline-none focus:ring-2 focus:ring-brand-red/20 font-bold text-brand-text text-center"
@@ -709,7 +709,7 @@ export default function AdminDashboard() {
                 <input
                   type="text"
                   placeholder={t('userManager.search_placeholder')}
-                  value={searchTerm}
+                  value={searchTerm || ''}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className={cn(
                     "w-full py-4 bg-brand-cream/20 border-none rounded-2xl focus:ring-2 focus:ring-brand-red/20 outline-none font-bold text-sm text-brand-text",

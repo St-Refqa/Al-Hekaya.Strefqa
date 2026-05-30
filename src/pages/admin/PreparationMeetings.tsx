@@ -525,7 +525,7 @@ export default function PreparationMeetings() {
               type="text"
               placeholder="ابحث بموضوع أو تاريخ (مثال: صموئيل)..."
               className="w-full pr-10 pl-4 py-2.5 border border-brand-cream bg-brand-cream/10 text-brand-text rounded-xl focus:border-brand-red outline-none text-xs font-bold transition-colors"
-              value={searchTerm}
+              value={searchTerm || ''}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>

@@ -227,7 +227,7 @@ export default function QuestionEditor({
               صيغة ونص السؤال
             </label>
             <textarea
-              value={edited.text}
+              value={edited.text || ''}
               onChange={e => setEdited({ ...edited, text: e.target.value })}
               className="w-full px-5 py-4 bg-brand-cream/20 border border-brand-beige/10 rounded-2xl focus:ring-2 focus:ring-brand-red/20 outline-none font-bold transition-all text-brand-text min-h-[110px] text-right text-base leading-relaxed"
               placeholder="اكتب نص السؤال بوضوح للطلبة هنا..."
@@ -300,7 +300,7 @@ export default function QuestionEditor({
                   تصنيف وتصاعد الصعوبة
                 </label>
                 <select
-                  value={edited.difficulty}
+                  value={edited.difficulty || 'easy'}
                   onChange={e => {
                     const diff = e.target.value as 'easy' | 'medium' | 'hard';
                     const defaultPoints = diff === 'easy' ? 2 : diff === 'medium' ? 4 : 6;
@@ -324,7 +324,7 @@ export default function QuestionEditor({
                   type="number"
                   min="1"
                   max="100"
-                  value={edited.points}
+                  value={edited.points || 0}
                   onChange={e => setEdited({ ...edited, points: parseInt(e.target.value) || 1 })}
                   className="w-full px-5 py-3.5 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right"
                 />
@@ -336,7 +336,7 @@ export default function QuestionEditor({
           <div className="space-y-3">
             <label className="block text-xs font-black uppercase tracking-wider text-brand-beige">نوع السؤال وطريقة الإجابة</label>
             <select
-              value={edited.type}
+              value={edited.type || 'multiple-choice'}
               onChange={e => {
                 const newType = e.target.value as 'multiple-choice' | 'true-false' | 'short-answer';
                 let nextOptions: string[] = [];
@@ -388,7 +388,7 @@ export default function QuestionEditor({
                     </button>
                     <input
                       type="text"
-                      value={opt}
+                      value={opt || ''}
                       onChange={e => handleOptionChange(i, e.target.value)}
                       className="flex-1 px-5 py-3.5 bg-brand-cream/10 border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold transition-all text-brand-text text-right"
                       placeholder={`خيار الإجابة رقم ${i + 1}`}

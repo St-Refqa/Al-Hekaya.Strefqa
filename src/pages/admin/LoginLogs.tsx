@@ -202,7 +202,7 @@ export default function LoginLogs() {
             <input
               type="text"
               placeholder="ابحث بالاسم أو الكود..."
-              value={searchTerm}
+              value={searchTerm || ''}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-white border-2 border-transparent focus:border-brand-red/20 rounded-2xl py-4 pr-12 pl-6 outline-none shadow-sm transition-all"
             />
@@ -211,7 +211,7 @@ export default function LoginLogs() {
           <div className="relative">
             <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
             <select
-              value={statusFilter}
+              value={statusFilter || 'all'}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full bg-white border-2 border-transparent focus:border-brand-red/20 rounded-2xl py-4 pr-12 pl-6 outline-none shadow-sm transition-all appearance-none cursor-pointer"
             >

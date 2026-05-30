@@ -290,7 +290,7 @@ export default function Library() {
                 <input 
                   type="text" 
                   required
-                  value={newItemTitle}
+                  value={newItemTitle || ''}
                   onChange={e => setNewItemTitle(e.target.value)}
                   className="w-full bg-brand-cream border-transparent focus:bg-white focus:border-brand-red rounded-xl p-3 border-2 transition-all font-bold"
                 />
@@ -299,7 +299,7 @@ export default function Library() {
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-brand-beige">القسم المستهدف</label>
                 <select 
-                  value={newItemSection}
+                  value={newItemSection || ''}
                   onChange={e => setNewItemSection(e.target.value as any)}
                   className="w-full bg-brand-cream border-transparent focus:bg-white focus:border-brand-red rounded-xl p-3 border-2 transition-all font-bold"
                 >
@@ -323,7 +323,7 @@ export default function Library() {
                   <input 
                     type="url" 
                     required
-                    value={newItemUrl}
+                    value={newItemUrl || ''}
                     onChange={e => setNewItemUrl(e.target.value)}
                     className="w-full bg-brand-cream border-transparent focus:bg-white focus:border-purple-500 rounded-xl p-3 border-2 transition-all font-sans text-left"
                     placeholder="https://..."

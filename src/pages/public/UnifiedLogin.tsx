@@ -78,6 +78,20 @@ export default function UnifiedLogin() {
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center p-6 relative overflow-hidden" dir={dir}>
+      {/* Dynamic Floating Language Selector */}
+      <div className={cn("absolute top-6 z-50", dir === 'rtl' ? 'left-6' : 'right-6')}>
+        <button
+          onClick={() => {
+            const targetLng = i18n.language === 'ar' ? 'en' : 'ar';
+            i18n.changeLanguage(targetLng);
+          }}
+          className="px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-brand-beige/25 hover:border-brand-red text-brand-text hover:text-brand-red transition-all font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          <Globe className="w-4 h-4 text-brand-red shrink-0" />
+          <span>{i18n.language === 'ar' ? "English" : "العربية"}</span>
+        </button>
+      </div>
+
       {/* Decorative Background */}
       <div className="absolute inset-0 bg-textured opacity-30 pointer-events-none" />
       <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-brand-red/5 rounded-full blur-[100px] animate-pulse" />
@@ -119,7 +133,7 @@ export default function UnifiedLogin() {
                   </div>
                   <input
                     type="text"
-                    value={identifier}
+                    value={identifier || ''}
                     onChange={(e) => setIdentifier(e.target.value)}
                     className={cn("w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-5 outline-none transition-all font-bold text-brand-text", i18n.language === 'ar' ? "pr-14 pl-6" : "pl-14 pr-6")}
                     placeholder={t('login.placeholder_id') || ""}
@@ -135,7 +149,7 @@ export default function UnifiedLogin() {
                   </div>
                   <input
                     type="password"
-                    value={password}
+                    value={password || ''}
                     onChange={(e) => setPassword(e.target.value)}
                     className={cn("w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-5 outline-none transition-all font-bold text-brand-text", i18n.language === 'ar' ? "pr-14 pl-6" : "pl-14 pr-6")}
                     placeholder="••••••••"

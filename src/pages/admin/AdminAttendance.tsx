@@ -1167,7 +1167,7 @@ export default function AdminAttendance() {
                         <span className="font-semibold text-white/60 text-[10px]">ساعة الحضور الافتراضية</span>
                         <input 
                           type="time" 
-                          value={simTime} 
+                          value={simTime || ''} 
                           onChange={(e) => setSimTime(e.target.value)} 
                           className="w-full bg-white/10 border border-white/20 text-white rounded-lg p-2 font-bold focus:outline-none focus:border-brand-red font-sans"
                         />
@@ -1176,7 +1176,7 @@ export default function AdminAttendance() {
                         <span className="font-semibold text-white/60 text-[10px]">تاريخ الحضور الافتراضي</span>
                         <input 
                           type="date" 
-                          value={simDate} 
+                          value={simDate || ''} 
                           onChange={(e) => setSimDate(e.target.value)} 
                           className="w-full bg-white/10 border border-white/20 text-white rounded-lg p-2 font-bold focus:outline-none focus:border-brand-red font-sans"
                         />
@@ -1188,7 +1188,7 @@ export default function AdminAttendance() {
                       <div className="flex gap-2">
                         <input 
                           type="text" 
-                          value={simCode} 
+                          value={simCode || ''} 
                           onChange={(e) => setSimCode(e.target.value)} 
                           placeholder="مثال: H101 (طالب) أو S05 (خادم)" 
                           className="flex-1 bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-center font-bold font-sans uppercase placeholder:text-white/20"
@@ -1270,7 +1270,7 @@ export default function AdminAttendance() {
                 <div className="space-y-1">
                   <span className="text-[8px] font-black text-brand-beige uppercase tracking-widest">تحديد الكاميرا النشطة</span>
                   <select
-                    value={selectedCameraId}
+                    value={selectedCameraId || ''}
                     onChange={(e) => {
                       setSelectedCameraId(e.target.value);
                       handleScanWithDevice(e.target.value);
@@ -1605,7 +1605,7 @@ export default function AdminAttendance() {
               </div>
               <div className="flex gap-2">
                 <select 
-                  value={meetingType} 
+                  value={meetingType || ''} 
                   onChange={(e) => setMeetingType(e.target.value as any)}
                   className="bg-white border border-brand-beige/15 text-xs font-bold rounded-lg px-3 py-1.5 text-right cursor-pointer"
                 >
@@ -1621,7 +1621,7 @@ export default function AdminAttendance() {
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
               <input
                 type="text"
-                value={searchTerm}
+                value={searchTerm || ''}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="ابحث عن الطالب بالاسم أو الكود لتسجيل حضوره..."
                 className="w-full pr-12 pl-4 py-4 rounded-2xl bg-brand-cream/30 border border-brand-beige/15 text-sm font-bold focus:bg-white transition-all text-right"
@@ -1755,7 +1755,7 @@ export default function AdminAttendance() {
                     <input 
                       type="text"
                       required
-                      value={newLecName}
+                      value={newLecName || ''}
                       onChange={(e) => setNewLecName(e.target.value)}
                       placeholder="مثال: المحاضرة الأولى (سفر التكوين)"
                       className="w-full text-right p-3 text-xs border border-brand-beige/15 rounded-xl bg-brand-cream/20 font-bold"
@@ -1768,7 +1768,7 @@ export default function AdminAttendance() {
                       <input 
                         type="date"
                         required
-                        value={newLecDate}
+                        value={newLecDate || ''}
                         onChange={(e) => setNewLecDate(e.target.value)}
                         className="w-full font-sans text-center p-3 text-xs border border-brand-beige/15 rounded-xl bg-brand-cream/20 font-bold"
                       />
@@ -1778,7 +1778,7 @@ export default function AdminAttendance() {
                       <input 
                         type="time"
                         required
-                        value={newLecTime}
+                        value={newLecTime || ''}
                         onChange={(e) => setNewLecTime(e.target.value)}
                         className="w-full font-sans text-center p-3 text-xs border border-brand-beige/15 rounded-xl bg-brand-cream/20 font-bold"
                       />
@@ -2020,7 +2020,7 @@ export default function AdminAttendance() {
                   <input
                     type="text"
                     required
-                    value={newSeasonName}
+                    value={newSeasonName || ''}
                     onChange={(e) => setNewSeasonName(e.target.value)}
                     placeholder="مثال: سيزون الصيف ٢٠٢٦"
                     className="w-full p-3 rounded-xl border border-brand-beige/15 text-xs font-bold bg-white text-right"
@@ -2033,7 +2033,7 @@ export default function AdminAttendance() {
                     <input
                       type="date"
                       required
-                      value={newSeasonStart}
+                      value={newSeasonStart || ''}
                       onChange={(e) => setNewSeasonStart(e.target.value)}
                       className="w-full p-3 rounded-xl border border-brand-beige/15 text-xs font-bold bg-white"
                     />
@@ -2044,7 +2044,7 @@ export default function AdminAttendance() {
                     <input
                       type="date"
                       required
-                      value={newSeasonEnd}
+                      value={newSeasonEnd || ''}
                       onChange={(e) => setNewSeasonEnd(e.target.value)}
                       className="w-full p-3 rounded-xl border border-brand-beige/15 text-xs font-bold bg-white"
                     />

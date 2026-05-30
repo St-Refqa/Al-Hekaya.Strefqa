@@ -39,7 +39,8 @@ import {
   ScanLine,
   QrCode,
   ShoppingBag,
-  Calendar
+  Calendar,
+  BookOpen
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { motion, AnimatePresence } from "motion/react";
@@ -715,7 +716,7 @@ export default function UserManager() {
               <input
                 type="text"
                 placeholder={t('userManager.search_placeholder')}
-                value={searchTerm}
+                value={searchTerm || ''}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-transparent border-none py-2.5 px-2 outline-none font-bold text-brand-text text-sm md:text-base placeholder-brand-beige/50 text-right"
                 dir="rtl"

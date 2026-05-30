@@ -290,7 +290,7 @@ export default function StoreManager() {
                       <input
                         type="number"
                         required
-                        value={formData.price}
+                        value={formData.price || 0}
                         onChange={e => setFormData({ ...formData, price: parseInt(e.target.value) })}
                         className="w-full bg-brand-cream rounded-[24px] px-8 py-5 outline-none border-2 border-transparent focus:border-brand-red/20 transition-all font-black text-brand-text"
                       />
@@ -300,7 +300,7 @@ export default function StoreManager() {
                       <input
                         type="number"
                         required
-                        value={formData.stock}
+                        value={formData.stock || 0}
                         onChange={e => setFormData({ ...formData, stock: parseInt(e.target.value) })}
                         className="w-full bg-brand-cream rounded-[24px] px-8 py-5 outline-none border-2 border-transparent focus:border-brand-red/20 transition-all font-black text-brand-text"
                       />
@@ -312,7 +312,7 @@ export default function StoreManager() {
                   <div className="space-y-2">
                     <label className="text-xs font-black text-brand-text uppercase tracking-widest block pr-4">الفئة</label>
                     <select
-                      value={formData.category}
+                      value={formData.category || 'gift'}
                       onChange={e => setFormData({ ...formData, category: e.target.value as any })}
                       className="w-full bg-brand-cream rounded-[24px] px-8 py-5 outline-none border-2 border-transparent focus:border-brand-red/20 transition-all font-bold text-brand-text appearance-none"
                     >
@@ -406,7 +406,7 @@ export default function StoreManager() {
               <input
                 type="text"
                 placeholder="ابحث عن منتج..."
-                value={searchQuery}
+                value={searchQuery || ''}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-brand-beige/10 rounded-[28px] px-16 py-5 outline-none focus:border-brand-red/20 font-bold"
               />

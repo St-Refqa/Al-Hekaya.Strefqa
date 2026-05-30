@@ -30,7 +30,7 @@ export default function Register() {
   const { register, isAuthenticated, isStudent } = useAuth();
   const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dir = 'rtl';
+  const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
   
   const [fullName, setFullName] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
@@ -157,7 +157,7 @@ export default function Register() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-brand-cream flex items-center justify-center p-6 relative overflow-hidden" dir="rtl">
+      <div className="min-h-screen bg-brand-cream flex items-center justify-center p-6 relative overflow-hidden" dir={dir}>
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -178,6 +178,19 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center p-6 relative overflow-hidden" dir={dir}>
+      {/* Dynamic Floating Language Selector */}
+      <div className={cn("absolute top-6 z-50", dir === 'rtl' ? 'left-6' : 'right-6')}>
+        <button
+          onClick={() => {
+            const targetLng = i18n.language === 'ar' ? 'en' : 'ar';
+            i18n.changeLanguage(targetLng);
+          }}
+          className="px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-brand-beige/25 hover:border-brand-red text-brand-text hover:text-brand-red transition-all font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          <Globe className="w-4 h-4 text-brand-red shrink-0" />
+          <span>{i18n.language === 'ar' ? "English" : "العربية"}</span>
+        </button>
+      </div>
       {/* Decorative Background */}
       <div className="absolute inset-0 bg-textured opacity-30 pointer-events-none" />
       <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-brand-red/5 rounded-full blur-[100px] animate-pulse" />
@@ -254,7 +267,7 @@ export default function Register() {
                   </div>
                   <input
                     type="text"
-                    value={fullName}
+                    value={fullName || ''}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     placeholder="كيرلس صموئيل"
@@ -271,7 +284,7 @@ export default function Register() {
                   </div>
                   <input
                     type="text"
-                    value={church}
+                    value={church || ''}
                     onChange={(e) => setChurch(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     placeholder="اسم الكنيسة"
@@ -288,7 +301,7 @@ export default function Register() {
                   </div>
                   <input
                     type="date"
-                    value={birthDate}
+                    value={birthDate || ''}
                     onChange={(e) => setBirthDate(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     required
@@ -304,7 +317,7 @@ export default function Register() {
                   </div>
                   <input
                     type="tel"
-                    value={whatsappNumber}
+                    value={whatsappNumber || ''}
                     onChange={(e) => setWhatsappNumber(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     placeholder="010xxxxxxx"
@@ -357,7 +370,7 @@ export default function Register() {
                   </div>
                   <input
                     type="text"
-                    value={code}
+                    value={code || ''}
                     readOnly
                     className="w-full bg-brand-cream/50 border-2 border-transparent rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-black text-brand-text uppercase cursor-not-allowed"
                     placeholder="اختر العهد"
@@ -379,7 +392,7 @@ export default function Register() {
                   </div>
                   <input
                     type="text"
-                    value={address}
+                    value={address || ''}
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     placeholder="العنوان بالتفصيل"
@@ -396,7 +409,7 @@ export default function Register() {
                   </div>
                   <input
                     type="password"
-                    value={password}
+                    value={password || ''}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     placeholder="••••••••"
@@ -412,7 +425,7 @@ export default function Register() {
                   </div>
                   <input
                     type="password"
-                    value={confirmPassword}
+                    value={confirmPassword || ''}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full bg-brand-cream border-2 border-transparent focus:border-brand-red/20 focus:bg-white rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-bold text-brand-text"
                     placeholder="••••••••"

@@ -826,7 +826,7 @@ export default function PublicAssessment() {
                     الاسم بالكامل
                   </label>
                   <input
-                    value={participantName}
+                    value={participantName || ''}
                     onChange={(e) => setParticipantName(e.target.value)}
                     className="w-full px-6 py-4 bg-brand-cream/30 border-2 border-brand-beige/10 rounded-2xl focus:border-brand-red focus:ring-4 focus:ring-brand-red/5 outline-none font-bold transition-all text-brand-text text-right"
                     placeholder="اكتب اسمك هنا"
@@ -837,7 +837,7 @@ export default function PublicAssessment() {
                     الكود
                   </label>
                   <input
-                    value={participantPhone}
+                    value={participantPhone || ''}
                     onChange={(e) => setParticipantPhone(e.target.value)}
                     className="w-full px-6 py-4 bg-brand-cream/30 border-2 border-brand-beige/10 rounded-2xl focus:border-brand-red focus:ring-4 focus:ring-brand-red/5 outline-none font-bold transition-all text-brand-text text-right uppercase"
                     placeholder="اكتب الكود بتاعك هنا"
@@ -1204,7 +1204,7 @@ export default function PublicAssessment() {
                       </motion.div>
                     )}
                     <textarea
-                      value={userInput}
+                      value={userInput || ''}
                       onChange={(e) => setUserInput(e.target.value)}
                       className="w-full h-48 px-8 py-8 bg-brand-cream/30 border-2 border-brand-beige/10 rounded-[32px] focus:border-brand-red focus:ring-4 focus:ring-brand-red/5 outline-none font-bold leading-relaxed resize-none text-brand-text text-right"
                       placeholder="اكتب إجابتك هنا بالتفصيل..."

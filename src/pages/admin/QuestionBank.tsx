@@ -98,7 +98,7 @@ export default function QuestionBank() {
               <label className="text-xs font-black text-brand-text">فئة السؤال:</label>
               <select 
                 className="w-full p-4 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-brand-red/20 font-bold"
-                value={newQuestion.category}
+                value={newQuestion.category || ''}
                 onChange={e => setNewQuestion({...newQuestion, category: e.target.value})}
               >
                 <option value="العهد الجديد">العهد الجديد</option>
@@ -139,7 +139,7 @@ export default function QuestionBank() {
             <textarea 
               className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/20 text-sm font-bold animate-fade-in" 
               placeholder="اكتب نص السؤال بوضوح هنا..." 
-              value={newQuestion.text} 
+              value={newQuestion.text || ''} 
               onChange={e => setNewQuestion({...newQuestion, text: e.target.value})} 
             />
           </div>
@@ -154,7 +154,7 @@ export default function QuestionBank() {
                   <input 
                     className="w-full p-3 pr-24 border border-emerald-200 bg-emerald-50/30 text-emerald-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-sm font-bold" 
                     placeholder="الإجابة النموذجية الصحيحة..." 
-                    value={newQuestion.correctAnswer} 
+                    value={newQuestion.correctAnswer || ''} 
                     onChange={e => setNewQuestion({...newQuestion, correctAnswer: e.target.value})} 
                   />
                 </div>
@@ -164,7 +164,7 @@ export default function QuestionBank() {
                     <input 
                       className="w-full p-3 pr-24 border border-rose-100 bg-rose-50/10 text-rose-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/10 text-sm font-medium" 
                       placeholder={`البديل الخاطئ ${i+1}...`} 
-                      value={opt} 
+                      value={opt || ''} 
                       onChange={e => {
                         const updated = [...newQuestion.options];
                         updated[i] = e.target.value;
@@ -201,7 +201,7 @@ export default function QuestionBank() {
               <input 
                 className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/20 text-sm font-bold" 
                 placeholder="اكتب الإجابة النموذجية الصحيحة هنا..." 
-                value={newQuestion.correctAnswer} 
+                value={newQuestion.correctAnswer || ''} 
                 onChange={e => setNewQuestion({...newQuestion, correctAnswer: e.target.value})} 
               />
             </div>

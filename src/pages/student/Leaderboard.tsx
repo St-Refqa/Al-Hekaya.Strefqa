@@ -104,7 +104,7 @@ export default function StudentLeaderboard() {
           <input
             type="text"
             placeholder="ابحث عن زميل..."
-            value={searchTerm}
+            value={searchTerm || ''}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pr-11 md:pr-14 pl-5 md:pl-6 py-3.5 md:py-5 bg-white border border-brand-beige/10 rounded-2xl md:rounded-[24px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm text-sm md:text-base"
           />

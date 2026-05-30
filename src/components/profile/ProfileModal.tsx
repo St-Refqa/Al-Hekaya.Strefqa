@@ -189,7 +189,7 @@ export function ProfileModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <input
                       type="text"
                       className="w-full bg-brand-cream/50 rounded-2xl px-4 py-3 font-bold text-brand-text border-2 border-transparent focus:border-brand-red/20 focus:bg-white transition-all outline-none text-sm placeholder:text-brand-beige/50"
-                      value={editChurch}
+                      value={editChurch || ''}
                       onChange={(e) => setEditChurch(e.target.value)}
                       placeholder="الكنيسة أو المنطقة"
                     />
@@ -203,7 +203,7 @@ export function ProfileModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <input
                       type="tel"
                       className="w-full bg-brand-cream/50 rounded-2xl px-4 py-3 font-bold text-brand-text border-2 border-transparent focus:border-brand-red/20 focus:bg-white transition-all outline-none text-sm"
-                      value={editWhatsApp}
+                      value={editWhatsApp || ''}
                       onChange={(e) => setEditWhatsApp(e.target.value)}
                       placeholder="رقم الهاتف"
                       dir="ltr"
@@ -218,7 +218,7 @@ export function ProfileModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <input
                       type="date"
                       className="w-full bg-brand-cream/50 rounded-2xl px-4 py-3 font-bold text-brand-text border-2 border-transparent focus:border-brand-red/20 focus:bg-white transition-all outline-none text-sm"
-                      value={editBirthDate}
+                      value={editBirthDate || ''}
                       onChange={(e) => setEditBirthDate(e.target.value)}
                     />
                   </div>
@@ -231,7 +231,7 @@ export function ProfileModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <input
                       type="text"
                       className="w-full bg-brand-cream/50 rounded-2xl px-4 py-3 font-bold text-brand-text border-2 border-transparent focus:border-brand-red/20 focus:bg-white transition-all outline-none text-sm"
-                      value={editAddress}
+                      value={editAddress || ''}
                       onChange={(e) => setEditAddress(e.target.value)}
                       placeholder="المنطقة أو المحافظة"
                     />

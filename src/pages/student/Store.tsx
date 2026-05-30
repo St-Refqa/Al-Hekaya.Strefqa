@@ -227,7 +227,7 @@ export default function Store() {
             <input 
               type="text"
               placeholder={t('store.search_placeholder')}
-              value={searchQuery}
+              value={searchQuery || ''}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
                 "w-full bg-white border border-brand-beige/10 rounded-2xl md:rounded-[24px] py-3 md:py-4 outline-none focus:border-brand-red/20 transition-all font-bold text-brand-text text-sm md:text-base",

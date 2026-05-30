@@ -472,11 +472,13 @@ const resources = {
   }
 };
 
+const savedLng = localStorage.getItem('i18nextLng') || 'ar';
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'ar',
+    lng: savedLng,
     fallbackLng: 'ar',
     interpolation: {
       escapeValue: false,
@@ -485,12 +487,15 @@ i18n
 
 // Handle RTL
 i18n.on('languageChanged', (lng) => {
-  document.dir = 'rtl';
-  document.documentElement.lang = 'ar';
+  const isRtl = lng === 'ar';
+  document.dir = isRtl ? 'rtl' : 'ltr';
+  document.documentElement.lang = lng;
+  localStorage.setItem('i18nextLng', lng);
 });
 
 // Set initial direction
-document.dir = 'rtl';
-document.documentElement.lang = 'ar';
+const initialRtl = savedLng === 'ar';
+document.dir = initialRtl ? 'rtl' : 'ltr';
+document.documentElement.lang = savedLng;
 
 export default i18n;

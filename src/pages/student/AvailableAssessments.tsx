@@ -170,7 +170,7 @@ export default function AvailableAssessments() {
             <input 
               type="text"
               placeholder={t('assessments.search_placeholder')}
-              value={searchQuery}
+              value={searchQuery || ''}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pr-12 pl-4 py-3 bg-white border border-brand-beige/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red/20 transition-all font-bold text-sm"
             />

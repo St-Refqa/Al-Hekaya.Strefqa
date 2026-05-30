@@ -13,6 +13,7 @@ import {
   Lock,
   Church,
   Sparkles,
+  Globe,
 } from "lucide-react";
 import { 
   FaFacebookF, 
@@ -27,6 +28,7 @@ import { Assessment } from "../../types";
 import { formatDate, cn } from "../../lib/utils";
 import { SmartImage } from "../../components/ui/SmartImage";
 import { Users, Timer as TimerIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Helper component for live countdown
 function CountdownTimer({ expiresAt }: { expiresAt: string }) {
@@ -60,6 +62,8 @@ function CountdownTimer({ expiresAt }: { expiresAt: string }) {
 export default function Home() {
   const navigate = useNavigate();
   const { login, user, isAuthenticated, isAdmin, isStudent } = useAuth();
+  const { t, i18n } = useTranslation();
+  const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -151,7 +155,7 @@ export default function Home() {
   if (isAuthenticated && user) {
     // Show a highly visual transition while redirecting
     return (
-      <div className="min-h-screen bg-brand-cream flex flex-col items-center justify-center relative overflow-hidden" dir="rtl">
+      <div className="min-h-screen bg-brand-cream flex flex-col items-center justify-center relative overflow-hidden" dir={dir}>
         <motion.div 
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -173,7 +177,20 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-cream relative overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen bg-brand-cream relative overflow-x-hidden" dir={dir}>
+      {/* Dynamic Floating Language Selector */}
+      <div className={cn("absolute top-6 z-50", dir === 'rtl' ? 'left-6' : 'right-6')}>
+        <button
+          onClick={() => {
+            const targetLng = i18n.language === 'ar' ? 'en' : 'ar';
+            i18n.changeLanguage(targetLng);
+          }}
+          className="px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-brand-beige/25 hover:border-brand-red text-brand-text hover:text-brand-red transition-all font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          <Globe className="w-4 h-4 text-brand-red shrink-0" />
+          <span>{i18n.language === 'ar' ? "English" : "العربية"}</span>
+        </button>
+      </div>
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
          <motion.div 

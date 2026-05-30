@@ -1063,7 +1063,7 @@ export default function AssessmentCreator() {
                   <div className="space-y-2">
                     <label className="block text-[11px] font-black uppercase tracking-widest text-brand-beige">المستوى ودرجات الحل</label>
                     <select
-                      value={manualQuestion.difficulty}
+                      value={manualQuestion.difficulty || 'easy'}
                       onChange={e => setManualQuestion({ ...manualQuestion, difficulty: e.target.value as any })}
                       className="w-full px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
                     >
@@ -1077,7 +1077,7 @@ export default function AssessmentCreator() {
                   <div className="space-y-2">
                     <label className="block text-[11px] font-black uppercase tracking-widest text-brand-beige">نوع وطريقة إجابة السؤال</label>
                     <select
-                      value={manualQuestion.type}
+                      value={manualQuestion.type || 'multiple-choice'}
                       onChange={e => {
                         const t = e.target.value as any;
                         let defaultOpts = ["", "", "", ""];
@@ -1134,7 +1134,7 @@ export default function AssessmentCreator() {
                           </button>
                           <input
                             type="text"
-                            value={opt}
+                            value={opt || ''}
                             onChange={e => {
                               const nextOpts = [...manualQuestion.options];
                               const oldCorrect = manualQuestion.correctAnswer;

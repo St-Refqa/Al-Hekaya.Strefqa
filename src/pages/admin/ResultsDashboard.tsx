@@ -571,7 +571,7 @@ export default function ResultsDashboard() {
                   <input
                     type="text"
                     placeholder="اسم المشارك أو الكود..."
-                    value={participantFilter}
+                    value={participantFilter || 'all'}
                     onChange={(e) => setParticipantFilter(e.target.value)}
                     className="w-full pr-12 pl-4 py-3 bg-brand-cream/20 border border-brand-beige/10 rounded-2xl focus:ring-2 focus:ring-brand-red/10 outline-none transition-all text-xs font-bold text-right text-brand-text"
                   />
@@ -585,7 +585,7 @@ export default function ResultsDashboard() {
                   <input
                     type="text"
                     placeholder="ابحث بالعنوان..."
-                    value={assessmentFilter}
+                    value={assessmentFilter || 'all'}
                     onChange={(e) => setAssessmentFilter(e.target.value)}
                     className="w-full pr-12 pl-4 py-3 bg-brand-cream/20 border border-brand-beige/10 rounded-2xl focus:ring-2 focus:ring-brand-red/10 outline-none transition-all text-xs font-bold text-right text-brand-text"
                   />
@@ -596,7 +596,7 @@ export default function ResultsDashboard() {
                 <label className="text-[10px] font-black uppercase text-brand-beige tracking-widest mr-2">من تاريخ</label>
                 <input
                   type="date"
-                  value={dateRange.start}
+                  value={dateRange.start || ''}
                   onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                   className="w-full px-4 py-3 bg-brand-cream/20 border border-brand-beige/10 rounded-2xl focus:ring-2 focus:ring-brand-red/10 outline-none transition-all text-xs font-bold text-brand-text"
                 />
@@ -606,7 +606,7 @@ export default function ResultsDashboard() {
                 <label className="text-[10px] font-black uppercase text-brand-beige tracking-widest mr-2">إلى تاريخ</label>
                 <input
                   type="date"
-                  value={dateRange.end}
+                  value={dateRange.end || ''}
                   onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
                   className="w-full px-4 py-3 bg-brand-cream/20 border border-brand-beige/10 rounded-2xl focus:ring-2 focus:ring-brand-red/10 outline-none transition-all text-xs font-bold text-brand-text"
                 />
@@ -1416,7 +1416,7 @@ function ScoreOverride({
           </label>
           <input
             type="number"
-            value={val}
+            value={val || ''}
             onChange={(e) => setVal(e.target.value)}
             className="w-full px-4 py-3 bg-brand-cream/20 border border-brand-beige/10 rounded-xl text-sm font-black text-brand-text outline-none focus:ring-2 focus:ring-brand-red/20 text-center"
             max={max}
@@ -1428,7 +1428,7 @@ function ScoreOverride({
             سبب التعديل
           </label>
           <textarea
-            value={reason}
+            value={reason || ''}
             onChange={(e) => setReason(e.target.value)}
             placeholder="مثلاً: صياغة صحيحة جزئياً..."
             className="w-full px-4 py-3 bg-brand-cream/20 border border-brand-beige/10 rounded-xl text-xs font-bold text-brand-text outline-none focus:ring-2 focus:ring-brand-red/20 h-20 resize-none text-right"

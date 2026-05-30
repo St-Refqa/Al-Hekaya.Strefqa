@@ -165,7 +165,7 @@ export default function Leaderboard() {
           <input
             type="text"
             placeholder="ابحث عن بطل..."
-            value={searchTerm}
+            value={searchTerm || ''}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pr-14 pl-6 py-5 bg-white border-2 border-brand-beige/10 rounded-[24px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm"
           />
