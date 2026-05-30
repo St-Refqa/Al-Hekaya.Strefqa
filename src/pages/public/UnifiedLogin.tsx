@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 export default function UnifiedLogin() {
   const navigate = useNavigate();
   const { login, isAuthenticated, isAdmin, isStudent, user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dir = 'rtl';
   
   const [identifier, setIdentifier] = useState("");

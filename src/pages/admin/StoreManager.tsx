@@ -161,7 +161,8 @@ export default function StoreManager() {
       price: item.price || 0,
       images: item.images && item.images.length > 0 ? item.images : [""],
       category: item.category || 'gift',
-      stock: item.stock || 0
+      stock: item.stock || 0,
+      status: item.status || 'active'
     });
     setIsEditing(item.id!);
     setIsAdding(true);

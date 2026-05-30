@@ -75,7 +75,7 @@ export default function Achievements() {
                 <div className="flex justify-between items-end">
                   <span className="text-white font-black text-sm md:text-base">{user.xp || 0} XP</span>
                   <span className={cn("text-white/40 text-[10px] md:text-xs uppercase tracking-widest", i18n.language === 'en' ? 'text-right' : 'text-left')}>
-                    {t('achievements.next_level_at', { xp: (levelInfo as any).nextXP || levelInfo.nextLevelXp })}
+                    {t('achievements.next_level_at', { xp: levelInfo.nextXP })}
                   </span>
                 </div>
                 <div className="h-3 md:h-4 bg-white/10 rounded-full overflow-hidden">

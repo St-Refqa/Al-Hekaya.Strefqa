@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { cn, formatDate } from '../lib/utils';
 import { 
   BookOpen, FileText, FileSpreadsheet, FileIcon, LinkIcon, 
-  Trash2, Plus, Download, Externallink, AlertCircle 
+  Trash2, Plus, Download, ExternalLink, AlertCircle 
 } from 'lucide-react';
 
 interface LibraryItem {

@@ -12,7 +12,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
-import { Submission, UserAnswer, Question, Assessment } from "../../types";
+import { Submission, UserAnswer, Question, Assessment, User } from "../../types";
 import { useAuth } from "../../hooks/useAuth";
 import { useLocation } from "react-router-dom";
 import {
@@ -32,7 +32,6 @@ import {
   ListChecks,
   ArrowUpDown,
   Info,
-  ChevronRight,
   Trash2,
   CheckCircle,
   AlertTriangle,
