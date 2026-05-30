@@ -60,34 +60,41 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
     );
   } else {
+    const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true;
+    const isLibraryManager = user?.isLibraryManager === true;
+    const hasAnyPermission = isExamCreator || isAttendanceScanner || user?.isStoreManager || isLibraryManager || isMeetingScheduler || user?.role === 'servant';
+
     if (isExamCreator) {
       menuItems.push(
         { icon: BookOpen, label: t('sidebar.assessments') || 'إدارة الاختبارات', path: '/admin/assessments' },
         { icon: Plus, label: "إضافة اختبار جديد", path: '/admin/create' },
         { icon: BookOpen, label: "بنك الأسئلة", path: '/admin/question-bank' },
-        { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
-        { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
-        { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
       );
-    } else if (isAttendanceScanner) {
+    }
+    if (isAttendanceScanner) {
       menuItems.push(
         { icon: Calendar, label: "الحضور والغياب", path: '/admin/attendance' },
-        { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
-        { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
-        { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
       );
-    } else if (user?.isStoreManager) {
+    }
+    if (user?.isStoreManager) {
       menuItems.push(
-        { icon: ShoppingBag, label: t('sidebar.store_manager'), path: '/admin/store' },
+        { icon: ShoppingBag, label: t('sidebar.store_manager') || "متجر الهدايا والطلبات", path: '/admin/store' },
+      );
+    }
+    if (isLibraryManager || isExamCreator || isAttendanceScanner || user?.isStoreManager || user?.role === 'servant') {
+      menuItems.push(
         { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
+      );
+    }
+    if (isMeetingScheduler || isExamCreator || isAttendanceScanner || user?.isStoreManager) {
+      menuItems.push(
         { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
+      );
+    }
+    if (hasAnyPermission) {
+      menuItems.push(
         { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
       );
-    } else if (user?.isLibraryManager || user?.role === 'servant') {
-       menuItems.push(
-        { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
-        { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
-       );
     }
   }
 

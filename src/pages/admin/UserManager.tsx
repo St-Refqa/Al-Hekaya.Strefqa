@@ -392,7 +392,10 @@ export default function UserManager() {
     try {
       const userRef = doc(db, "users", targetUser.uid);
       const newStatus = !targetUser.isMeetingScheduler;
-      await updateDoc(userRef, { isMeetingScheduler: newStatus });
+      await updateDoc(userRef, { 
+        isMeetingScheduler: newStatus,
+        isMeetingManager: newStatus
+      });
       setNotification({
         type: "success",
         text: newStatus 

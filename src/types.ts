@@ -38,6 +38,8 @@ export interface User {
   isAttendanceScanner?: boolean;
   isStoreManager?: boolean;
   isLibraryManager?: boolean;
+  isMeetingScheduler?: boolean;
+  isMeetingManager?: boolean;
 }
 
 export interface LoginLog {
