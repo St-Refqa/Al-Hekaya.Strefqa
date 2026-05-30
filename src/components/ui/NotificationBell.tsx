@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc, where } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
 import { Bell, X, Info, CheckCircle2, AlertTriangle, Trash2 } from "lucide-react";
@@ -51,6 +51,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuth(); // Add useAuth to get user details for code check
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     // Determine which notifications to show
@@ -120,6 +121,30 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
         return !(n.readBy || []).includes(userId);
       });
       setUnreadCount(unread.length);
+
+      // Trigger native browser notification for new arrivals (not in initial load)
+      if (isInitialLoad.current) {
+        isInitialLoad.current = false;
+      } else {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const notifId = change.doc.id;
+            const matchesFiltered = data.find(n => n.id === notifId);
+            if (matchesFiltered && Notification.permission === "granted") {
+              try {
+                new Notification(matchesFiltered.title, {
+                  body: matchesFiltered.message,
+                  icon: "/assets/logo-red.png",
+                  badge: "/assets/logo-red.png",
+                  dir: "rtl"
+                });
+              } catch (e) {
+                console.error("Failed to trigger native browser notification:", e);
+              }
+            }
+          }
+        });
+      }
     }, (error) => {
       handleFirestoreError(error, OperationType.LIST, "notifications");
     });

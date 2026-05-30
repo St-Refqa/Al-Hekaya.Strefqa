@@ -6,6 +6,7 @@ import NotificationBell from './ui/NotificationBell';
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { ProfileModal } from './profile/ProfileModal';
+import { PermissionPrompt } from './ui/PermissionPrompt';
 
 export function StudentLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -17,6 +18,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-brand-cream flex" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
+      <PermissionPrompt />
       {/* Sidebar - Desktop Sticky, Mobile Fixed */}
       <StudentSidebar 
         isOpen={isSidebarOpen} 
