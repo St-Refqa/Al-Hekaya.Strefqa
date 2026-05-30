@@ -192,7 +192,7 @@ export default function Announcements() {
                         <h3 className="font-black text-brand-text text-lg">{ann.title}</h3>
                         <p className="text-gray-500 font-medium whitespace-pre-wrap mt-2">{ann.message}</p>
                         {ann.createdAt?.seconds && (
-                           <p className="text-xs text-gray-400 font-bold mt-4">{formatDate(ann.createdAt.seconds * 1000)}</p>
+                           <p className="text-xs text-gray-400 font-bold mt-4">{formatDate(new Date(ann.createdAt.seconds * 1000))}</p>
                         )}
                       </div>
                     </div>
