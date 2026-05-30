@@ -31,10 +31,10 @@ interface SidebarProps {
 
 export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps) {
   const { user, logout } = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const isRTL = i18n.language === 'ar';
+  const isRTL = true;
 
   const menuItems = [
     { icon: Home, label: t('sidebar.dashboard'), path: '/student' },
@@ -267,21 +267,10 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
 
           {/* Bottom Actions */}
           <div className="p-6 mt-auto space-y-3 bg-brand-cream/20 border-t border-brand-beige/5">
-            <div className="flex flex-col gap-2 w-full">
-              <button
-                onClick={() => {
-                  const targetLng = i18n.language === 'ar' ? 'en' : 'ar';
-                  i18n.changeLanguage(targetLng);
-                }}
-                className="w-full flex items-center justify-center gap-2.5 p-3 rounded-2xl bg-white border border-brand-beige/10 text-brand-beige hover:text-brand-red hover:bg-brand-cream/40 transition-all font-black text-[11px] uppercase tracking-wider cursor-pointer"
-              >
-                <Globe className="w-3.5 h-3.5 text-brand-red shrink-0" />
-                <span>{i18n.language === 'ar' ? "English" : "العربية"}</span>
-              </button>
-
+            <div className="flex items-center gap-2 w-full">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2.5 p-3 rounded-2xl bg-white border border-brand-beige/10 text-brand-beige hover:text-rose-600 hover:bg-rose-50 transition-all font-black text-[11px] uppercase tracking-wider group cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2.5 p-3 rounded-2xl bg-white border border-brand-beige/10 text-brand-beige hover:text-rose-600 hover:bg-rose-50 transition-all font-black text-[11px] uppercase tracking-wider group cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5 text-brand-red shrink-0" />
                 <span>{t('sidebar.logout') || "تسجيل الخروج"}</span>

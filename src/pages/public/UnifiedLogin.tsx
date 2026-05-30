@@ -13,13 +13,12 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { cn } from "../../lib/utils";
 import { useTranslation } from "react-i18next";
-import { Globe } from "lucide-react";
 
 export default function UnifiedLogin() {
   const navigate = useNavigate();
   const { login, isAuthenticated, isAdmin, isStudent, user } = useAuth();
-  const { t, i18n } = useTranslation();
-  const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  const { t } = useTranslation();
+  const dir = 'rtl';
   
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -78,19 +77,6 @@ export default function UnifiedLogin() {
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center p-6 relative overflow-hidden" dir={dir}>
-      {/* Dynamic Floating Language Selector */}
-      <div className={cn("absolute top-6 z-50", dir === 'rtl' ? 'left-6' : 'right-6')}>
-        <button
-          onClick={() => {
-            const targetLng = i18n.language === 'ar' ? 'en' : 'ar';
-            i18n.changeLanguage(targetLng);
-          }}
-          className="px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-brand-beige/25 hover:border-brand-red text-brand-text hover:text-brand-red transition-all font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <Globe className="w-4 h-4 text-brand-red shrink-0" />
-          <span>{i18n.language === 'ar' ? "English" : "العربية"}</span>
-        </button>
-      </div>
 
       {/* Decorative Background */}
       <div className="absolute inset-0 bg-textured opacity-30 pointer-events-none" />

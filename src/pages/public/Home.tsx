@@ -13,7 +13,6 @@ import {
   Lock,
   Church,
   Sparkles,
-  Globe,
 } from "lucide-react";
 import { 
   FaFacebookF, 
@@ -62,8 +61,8 @@ function CountdownTimer({ expiresAt }: { expiresAt: string }) {
 export default function Home() {
   const navigate = useNavigate();
   const { login, user, isAuthenticated, isAdmin, isStudent } = useAuth();
-  const { t, i18n } = useTranslation();
-  const dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+  const { t } = useTranslation();
+  const dir = 'rtl';
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -178,19 +177,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-brand-cream relative overflow-x-hidden" dir={dir}>
-      {/* Dynamic Floating Language Selector */}
-      <div className={cn("absolute top-6 z-50", dir === 'rtl' ? 'left-6' : 'right-6')}>
-        <button
-          onClick={() => {
-            const targetLng = i18n.language === 'ar' ? 'en' : 'ar';
-            i18n.changeLanguage(targetLng);
-          }}
-          className="px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-brand-beige/25 hover:border-brand-red text-brand-text hover:text-brand-red transition-all font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <Globe className="w-4 h-4 text-brand-red shrink-0" />
-          <span>{i18n.language === 'ar' ? "English" : "العربية"}</span>
-        </button>
-      </div>
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
          <motion.div 
