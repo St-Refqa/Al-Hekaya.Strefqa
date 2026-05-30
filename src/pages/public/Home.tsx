@@ -463,11 +463,11 @@ export default function Home() {
             </motion.div>
 
             <div className="pt-16 border-t border-brand-cream/50 w-full flex flex-col items-center gap-8">
-               <div className="flex items-center justify-center gap-6 opacity-30 hover:opacity-100 transition-opacity duration-300">
-                  <SmartImage src="/assets/logo-red.png" className="w-12 h-12 object-contain grayscale hover:grayscale-0 transition-all duration-500" alt="" />
-                  <div className="w-px h-10 bg-brand-text/20" />
-                  <SmartImage src="/assets/logo-beige.png" className="w-12 h-12 object-contain grayscale hover:grayscale-0 transition-all duration-500" alt="" />
-               </div>
+                <div className="flex items-center justify-center gap-6 opacity-90 hover:opacity-100 transition-opacity duration-300">
+                   <SmartImage src="/assets/logo-red.png" className="w-12 h-12 object-contain hover:scale-105 transition-all duration-500" alt="" />
+                   <div className="w-px h-10 bg-brand-text/20" />
+                   <SmartImage src="/assets/logo-beige.png" className="w-12 h-12 object-contain hover:scale-105 transition-all duration-500" alt="" />
+                </div>
                <div className="flex items-center gap-4 bg-brand-cream px-6 py-3 rounded-full">
                   <div className="w-2 h-2 bg-brand-red rounded-full animate-pulse" />
                   <p className="text-brand-beige font-black text-xs uppercase tracking-[0.2em] text-center">
