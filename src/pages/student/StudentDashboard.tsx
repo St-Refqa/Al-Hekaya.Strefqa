@@ -749,7 +749,8 @@ export default function StudentDashboard() {
               }}
               className={cn(
                 "bg-white p-3 md:p-4.5 rounded-xl md:rounded-[24px] border border-brand-beige/10 shadow-sm flex flex-col items-center text-center group hover:border-brand-red/20 hover:shadow-md transition-all relative overflow-hidden",
-                "cursor-pointer"
+                "cursor-pointer",
+                idx === 0 ? "col-span-2 md:col-span-1" : ""
               )}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-brand-red/[0.02] via-transparent to-brand-cream/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -1660,7 +1661,7 @@ function InfoItem({
             (e.currentTarget as HTMLElement).style.color = "";
           }}
         >
-          {React.cloneElement(icon as React.ReactElement, { className: "w-3.5 h-3.5" })}
+          {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: "w-3.5 h-3.5" })}
         </div>
         <span className="text-[8px] font-black text-brand-beige uppercase tracking-widest">
           {label}

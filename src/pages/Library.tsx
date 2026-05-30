@@ -221,49 +221,44 @@ export default function Library() {
             key={item.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-6 rounded-[24px] border border-brand-beige/20 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-48 group relative"
+            onClick={() => window.open(item.contentUrl, '_blank')}
+            className="bg-white p-6 rounded-[24px] border border-brand-beige/20 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-48 group relative cursor-pointer hover:border-brand-red/30"
           >
             <div className="flex justify-between items-start text-right">
               {isLibraryManager && (
                 <button 
-                  onClick={() => handleDelete(item.id)}
-                  className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.id);
+                  }}
+                  className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors relative z-20"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}
-              <div className="flex bg-gray-50 p-3 rounded-2xl">
+              <div className="flex bg-gray-50 p-3 rounded-2xl mr-auto">
                 {getIcon(item.type)}
               </div>
             </div>
             
             <div className="text-right mt-4 space-y-1">
-              <h3 className="font-extrabold text-lg line-clamp-2" title={item.title}>{item.title}</h3>
+              <h3 className="font-extrabold text-lg line-clamp-2 text-brand-text group-hover:text-brand-red transition-colors" title={item.title}>{item.title}</h3>
               <p className="text-xs text-brand-beige font-semibold">
                 {item.createdAt ? formatDate(item.createdAt) : 'حديث'}
               </p>
             </div>
 
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all z-10 w-full flex justify-center">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all z-10 w-full flex justify-center pointer-events-none">
               {item.type === 'link' ? (
-                <a 
-                  href={item.contentUrl} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="bg-white/90 backdrop-blur-sm border border-brand-beige shadow-xl flex items-center justify-center gap-2 px-6 py-3 rounded-full text-brand-text font-black hover:scale-105 transition-transform"
-                >
+                <div className="bg-white/90 backdrop-blur-sm border border-brand-beige shadow-xl flex items-center justify-center gap-2 px-6 py-3 rounded-full text-brand-text font-black scale-95 group-hover:scale-100 transition-transform">
                   <span>فتح الرابط</span>
-                  <LinkIcon className="w-4 h-4" />
-                </a>
+                  <LinkIcon className="w-4 h-4 text-brand-red" />
+                </div>
               ) : (
-                <a 
-                  href={item.contentUrl} 
-                  download={item.fileName || 'ملف'}
-                  className="bg-white/90 backdrop-blur-sm border border-brand-beige shadow-xl flex items-center justify-center gap-2 px-6 py-3 rounded-full text-brand-text font-black hover:scale-105 transition-transform"
-                >
+                <div className="bg-white/90 backdrop-blur-sm border border-brand-beige shadow-xl flex items-center justify-center gap-2 px-6 py-3 rounded-full text-brand-text font-black scale-95 group-hover:scale-100 transition-transform">
                   <span>تحميل الملف</span>
-                  <Download className="w-4 h-4" />
-                </a>
+                  <Download className="w-4 h-4 text-brand-red" />
+                </div>
               )}
             </div>
           </motion.div>

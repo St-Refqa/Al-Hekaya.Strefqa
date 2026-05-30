@@ -12,7 +12,7 @@ interface AppNotification {
   id: string;
   title: string;
   message: string;
-  type: "info" | "warning" | "success";
+  type: "info" | "warning" | "success" | "purchase" | string;
   category?: string;
   createdAt: any;
   isRead: boolean;
@@ -177,7 +177,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
   );
 
   return (
-    <div className="relative z-50">
+    <div className="relative z-[200]">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-3 bg-white rounded-2xl shadow-sm hover:scale-110 transition-transform group"
@@ -199,13 +199,13 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-brand-text/5 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-brand-text/10 backdrop-blur-sm z-[200]"
             />
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="fixed inset-x-4 top-20 sm:absolute sm:inset-x-auto sm:top-full sm:left-0 sm:right-auto sm:mt-4 w-auto sm:w-[400px] max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-brand-beige/10 overflow-hidden z-50 origin-top font-sans"
+              className="fixed left-4 right-4 top-20 sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-4 w-auto sm:w-[400px] bg-white rounded-3xl shadow-2xl border border-brand-beige/10 overflow-hidden z-[210] origin-top font-sans"
               dir="rtl"
             >
               <div className="p-6 border-b border-brand-cream/50 flex items-center justify-between bg-brand-cream/10">
@@ -276,7 +276,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
                                   )}
                                   <button 
                                     onClick={(e) => deleteNotification(notif.id, e)}
-                                    className="p-1 text-brand-beige hover:text-brand-red opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="p-1 text-brand-beige hover:text-brand-red opacity-60 sm:opacity-0 group-hover:opacity-100 transition-opacity"
                                   >
                                     <Trash2 className="w-3 h-3" />
                                   </button>

@@ -11,11 +11,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { i18n } = useTranslation();
 
-  const isAdmin = user?.role === 'admin';
-  const isExamCreator = user?.isExamCreator === true;
-  const isAttendanceScanner = user?.isAttendanceScanner === true;
+  const userRole = (user?.role as string || '').toLowerCase();
+  const isAdmin = userRole === 'admin';
+  const isExamCreator = user?.isExamCreator === true || userRole === 'creator';
+  const isAttendanceScanner = user?.isAttendanceScanner === true || userRole === 'attendance';
+  const isStoreManager = user?.isStoreManager === true || userRole === 'store';
+  const isLibraryManager = user?.isLibraryManager === true || userRole === 'library';
+  const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true || userRole === 'scheduler';
+  const isServant = isExamCreator || isAttendanceScanner || isStoreManager || isLibraryManager || isMeetingScheduler || userRole === 'servant';
 
-  if (!user || (!isAdmin && !isExamCreator && !isAttendanceScanner)) return <>{children}</>;
+  if (!user || (!isAdmin && !isServant)) return <>{children}</>;
 
   return (
     <div className="min-h-screen bg-brand-cream flex" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
@@ -37,10 +42,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <NotificationBell userId={user.uid} userRole={user.role} />
             <div className={cn(i18n.language === 'ar' ? 'text-right' : 'text-left')}>
               <h1 className="text-sm font-black truncate max-w-[200px]">
-                {isAdmin ? "بوابة الإدارة العامة" : isExamCreator ? "بوابة الخادم لإنشاء الاختبارات" : "بوابة رصد الحضور"}
+                {isAdmin ? "بوابة الإدارة العامة" : 
+                 isExamCreator ? "بوابة الخادم لإنشاء الاختبارات" : 
+                 isStoreManager ? "بوابة إدارة المتجر" :
+                 isLibraryManager ? "بوابة إدارة المكتبة" :
+                 isMeetingScheduler ? "بوابة إدارة المواعيد" :
+                 "بوابة الخدمة"}
               </h1>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg transform rotate-6">
+            <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg transform rotate-6 animate-pulse-slow">
                <Shield className="w-5 h-5 text-white" />
             </div>
           </div>
