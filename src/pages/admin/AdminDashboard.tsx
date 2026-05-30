@@ -586,7 +586,9 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex flex-wrap gap-4 items-center">
-          <NotificationBell userId={user?.uid} userRole={user?.role} />
+          <div className="hidden lg:block">
+            <NotificationBell userId={user?.uid} userRole={user?.role} />
+          </div>
           <Link
             to="/admin/announcements"
             className="px-6 py-4 bg-brand-cream/50 border border-brand-beige/20 rounded-2xl hover:bg-brand-red hover:text-white transition-all flex items-center gap-2 font-black text-brand-text text-[10px] uppercase tracking-widest shadow-sm"
