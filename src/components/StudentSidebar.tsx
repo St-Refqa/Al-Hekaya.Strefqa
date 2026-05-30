@@ -13,7 +13,8 @@ import {
   Globe,
   Calendar,
   RefreshCw,
-  BookOpen
+  BookOpen,
+  Plus
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -48,11 +49,11 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
   ];
 
   if (user?.isExamCreator === true) {
-    menuItems.push({ icon: Globe, label: 'بوابة إعداد الاختبارات', path: '/admin/create' });
+    menuItems.push({ icon: Plus, label: 'بوابة إعداد الاختبارات', path: '/admin/create' });
   }
 
   if (user?.isAttendanceScanner === true) {
-    menuItems.push({ icon: Globe, label: 'تسجيل الحضور والغياب', path: '/admin/attendance' });
+    menuItems.push({ icon: Calendar, label: 'تسجيل الحضور والغياب', path: '/admin/attendance' });
   }
 
   const handleLogout = () => {
@@ -93,7 +94,7 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
             <div className="flex items-center justify-between mb-8">
               <Link to="/student" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="w-12 h-12 bg-brand-cream rounded-2xl flex items-center justify-center shadow-inner">
-                  <SmartImage src="/assets/logo-red.png" className="w-7 h-7 object-contain" alt="" fallback={<User className="text-brand-red w-6 h-6" />} />
+                  <SmartImage src="/assets/logo-red.png" className="w-7 h-7 object-contain" alt="" fallback={<BookOpen className="text-brand-red w-6 h-6" />} />
                 </div>
                 <div className={cn("flex flex-col", isRTL ? "text-right" : "text-left")}>
                   <h3 className="text-xl font-black text-brand-text tracking-tight uppercase">{t('sidebar.story_title')}</h3>
