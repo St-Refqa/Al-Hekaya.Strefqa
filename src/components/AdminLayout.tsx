@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import NotificationBell from './ui/NotificationBell';
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -19,6 +20,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const isLibraryManager = user?.isLibraryManager === true || userRole === 'library';
   const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true || userRole === 'scheduler';
   const isServant = isExamCreator || isAttendanceScanner || isStoreManager || isLibraryManager || isMeetingScheduler || userRole === 'servant';
+
+  const headerPath = isAdmin ? '/admin' : isExamCreator ? '/admin/create' : isStoreManager ? '/admin/store' : isAttendanceScanner ? '/admin/attendance' : '/admin';
 
   if (!user || (!isAdmin && !isServant)) return <>{children}</>;
 
@@ -40,19 +43,21 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           
           <div className="flex items-center gap-4">
             <NotificationBell userId={user.uid} userRole={user.role} />
-            <div className={cn(i18n.language === 'ar' ? 'text-right' : 'text-left')}>
-              <h1 className="text-sm font-black truncate max-w-[200px]">
-                {isAdmin ? "بوابة الإدارة العامة" : 
-                 isExamCreator ? "بوابة الخادم لإنشاء الاختبارات" : 
-                 isStoreManager ? "بوابة إدارة المتجر" :
-                 isLibraryManager ? "بوابة إدارة المكتبة" :
-                 isMeetingScheduler ? "بوابة إدارة المواعيد" :
-                 "بوابة الخدمة"}
-              </h1>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg transform rotate-6 animate-pulse-slow">
-               <Shield className="w-5 h-5 text-white" />
-            </div>
+            <Link to={headerPath} className="flex items-center gap-3 hover:opacity-85 transition-opacity">
+              <div className={cn(i18n.language === 'ar' ? 'text-right' : 'text-left')}>
+                <h1 className="text-sm font-black truncate max-w-[200px]">
+                  {isAdmin ? "بوابة الإدارة العامة" : 
+                   isExamCreator ? "بوابة الخادم لإنشاء الاختبارات" : 
+                   isStoreManager ? "بوابة إدارة المتجر" :
+                   isLibraryManager ? "بوابة إدارة المكتبة" :
+                   isMeetingScheduler ? "بوابة إدارة المواعيد" :
+                   "بوابة الخدمة"}
+                </h1>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-brand-red flex items-center justify-center shadow-lg transform rotate-6 animate-pulse-slow">
+                 <Shield className="w-5 h-5 text-white" />
+              </div>
+            </Link>
           </div>
         </header>
 

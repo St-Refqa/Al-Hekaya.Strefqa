@@ -36,9 +36,12 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const isRTL = true;
 
-  const isExamCreator = user?.isExamCreator === true;
-  const isAttendanceScanner = user?.isAttendanceScanner === true;
-  const isAdmin = user?.role === 'admin';
+  const userRole = (user?.role as string || '').toLowerCase();
+  const isAdmin = userRole === 'admin';
+  const isExamCreator = user?.isExamCreator === true || userRole === 'creator';
+  const isAttendanceScanner = user?.isAttendanceScanner === true || userRole === 'attendance';
+  const isStoreManager = user?.isStoreManager === true || userRole === 'store';
+  const headerPath = isAdmin ? '/admin' : isExamCreator ? '/admin/create' : isStoreManager ? '/admin/store' : isAttendanceScanner ? '/admin/attendance' : '/admin';
 
   const menuItems = [];
 
@@ -60,9 +63,10 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
     );
   } else {
-    const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true;
-    const isLibraryManager = user?.isLibraryManager === true;
-    const hasAnyPermission = isExamCreator || isAttendanceScanner || user?.isStoreManager || isLibraryManager || isMeetingScheduler || user?.role === 'servant';
+    const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true || userRole === 'scheduler';
+    const isLibraryManager = user?.isLibraryManager === true || userRole === 'library';
+    const isStoreManager = user?.isStoreManager === true || userRole === 'store';
+    const hasAnyPermission = isExamCreator || isAttendanceScanner || isStoreManager || isLibraryManager || isMeetingScheduler || userRole === 'servant';
 
     if (isExamCreator) {
       menuItems.push(
@@ -76,17 +80,17 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
         { icon: Calendar, label: "الحضور والغياب", path: '/admin/attendance' },
       );
     }
-    if (user?.isStoreManager) {
+    if (isStoreManager) {
       menuItems.push(
         { icon: ShoppingBag, label: t('sidebar.store_manager') || "متجر الهدايا والطلبات", path: '/admin/store' },
       );
     }
-    if (isLibraryManager || isExamCreator || isAttendanceScanner || user?.isStoreManager || user?.role === 'servant') {
+    if (isLibraryManager || isExamCreator || isAttendanceScanner || isStoreManager || userRole === 'servant') {
       menuItems.push(
         { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
       );
     }
-    if (isMeetingScheduler || isExamCreator || isAttendanceScanner || user?.isStoreManager) {
+    if (isMeetingScheduler || isExamCreator || isAttendanceScanner || isStoreManager) {
       menuItems.push(
         { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
       );
@@ -132,7 +136,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
           {/* Header Area */}
           <div className="p-8 pb-4">
             <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
+              <Link to={headerPath} className="flex items-center gap-3 hover:opacity-85 transition-opacity">
                 <div className="w-12 h-12 bg-brand-red rounded-2xl flex items-center justify-center shadow-lg shadow-brand-red/20">
                   <Shield className="text-white w-6 h-6" />
                 </div>
@@ -144,7 +148,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                     {isAdmin ? (t('sidebar.central_control') || 'التحكم المركزي') : isExamCreator ? "إعداد المناهج" : "رصد حضور الطلاب"}
                   </span>
                 </div>
-              </div>
+              </Link>
               <button 
                 onClick={onClose} 
                 className="lg:hidden p-2.5 bg-white/5 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all"
