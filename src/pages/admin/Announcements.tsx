@@ -185,8 +185,19 @@ export default function Announcements() {
               {announcements.map(ann => (
                  <div key={ann.id} className="bg-white p-6 rounded-[24px] border border-gray-100 flex justify-between gap-4">
                     <div className="flex gap-4 items-start">
-                      <div className={`p-3 rounded-2xl ${ann.type === 'warning' ? 'bg-red-50 text-red-500' : ann.type === 'success' ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
-                        <Bell className="w-6 h-6" />
+                      <div className="w-12 h-12 shrink-0 rounded-2xl border border-brand-red/10 bg-brand-cream overflow-hidden flex items-center justify-center">
+                        <img 
+                          src="/assets/logo-red.png" 
+                          alt="Logo" 
+                          className="w-full h-full object-contain p-1" 
+                          onError={(e) => {
+                            (e.target as any).style.display = 'none';
+                            (e.target as any).nextSibling.style.display = 'block';
+                          }}
+                        />
+                        <div style={{ display: 'none' }} className={`p-3 w-full h-full flex items-center justify-center rounded-2xl ${ann.type === 'warning' ? 'bg-red-50 text-red-500' : ann.type === 'success' ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
+                          <Bell className="w-6 h-6" />
+                        </div>
                       </div>
                       <div>
                         <h3 className="font-black text-brand-text text-lg">{ann.title}</h3>

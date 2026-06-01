@@ -8,6 +8,7 @@ import {
   generateAIHint, 
   refineQuestionWithAI 
 } from "./server/gemini";
+import { runNotificationWorker } from "./server/notificationWorker";
 
 dotenv.config();
 
@@ -92,6 +93,16 @@ async function startServer() {
     }
   });
 
+  app.post("/api/system/check-reminders", async (req, res) => {
+    try {
+      await runNotificationWorker();
+      res.json({ success: true, message: "Server-side notification cycle executed successfully." });
+    } catch (error: any) {
+      console.error("Error triggering manual notification check:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post("/api/gemini/generate", async (req, res) => {
     try {
       const { text, language } = req.body;
@@ -171,6 +182,12 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    
+    // Start server-side notification worker checks (Runs immediately, then every 5 minutes)
+    runNotificationWorker().catch(err => console.error("Error in initial notification worker cycle:", err));
+    setInterval(() => {
+      runNotificationWorker().catch(err => console.error("Error in scheduled notification worker cycle:", err));
+    }, 5 * 60 * 1000);
   });
 }
 

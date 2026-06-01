@@ -274,12 +274,22 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
                           onClick={() => markAsRead(notif.id)}
                         >
                           <div className="flex gap-4">
-                            <div className={cn(
-                              "w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border",
-                              styles.bg,
-                              styles.border
-                            )}>
-                              {styles.icon}
+                            <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border border-brand-red/10 bg-brand-cream overflow-hidden">
+                              <img 
+                                src="/assets/logo-red.png" 
+                                alt="Logo" 
+                                className="w-full h-full object-contain p-1" 
+                                onError={(e) => {
+                                  (e.target as any).style.display = 'none';
+                                  (e.target as any).nextSibling.style.display = 'block';
+                                }}
+                              />
+                              <div style={{ display: 'none' }} className={cn(
+                                "w-full h-full flex items-center justify-center",
+                                styles.bg
+                              )}>
+                                {styles.icon}
+                              </div>
                             </div>
                             <div className="flex-1 min-w-0 pr-4">
                               <div className="flex items-center justify-between mb-1">
