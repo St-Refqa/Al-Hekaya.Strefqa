@@ -163,7 +163,10 @@ export default function PostExamReview() {
 
            <div className="space-y-4">
               {submission.answers.map((answer, index) => {
-                const question = [...assessment.questions.easy, ...assessment.questions.medium, ...assessment.questions.hard].find(q => q.id === answer.questionId);
+                const easyQ = assessment.questions?.easy || [];
+                const mediumQ = assessment.questions?.medium || [];
+                const hardQ = assessment.questions?.hard || [];
+                const question = [...easyQ, ...mediumQ, ...hardQ].find(q => q.id === answer.questionId);
                 if (!question) return null;
                 const isExpanded = expandedId === answer.questionId;
 

@@ -48,12 +48,19 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
     { icon: TrendingUp, label: t('sidebar.analytics'), path: '/student/analytics' },
   ];
 
-  if (user?.isExamCreator === true) {
-    menuItems.push({ icon: Plus, label: 'بوابة إعداد الاختبارات', path: '/admin/create' });
-  }
+  const userRole = (user?.role || '').toLowerCase();
+  const isAdmin = userRole === 'admin';
+  const isExamCreator = user?.isExamCreator === true || userRole === 'creator';
+  const isAttendanceScanner = user?.isAttendanceScanner === true || userRole === 'attendance';
+  const isStoreManager = user?.isStoreManager === true || userRole === 'store';
+  const isLibraryManager = user?.isLibraryManager === true || userRole === 'library';
+  const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true || userRole === 'scheduler';
+  const isServant = isExamCreator || isAttendanceScanner || isStoreManager || isLibraryManager || isMeetingScheduler || userRole === 'servant';
 
-  if (user?.isAttendanceScanner === true) {
-    menuItems.push({ icon: Calendar, label: 'تسجيل الحضور والغياب', path: '/admin/attendance' });
+  if (isAdmin) {
+    menuItems.push({ icon: Globe, label: 'العودة للوحة التحكم ↩️', path: '/admin' });
+  } else if (isServant) {
+    menuItems.push({ icon: Globe, label: 'العودة لبوابة الخدمة ↩️', path: '/admin' });
   }
 
   const handleLogout = () => {
@@ -81,7 +88,7 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
       {/* Sidebar Content */}
       <aside 
         className={cn(
-          "fixed top-0 bottom-0 w-80 bg-white z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:translate-x-0 lg:z-40",
+          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-white z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:translate-x-0 lg:z-40",
           isRTL ? "right-0 border-l border-brand-beige/10" : "left-0 border-r border-brand-beige/10",
           isOpen 
             ? "translate-x-0" 
@@ -200,7 +207,7 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
                       if (window.innerWidth < 1024) onClose();
                     }}
                     className={cn(
-                      "flex items-center justify-between px-5 py-4 rounded-[24px] transition-all duration-500 group relative overflow-hidden",
+                      "flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl sm:rounded-[24px] transition-all duration-500 group relative overflow-hidden",
                       isActive 
                         ? "text-white" 
                         : "text-brand-beige hover:text-brand-text hover:bg-brand-cream/50"
@@ -226,10 +233,10 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
 
                     <div className="flex items-center gap-3 relative z-10">
                       <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0",
+                        "w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0",
                         isActive ? "bg-white/20 scale-110 shadow-[0_0_15px_rgba(255,255,255,0.2)]" : "bg-transparent group-hover:bg-brand-red/10"
                       )}>
-                        <item.icon className={cn("w-5 h-5 transition-transform duration-500", isActive ? "rotate-0" : "group-hover:scale-110 group-hover:rotate-6")} />
+                        <item.icon className={cn("w-4.5 h-4.5 sm:w-5 sm:h-5 transition-transform duration-500", isActive ? "rotate-0" : "group-hover:scale-110 group-hover:rotate-6")} />
                       </div>
                       <div className={cn("flex flex-col", isRTL ? "text-right" : "text-left")}>
                         <span className={cn(

@@ -125,7 +125,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar Content */}
       <aside 
         className={cn(
-          "fixed top-0 bottom-0 w-80 bg-brand-text border-white/5 z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:translate-x-0 lg:z-40",
+          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-brand-text border-white/5 z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:translate-x-0 lg:z-40",
           isRTL ? "right-0 border-l" : "left-0 border-r",
           isOpen 
             ? "translate-x-0" 
@@ -200,7 +200,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                       if (window.innerWidth < 1024) onClose();
                     }}
                     className={cn(
-                      "flex items-center justify-between px-5 py-4 rounded-[24px] transition-all duration-500 group relative overflow-hidden",
+                      "flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl sm:rounded-[24px] transition-all duration-500 group relative overflow-hidden",
                       isActive 
                         ? "text-white bg-brand-red shadow-2xl shadow-brand-red/30" 
                         : "text-white/40 hover:text-white hover:bg-white/5"
@@ -213,10 +213,10 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
 
                     <div className="flex items-center gap-3 relative z-10">
                       <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0",
+                        "w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-500 shrink-0",
                         isActive ? "bg-white/20 scale-110 rotate-3 shadow-lg" : "bg-white/5 group-hover:bg-white/10"
                       )}>
-                        <item.icon className={cn("w-5 h-5 transition-transform duration-500", isActive ? "scale-100" : "group-hover:scale-110 group-hover:rotate-6")} />
+                        <item.icon className={cn("w-4.5 h-4.5 sm:w-5 sm:h-5 transition-transform duration-500", isActive ? "scale-100" : "group-hover:scale-110 group-hover:rotate-6")} />
                       </div>
                       <div className={cn("flex flex-col", isRTL ? "text-right" : "text-left")}>
                         <span className={cn(

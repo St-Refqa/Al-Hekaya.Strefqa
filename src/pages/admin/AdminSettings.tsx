@@ -50,17 +50,23 @@ export default function AdminSettings() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
+        const saved = localStorage.getItem("global_config");
+        if (saved) {
+          setSettings(JSON.parse(saved));
+        }
+        
         const docRef = doc(db, "settings", "global_config");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setSettings(prev => ({
-            ...prev,
-            ...data
-          }));
+          setSettings(prev => {
+            const merged = { ...prev, ...data };
+            localStorage.setItem("global_config", JSON.stringify(merged));
+            return merged;
+          });
         }
       } catch (error) {
-        console.error("Error loading settings:", error);
+        console.warn("DB settings load failed, using local settings:", error);
       } finally {
         setIsLoading(false);
       }
@@ -73,8 +79,13 @@ export default function AdminSettings() {
   const handleSave = async (customSettings = settings) => {
     setIsSaving(true);
     try {
-      const docRef = doc(db, "settings", "global_config");
-      await setDoc(docRef, customSettings, { merge: true });
+      localStorage.setItem("global_config", JSON.stringify(customSettings));
+      try {
+        const docRef = doc(db, "settings", "global_config");
+        await setDoc(docRef, customSettings, { merge: true });
+      } catch (dbErr) {
+        console.warn("DB settings save failed, saved locally:", dbErr);
+      }
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 3000);
     } catch (err: any) {
