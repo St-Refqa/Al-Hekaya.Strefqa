@@ -395,10 +395,7 @@ export default function PreparationMeetings() {
           </div>
         </div>
       )}
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Modern Booklet / Saturday Navigation Panel - hidden on print */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-brand-cream/30 p-3 rounded-[28px] border border-brand-beige/12 print:hidden shadow-sm">
