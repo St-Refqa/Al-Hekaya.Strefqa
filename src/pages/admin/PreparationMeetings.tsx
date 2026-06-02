@@ -149,8 +149,6 @@ export default function PreparationMeetings() {
 
   // Realtime subscription for meetings
   useEffect(() => {
-    notificationService.checkAndInjectPrepMeetingReminders().catch(console.error);
-
     const q = query(
       collection(db, 'preparationMeetings'), 
       orderBy('dateTime', 'asc')
@@ -1001,7 +999,11 @@ export default function PreparationMeetings() {
                 <button 
                   id="btn-trigger-reminders"
                   onClick={() => {
-                    notificationService.checkAndInjectPrepMeetingReminders(true)
+                    fetch("/api/system/check-reminders", { method: "POST" })
+                      .then(res => {
+                        if (!res.ok) throw new Error("HTTP error " + res.status);
+                        return res.json();
+                      })
                       .then(() => triggerNotification('success', 'تم التحقق من تذكيرات المواعيد وبث الإشعارات بالخلفية!'))
                       .catch(e => {
                         console.error(e);

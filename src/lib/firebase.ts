@@ -105,25 +105,62 @@ function cleanData(data: any, path: string) {
   const clone = { ...data };
   delete clone.uid; // Delete uid as it's not a column, Supabase expects 'id'
   
-  if (path !== 'assessments') return clone;
-  
-  const allowedKeys = [
-    'id', 'updatedAt', 'status', 'fullscreenMode', 'expiresAt', 'antiCopyMode',
-    'readingDuration', 'version', 'language', 'questions', 'title', 'allowReturnToText',
-    'answerDuration', 'createdAt', 'hideTextDuringQuestions', 'text', 'targetGroup', 'assessmentType'
-  ];
-  
-  const extras: any = {};
-  for (const key of Object.keys(clone)) {
-    if (!allowedKeys.includes(key)) {
-      extras[key] = clone[key];
-      delete clone[key];
+  if (path === 'assessments') {
+    const allowedKeys = [
+      'id', 'updatedAt', 'status', 'fullscreenMode', 'expiresAt', 'antiCopyMode',
+      'readingDuration', 'version', 'language', 'questions', 'title', 'allowReturnToText',
+      'answerDuration', 'createdAt', 'hideTextDuringQuestions', 'text', 'targetGroup', 'assessmentType'
+    ];
+    
+    const extras: any = {};
+    for (const key of Object.keys(clone)) {
+      if (!allowedKeys.includes(key)) {
+        extras[key] = clone[key];
+        delete clone[key];
+      }
     }
+    
+    if (Object.keys(extras).length > 0) {
+      if (!clone.questions) clone.questions = {};
+      clone.questions.__extras = { ...(clone.questions.__extras || {}), ...extras };
+    }
+    return clone;
+  }
+
+  if (path === 'submissions') {
+    const allowedKeys = [
+      'id', 'submittedManually', 'assessmentTitle', 'maxScore', 'bonusPoints', 'finalScore', 
+      'participantId', 'baseScore', 'date', 'participantPhoneOrId', 'participantName', 
+      'readingTimeSeconds', 'isReviewed', 'answers', 'assessmentId', 'unansweredCount', 
+      'assessmentVersion', 'answeringTimeSeconds', 'status', 'streakCount', 'isManuallyAdjusted', 
+      'adjustmentAudit'
+    ];
+    for (const key of Object.keys(clone)) {
+      if (!allowedKeys.includes(key)) {
+        delete clone[key];
+      }
+    }
+    
+    // Safely default numeric values to prevent PostgreSQL "NaN" or invalid numeric syntax errors
+    const numericKeys = [
+      'maxScore', 'bonusPoints', 'finalScore', 'baseScore', 
+      'readingTimeSeconds', 'unansweredCount', 'assessmentVersion', 
+      'answeringTimeSeconds', 'streakCount'
+    ];
+    for (const key of numericKeys) {
+      const val = clone[key];
+      if (val === undefined || val === null || (typeof val === 'number' && isNaN(val))) {
+        clone[key] = 0;
+      }
+    }
+    return clone;
   }
   
-  if (Object.keys(extras).length > 0) {
-    if (!clone.questions) clone.questions = {};
-    clone.questions.__extras = { ...(clone.questions.__extras || {}), ...extras };
+  // Strip any properties with value of undefined to prevent Supabase bad request / serialization failures
+  for (const key of Object.keys(clone)) {
+    if (clone[key] === undefined) {
+      delete clone[key];
+    }
   }
   
   return clone;
@@ -158,7 +195,8 @@ export async function updateDoc(ref: any, data: any) {
       }
     }
   }
-  const { error: err2 } = await supabase.from(ref._path).update(parsedData).eq('id', ref.id);
+  const cleanedData = cleanData(parsedData, ref._path);
+  const { error: err2 } = await supabase.from(ref._path).update(cleanedData).eq('id', ref.id);
   if (err2) throw err2;
 }
 

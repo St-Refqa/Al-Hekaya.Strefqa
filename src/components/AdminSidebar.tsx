@@ -125,11 +125,13 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar Content */}
       <aside 
         className={cn(
-          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-brand-text border-white/5 z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:translate-x-0 lg:z-40",
-          isRTL ? "right-0 border-l" : "left-0 border-r",
+          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-brand-text border-white/5 z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:z-40",
+          isRTL 
+            ? "border-l lg:right-0" 
+            : "border-r lg:left-0",
           isOpen 
-            ? "translate-x-0" 
-            : isRTL ? "max-lg:translate-x-full" : "max-lg:-translate-x-full"
+            ? "opacity-100 " + (isRTL ? "right-0" : "left-0")
+            : "max-lg:opacity-0 max-lg:invisible max-lg:pointer-events-none " + (isRTL ? "max-lg:-right-80" : "max-lg:-left-80")
         )}
       >
         <div className="flex flex-col h-full">

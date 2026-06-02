@@ -114,46 +114,6 @@ function AnimatedRoutes() {
   }, []);
 
   React.useEffect(() => {
-    // Only admins should trigger the check and generation of weekly reminders to save Firestore quota
-    if (user?.role !== 'admin') return;
-
-    // Run weekly meeting reminder checks
-    import('./lib/notificationService').then(({ notificationService }) => {
-      notificationService.checkAndInjectWeeklyReminders().catch(console.error);
-    }).catch(console.error);
-  }, [user?.role]);
-
-  React.useEffect(() => {
-    if (!user) return;
-    const userRole = (user?.role || '').toLowerCase();
-    const isServantOrAdmin = ['admin', 'creator', 'attendance', 'store', 'servant'].includes(userRole) || 
-                             user?.isExamCreator || 
-                             user?.isAttendanceScanner || 
-                             user?.isStoreManager || 
-                             user?.isMeetingScheduler || 
-                             user?.code?.toUpperCase().startsWith('S');
-
-    if (!isServantOrAdmin) return;
-
-    // Run custom preparation meetings 12h check
-    import('./lib/notificationService').then(({ notificationService }) => {
-      notificationService.checkAndInjectPrepMeetingReminders().catch(console.error);
-    }).catch(console.error);
-  }, [user]);
-
-  React.useEffect(() => {
-    if (!user) return;
-
-    // Run custom fixed meetings 12-hour checks & favorite lecture alerts
-    import('./lib/notificationService').then(({ notificationService }) => {
-      notificationService.checkAndInjectFixedMeetings12hReminders().catch(console.error);
-      if (user?.uid) {
-        notificationService.checkAndInjectFavorites12hReminders(user.uid).catch(console.error);
-      }
-    }).catch(console.error);
-  }, [user]);
-
-  React.useEffect(() => {
     // Play a gentle swish sound on every route change (after First Interaction)
     import('./lib/audio').then(module => {
       module.playTransitionSound();

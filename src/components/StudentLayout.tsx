@@ -17,7 +17,7 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   if (!user) return <>{children}</>;
 
   return (
-    <div className="min-h-screen bg-brand-cream flex" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-brand-cream flex overflow-x-hidden max-w-full relative" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
       <PermissionPrompt />
       {/* Sidebar - Desktop Sticky, Mobile Fixed */}
       <StudentSidebar 

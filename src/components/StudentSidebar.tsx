@@ -88,11 +88,13 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
       {/* Sidebar Content */}
       <aside 
         className={cn(
-          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-white z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:translate-x-0 lg:z-40",
-          isRTL ? "right-0 border-l border-brand-beige/10" : "left-0 border-r border-brand-beige/10",
+          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-white z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:z-40",
+          isRTL 
+            ? "border-l border-brand-beige/10 lg:right-0" 
+            : "border-r border-brand-beige/10 lg:left-0",
           isOpen 
-            ? "translate-x-0" 
-            : isRTL ? "max-lg:translate-x-full" : "max-lg:-translate-x-full"
+            ? "opacity-100 " + (isRTL ? "right-0" : "left-0")
+            : "max-lg:opacity-0 max-lg:invisible max-lg:pointer-events-none " + (isRTL ? "max-lg:-right-80" : "max-lg:-left-80")
         )}
       >
         <div className="flex flex-col h-full">
