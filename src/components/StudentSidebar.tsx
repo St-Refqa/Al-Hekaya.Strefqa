@@ -37,10 +37,12 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
   const navigate = useNavigate();
   const isRTL = true;
 
+  const isOnlineStudent = user?.code?.toUpperCase().startsWith('H');
+
   const menuItems = [
     { icon: Home, label: t('sidebar.dashboard'), path: '/student' },
     { icon: Scroll, label: t('sidebar.assessments'), path: '/student/assessments' },
-    { icon: Calendar, label: 'جدول المناهج والاجتماعات', path: '/student/meetings' },
+    ...(!isOnlineStudent ? [{ icon: Calendar, label: 'جدول المناهج والاجتماعات', path: '/student/meetings' }] : []),
     { icon: BookOpen, label: 'المكتبة الكنسية', path: '/student/library' },
     { icon: Ticket, label: t('sidebar.store'), path: '/student/store' },
     { icon: Trophy, label: t('sidebar.leaderboard'), path: '/student/leaderboard' },
