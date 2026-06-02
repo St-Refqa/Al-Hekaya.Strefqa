@@ -13,11 +13,12 @@ import {
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../hooks/useAuth';
 import { notificationService } from '../../lib/notificationService';
-import { saturdaySchedules, thursdaySchedules, ScheduleItem } from '../../data/fixedSchedules';
+import { saturdaySchedules, ScheduleItem } from '../../data/fixedSchedules';
 import { 
   Calendar as CalendarIcon, 
   Plus, 
   Trash2, 
+  Edit,
   Clock, 
   User as UserIcon, 
   Bell, 
@@ -61,8 +62,9 @@ export default function PreparationMeetings() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [now] = useState(() => Date.now());
 
-  // Navigation: 'booklet' | 'saturday' | 'thursday' | 'prep_servants'
-  const [activeTab, setActiveTab] = useState<'booklet' | 'saturday' | 'thursday' | 'prep_servants'>('booklet');
+  // Navigation: 'booklet' | 'saturday' | 'prep_servants'
+  const [activeTab, setActiveTab] = useState<'booklet' | 'saturday' | 'prep_servants'>('booklet');
+  const [editingMeeting, setEditingMeeting] = useState<PrepMeeting | null>(null);
   
   // Style view: 'grid' | 'table'
   const [viewStyle, setViewStyle] = useState<'grid' | 'table'>('grid');
@@ -186,48 +188,67 @@ export default function PreparationMeetings() {
       return;
     }
 
-    if (isPastDateTime(dateTime)) {
-      triggerNotification('error', 'لا يمكن جدولة اجتماع في الماضي!');
-      return;
+    // Validate past dates only if datetime changed
+    if (!editingMeeting || editingMeeting.dateTime !== dateTime) {
+      if (isPastDateTime(dateTime)) {
+        triggerNotification('error', 'لا يمكن جدولة اجتماع في الماضي!');
+        return;
+      }
     }
 
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, 'preparationMeetings'), {
-        title: title.trim(),
-        description: description.trim(),
-        dateTime,
-        createdAt: new Date().toISOString(),
-        createdBy: user?.fullName || 'مسؤول الخدمة',
-        reminderSent12h: false
-      });
+      if (editingMeeting) {
+        const meetingRef = doc(db, 'preparationMeetings', editingMeeting.id);
+        const updatedMeeting = {
+          ...editingMeeting,
+          title: title.trim(),
+          description: description.trim(),
+          dateTime,
+          reminderSent12h: editingMeeting.dateTime !== dateTime ? false : (editingMeeting.reminderSent12h || false),
+          immediateSent: editingMeeting.dateTime !== dateTime ? false : ((editingMeeting as any).immediateSent || false)
+        };
 
-      const dateFormatted = new Date(dateTime).toLocaleString('ar-EG', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
+        await setDoc(meetingRef, updatedMeeting);
+        triggerNotification('success', 'تم تعديل الاجتماع بنجاح.');
+        setEditingMeeting(null);
+      } else {
+        await addDoc(collection(db, 'preparationMeetings'), {
+          title: title.trim(),
+          description: description.trim(),
+          dateTime,
+          createdAt: new Date().toISOString(),
+          createdBy: user?.fullName || 'مسؤول الخدمة',
+          reminderSent12h: false
+        });
 
-      await notificationService.sendNotification({
-        title: `📅 اجتماع تحضيري جديد للخدمة`,
-        message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${title.trim()}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
-        type: 'info',
-        category: 'announcements',
-        targetGroups: ['servant']
-      });
+        const dateFormatted = new Date(dateTime).toLocaleString('ar-EG', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
 
-      triggerNotification('success', 'تم جدولة الاجتماع بنجاح وإرسال إشعار فوري لجميع الخدام! 🔔');
-      
+        await notificationService.sendNotification({
+          title: `📅 اجتماع تحضيري جديد للخدمة`,
+          message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${title.trim()}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
+          type: 'info',
+          category: 'announcements',
+          targetGroups: ['servant']
+        });
+
+        triggerNotification('success', 'تم جدولة الاجتماع بنجاح وإرسال إشعار فوري لجميع الخدام! 🔔');
+      }
+
       setTitle('');
       setDescription('');
       setDateTime('');
     } catch (err: any) {
       console.error(err);
-      triggerNotification('error', 'حدث خطأ أثناء جدولة الاجتماع، يرجى المحاولة لاحقاً.');
+      triggerNotification('error', 'حدث خطأ أثناء حفظ الاجتماع، يرجى المحاولة لاحقاً.');
     } finally {
       setIsSubmitting(false);
     }
@@ -265,7 +286,6 @@ export default function PreparationMeetings() {
   };
 
   const nextSaturdayMeeting = getUpcomingItem(saturdaySchedules);
-  const nextThursdayMeeting = getUpcomingItem(thursdaySchedules);
 
   // Apply filters on lists
   const filterSchedule = (schedule: ScheduleItem[]) => {
@@ -295,7 +315,6 @@ export default function PreparationMeetings() {
   };
 
   const filteredSaturdays = filterSchedule(saturdaySchedules);
-  const filteredThursdays = filterSchedule(thursdaySchedules);
 
   const handlePrint = () => {
     window.print();
@@ -360,43 +379,26 @@ export default function PreparationMeetings() {
       </div>
 
       {/* Smart Next-Up Dynamic Highlight Section - hidden on print */}
-      {(nextSaturdayMeeting || nextThursdayMeeting) && activeTab !== 'prep_servants' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
-          {nextSaturdayMeeting && (
-            <div id="next-saturday-banner" className="bg-gradient-to-br from-amber-50 to-orange-50/50 p-5 rounded-3xl border border-amber-200/60 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-white shrink-0 shadow-sm">
-                <Sparkles className="w-5 h-5 animate-spin-slow" />
-              </div>
-              <div className="space-y-1 flex-1">
-                <span className="inline-block px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black rounded-full mb-1">الدرس القادم بالعهد القديم (السبت) 🌟</span>
-                <h4 className="font-black text-brand-text text-sm leading-snug">{nextSaturdayMeeting.topic1} {nextSaturdayMeeting.topic2 ? `| ${nextSaturdayMeeting.topic2}` : ''}</h4>
-                <p className="text-[11px] text-brand-beige font-bold flex items-center gap-1">
-                  <span>الموافق السبت {nextSaturdayMeeting.date}</span>
-                </p>
-              </div>
+      {nextSaturdayMeeting && activeTab !== 'prep_servants' && (
+        <div className="grid grid-cols-1 gap-6 print:hidden">
+          <div id="next-saturday-banner" className="bg-gradient-to-br from-amber-50 to-orange-50/50 p-5 rounded-3xl border border-amber-200/60 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-white shrink-0 shadow-sm">
+              <Sparkles className="w-5 h-5 animate-spin-slow" />
             </div>
-          )}
-
-          {nextThursdayMeeting && (
-            <div id="next-thursday-banner" className="bg-gradient-to-br from-rose-50 to-red-50/30 p-5 rounded-3xl border border-red-200/50 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-brand-red flex items-center justify-center text-white shrink-0 shadow-sm">
-                <BookmarkCheck className="w-5 h-5 animate-pulse" />
-              </div>
-              <div className="space-y-1 flex-1">
-                <span className="inline-block px-2.5 py-0.5 bg-rose-100 text-brand-red text-[10px] font-black rounded-full mb-1">الدرس القادم بالعهد الجديد (الخميس) 🌟</span>
-                <h4 className="font-black text-brand-text text-sm leading-snug">{nextThursdayMeeting.topic1} {nextThursdayMeeting.topic2 ? `| ${nextThursdayMeeting.topic2}` : ''}</h4>
-                <p className="text-[11px] text-brand-beige font-bold flex items-center gap-1">
-                  <span>الموافق الخميس {nextThursdayMeeting.date}</span>
-                </p>
-              </div>
+            <div className="space-y-1 flex-1">
+              <span className="inline-block px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black rounded-full mb-1">الدرس القادم بالمنهج الأسبوعي (السبت) 🌟</span>
+              <h4 className="font-black text-brand-text text-sm leading-snug">{nextSaturdayMeeting.topic1} {nextSaturdayMeeting.topic2 ? `| ${nextSaturdayMeeting.topic2}` : ''}</h4>
+              <p className="text-[11px] text-brand-beige font-bold flex items-center gap-1">
+                <span>الموافق السبت {nextSaturdayMeeting.date}</span>
+              </p>
             </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* Modern Booklet / Saturday / Thursday Navigation Panel - hidden on print */}
+      {/* Modern Booklet / Saturday Navigation Panel - hidden on print */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-brand-cream/30 p-3 rounded-[28px] border border-brand-beige/12 print:hidden shadow-sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full lg:w-auto">
+        <div className="grid grid-cols-3 gap-2 w-full lg:w-auto">
           <button
             id="tab-booklet"
             onClick={() => { setActiveTab('booklet'); }}
@@ -407,7 +409,7 @@ export default function PreparationMeetings() {
             }`}
           >
             <BookOpen className="w-4 h-4 shrink-0" />
-            <span>عرض الكتيب الشامل 📖</span>
+            <span>عرض الجدول الشامل 📖</span>
           </button>
 
           <button
@@ -420,20 +422,7 @@ export default function PreparationMeetings() {
             }`}
           >
             <CalendarIcon className="w-4 h-4 shrink-0" />
-            <span>منهج السبت (القديم)</span>
-          </button>
-
-          <button
-            id="tab-thursday"
-            onClick={() => { setActiveTab('thursday'); }}
-            className={`py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
-              activeTab === 'thursday'
-                ? 'bg-brand-red text-white shadow-lg'
-                : 'text-brand-text hover:text-brand-red hover:bg-white/50'
-            }`}
-          >
-            <CalendarIcon className="w-4 h-4 shrink-0" />
-            <span>منهج الخميس (الجديد)</span>
+            <span>منهج السبت الأسبوعي</span>
           </button>
 
           <button
@@ -537,9 +526,9 @@ export default function PreparationMeetings() {
         <div id="classical-booklet-view" className="bg-white p-6 md:p-10 rounded-[32px] shadow-sm border border-brand-beige/10 space-y-8 print:p-0 print:border-none print:shadow-none">
           <div className="flex flex-col md:flex-row items-center justify-between border-b border-gray-100 pb-4 gap-4">
             <div className="text-right">
-              <span className="text-xs font-bold text-brand-red uppercase tracking-wide">النسخة الرسمية للكتيب</span>
+              <span className="text-xs font-bold text-brand-red uppercase tracking-wide">النسخة الرسمية للجدول المقرر</span>
               <h2 className="text-xl md:text-2xl font-black text-brand-text flex items-center gap-2 mt-1">
-                <span>الكتيب الشامل لمناهج العهدين القديم والجديد</span>
+                <span>الجدول الشامل لمناهج ومواعيد الاجتماعات</span>
                 <span className="text-xs font-black px-2 py-0.5 bg-brand-cream text-brand-red rounded-full">العام الدراسي 2026</span>
               </h2>
             </div>
@@ -548,12 +537,12 @@ export default function PreparationMeetings() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 print:grid-cols-1">
             
-            {/* Right Column: Saturday Old Testament */}
-            <div id="old-testament-side" className="space-y-4">
+            {/* Saturday Weekly Curriculum */}
+            <div id="saturday-testament-side" className="space-y-4">
               <div className="flex items-center justify-between bg-brand-text text-white p-4 rounded-2xl shadow-sm">
-                <span className="font-black text-sm">العهد القديم (السبت)</span>
+                <span className="font-black text-sm">جدول لقاء السبت الأسبوعي المقرر ⛪📖</span>
                 <span className="text-xs bg-brand-red px-2.5 py-1 rounded-lg text-white font-mono font-bold">13/6 - 3/10</span>
               </div>
 
@@ -606,71 +595,6 @@ export default function PreparationMeetings() {
                       );
                     })}
                     {filteredSaturdays.length === 0 && (
-                      <tr>
-                        <td colSpan={3} className="p-8 text-center text-gray-400 font-bold">لا توجد مواعيد مطابقة لفلتر البحث حالياً.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Left Column: Thursday New Testament */}
-            <div id="new-testament-side" className="space-y-4">
-              <div className="flex items-center justify-between bg-brand-text text-white p-4 rounded-2xl shadow-sm">
-                <span className="font-black text-sm">العهد الجديد (الخميس)</span>
-                <span className="text-xs bg-brand-red px-2.5 py-1 rounded-lg text-white font-mono font-bold">11/6 - 1/10</span>
-              </div>
-
-              <div className="overflow-x-auto rounded-2xl border border-brand-beige/12">
-                <table className="w-full border-collapse text-right text-xs">
-                  <thead>
-                    <tr className="bg-brand-cream/40 text-brand-text font-black border-b border-brand-beige/12">
-                      <th className="p-3 text-center w-16">التاريخ</th>
-                      <th className="p-3">الفقرة الأولى (الموضوع الرئيسي)</th>
-                      <th className="p-3">الفقرة الثانية (التكملة والتحليل)</th>
-                      <th className="p-3 text-center w-12 print:hidden">مفضّلة ⭐</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredThursdays.map((item, idx) => {
-                      const isNext = nextThursdayMeeting && nextThursdayMeeting.date === item.date;
-                      const isFav = isFavorite('thursday', item.date);
-                      return (
-                        <tr 
-                          key={idx} 
-                          className={`hover:bg-brand-cream/10 transition-colors ${
-                              isNext ? 'bg-amber-50/50 font-bold border-r-4 border-r-amber-500' : ''
-                          } ${item.isSpecialEvent ? 'bg-rose-50/25' : ''}`}
-                        >
-                          <td className="p-3 text-center font-mono font-bold text-brand-red whitespace-nowrap">
-                            {item.date}
-                            {isNext && <span className="block text-[8px] text-amber-600 font-bold">التالي 🌟</span>}
-                          </td>
-                          <td className="p-3">
-                            <span className="font-bold text-brand-text">{item.topic1}</span>
-                            {item.isSpecialEvent && <span className="mr-1.5 inline-block text-[9px] bg-rose-100 text-brand-red px-1.5 py-0.5 rounded">حدث خاص</span>}
-                          </td>
-                          <td className="p-3 text-gray-500 font-medium">
-                            {item.topic2 || <span className="text-gray-400 italic font-normal">-</span>}
-                          </td>
-                          <td className="p-3 text-center print:hidden">
-                            <button
-                              onClick={() => toggleFavorite('thursday', item)}
-                              className="p-1 focus:outline-none transition-transform hover:scale-125 duration-200"
-                              title={isFav ? "إزالة من المفضلة" : "تفضيل لتلقي تنبيه تذكيري 🔔"}
-                            >
-                              {isFav ? (
-                                <BookmarkCheck className="w-4 h-4 text-amber-500 fill-amber-500" />
-                              ) : (
-                                <Bookmark className="w-4 h-4 text-gray-300 hover:text-amber-500/70" />
-                              )}
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {filteredThursdays.length === 0 && (
                       <tr>
                         <td colSpan={3} className="p-8 text-center text-gray-400 font-bold">لا توجد مواعيد مطابقة لفلتر البحث حالياً.</td>
                       </tr>
@@ -830,151 +754,7 @@ export default function PreparationMeetings() {
         </div>
       )}
 
-      {/* =========================================
-          VIEW MODE 3: THURSDAY WORKSPACE
-          ========================================= */}
-      {activeTab === 'thursday' && (
-        <div id="thursday-curriculum-view" className="space-y-6">
-          {viewStyle === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence>
-                {filteredThursdays.map((item, index) => {
-                  const isNext = nextThursdayMeeting && nextThursdayMeeting.date === item.date;
-                  return (
-                    <motion.div
-                      key={index}
-                      id={`thursday-card-${index}`}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className={`group p-5 rounded-[24px] border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
-                        isNext
-                          ? 'bg-amber-50/40 border-amber-300 shadow-lg shadow-amber-500/5 ring-2 ring-amber-400/20'
-                          : item.isSpecialEvent 
-                            ? 'bg-rose-50/50 border-brand-red/15' 
-                            : 'bg-white border-brand-beige/10 hover:shadow-xl hover:shadow-brand-red/5 hover:border-brand-red/15'
-                      }`}
-                    >
-                      {item.isSpecialEvent && (
-                        <div className="absolute top-0 left-0 bg-brand-red text-white text-[9px] font-black px-2.5 py-1 rounded-br-2xl uppercase tracking-wider">حدث خاص</div>
-                      )}
 
-                      {isNext && (
-                        <div className="absolute top-0 left-0 bg-amber-500 text-white text-[9px] font-black px-2.5 py-1 rounded-br-2xl uppercase tracking-wider">المحاضرة القادمة ✨</div>
-                      )}
-
-                      {/* Favorite Button */}
-                      <div className="absolute top-4 left-4 z-10 print:hidden">
-                        <button
-                          onClick={() => toggleFavorite('thursday', item)}
-                          className="p-1.5 rounded-full bg-brand-cream/80 hover:bg-brand-cream border border-brand-beige/10 shadow-sm active:scale-95 transition-all text-amber-500 focus:outline-none cursor-pointer"
-                          title={isFavorite('thursday', item.date) ? "إزالة من المفضلة" : "تفضيل لتلقي تنبيه تذكيري 🔔"}
-                        >
-                          {isFavorite('thursday', item.date) ? (
-                            <BookmarkCheck className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          ) : (
-                            <Bookmark className="w-3.5 h-3.5 text-brand-beige hover:text-amber-500/70" />
-                          )}
-                        </button>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border transition-all ${
-                            isNext 
-                              ? 'bg-amber-5050 text-white border-amber-500 bg-amber-500'
-                              : item.isSpecialEvent
-                                ? 'bg-brand-red text-white border-brand-red'
-                                : 'bg-brand-cream/40 border-brand-beige/15 text-brand-text group-hover:bg-brand-cream group-hover:text-brand-red'
-                          }`}>
-                            <span className="text-[9px] font-black mb-0.5">{item.dayText}</span>
-                            <span className="text-base font-black font-mono leading-none">{item.date.split('/')[0].trim()}</span>
-                            <span className="text-[8px] font-bold mt-0.5 opacity-80">/{item.date.split('/')[1].trim()}</span>
-                          </div>
-
-                          <div className="text-right">
-                            <span className="text-[10px] font-black text-brand-beige block uppercase tracking-wider mb-0.5">التاريخ واليوم المعتمد</span>
-                            <span className="text-xs font-black text-brand-text">الخميس الموافق {item.date}</span>
-                          </div>
-                        </div>
-
-                        {/* Topics Content */}
-                        <div className="space-y-1.5 pt-2 border-t border-dashed border-gray-100">
-                          {item.isSpecialEvent ? (
-                            <div className="p-3 bg-brand-cream/20 rounded-xl text-center">
-                              <Sparkles className="w-5 h-5 text-brand-red mx-auto mb-1 animate-pulse" />
-                              <h3 className="font-black text-brand-red text-sm">{item.topic1}</h3>
-                              <p className="text-[10px] text-brand-beige font-bold mt-1">تنهضات وحفلات لاهوتية مباركة للشباب</p>
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <div>
-                                <span className="text-[9px] font-black px-2 py-0.5 bg-brand-cream text-brand-text rounded-md">الفقرة الأولى</span>
-                                <h4 className="font-black text-brand-text text-sm leading-tight mt-1 group-hover:text-brand-red transition-colors">{item.topic1}</h4>
-                              </div>
-                              {item.topic2 && (
-                                <div className="pt-1.5 border-t border-gray-50 mt-1">
-                                  <span className="text-[9px] font-black px-2 py-0.5 bg-brand-cream text-brand-text rounded-md">الفقرة الثانية</span>
-                                  <h4 className="font-black text-brand-text text-sm leading-tight mt-1">{item.topic2}</h4>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-
-              {filteredThursdays.length === 0 && (
-                <div className="col-span-full py-12 text-center text-gray-400 space-y-4">
-                  <AlertCircle className="w-12 h-12 text-brand-beige mx-auto" />
-                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج العهد الجديد.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-white rounded-3xl border border-brand-beige/10 overflow-hidden shadow-sm">
-              <table className="w-full text-right text-xs md:text-sm">
-                <thead>
-                  <tr className="bg-brand-cream/40 border-b border-brand-beige/10 font-bold text-brand-text">
-                    <th className="p-4 text-center w-20">تاريخ الخميس</th>
-                    <th className="p-4">الفقرة الأولى</th>
-                    <th className="p-4">الفقرة الثانية</th>
-                    <th className="p-4 text-center w-12 print:hidden">مفضّلة ⭐</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredThursdays.map((item, idx) => {
-                    const isFav = isFavorite('thursday', item.date);
-                    return (
-                      <tr key={idx} className={item.isSpecialEvent ? 'bg-rose-50/20' : ''}>
-                        <td className="p-4 text-center font-mono font-bold text-brand-red">{item.date}</td>
-                        <td className="p-4 font-black text-brand-text">{item.topic1}</td>
-                        <td className="p-4 text-gray-500">{item.topic2 || '-'}</td>
-                        <td className="p-4 text-center print:hidden">
-                          <button
-                            onClick={() => toggleFavorite('thursday', item)}
-                            className="p-1 focus:outline-none transition-transform hover:scale-125 duration-200"
-                            title={isFav ? "إزالة من المفضلة" : "تفضيل لتلقي تنبيه تذكيري 🔔"}
-                          >
-                            {isFav ? (
-                              <BookmarkCheck className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            ) : (
-                              <Bookmark className="w-4 h-4 text-gray-300 hover:text-amber-500/70" />
-                            )}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* =========================================
           VIEW MODE 4: CUSTOM SERVANT MEETINGS & WORKSPACE
@@ -1105,14 +885,31 @@ export default function PreparationMeetings() {
                           </div>
 
                           {canManageMeetings && (
-                            <button
-                              id={`delete-meeting-${meeting.id}`}
-                              onClick={() => handleDeleteMeeting(meeting.id, meeting.title)}
-                              className="p-2.5 bg-rose-50 hover:bg-brand-red hover:text-white text-brand-red rounded-xl shrink-0 transition-all self-end md:self-start hover:scale-105 cursor-pointer"
-                              title="حذف الاجتماع"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex gap-2 shrink-0 self-end md:self-start">
+                              <button
+                                id={`edit-meeting-${meeting.id}`}
+                                onClick={() => {
+                                  setEditingMeeting(meeting);
+                                  setTitle(meeting.title);
+                                  setDescription(meeting.description || '');
+                                  setDateTime(meeting.dateTime);
+                                  document.getElementById('meeting-form-container')?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className="p-2.5 bg-brand-cream/50 hover:bg-brand-red hover:text-white text-brand-text rounded-xl transition-all hover:scale-105 cursor-pointer"
+                                title="تعديل الاجتماع"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              
+                              <button
+                                id={`delete-meeting-${meeting.id}`}
+                                onClick={() => handleDeleteMeeting(meeting.id, meeting.title)}
+                                className="p-2.5 bg-rose-50 hover:bg-brand-red hover:text-white text-brand-red rounded-xl transition-all hover:scale-105 cursor-pointer"
+                                title="حذف الاجتماع"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           )}
                         </div>
                       </motion.div>
@@ -1125,9 +922,9 @@ export default function PreparationMeetings() {
 
           {/* Right: Scheduled / Creator Panel */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-brand-beige/10">
+            <div id="meeting-form-container" className="bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-brand-beige/10">
               <h2 className="text-lg md:text-xl font-black text-brand-text mb-6 border-b border-gray-100 pb-4">
-                جدولة لقاء تحضيري جديد
+                {editingMeeting ? "تعديل اللقاء التحضيري" : "جدولة لقاء تحضيري جديد"}
               </h2>
 
               {canManageMeetings ? (
@@ -1184,10 +981,25 @@ export default function PreparationMeetings() {
                     ) : (
                       <>
                         <Plus className="w-5 h-5 pointer-events-none" />
-                        <span>نشر الموعد وإرسال إشعارات للخدام</span>
+                        <span>{editingMeeting ? "حفظ التعديلات ونشر التحديث" : "نشر الموعد وإرسال إشعارات للخدام"}</span>
                       </>
                     )}
                   </button>
+
+                  {editingMeeting && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingMeeting(null);
+                        setTitle('');
+                        setDescription('');
+                        setDateTime('');
+                      }}
+                      className="w-full py-3 rounded-xl border border-brand-beige text-brand-text font-black text-sm hover:bg-brand-cream/50 transition-colors mt-2"
+                    >
+                      إلغاء التعديل
+                    </button>
+                  )}
                 </form>
               ) : (
                 <div className="p-6 bg-brand-cream/40 border border-brand-beige/10 rounded-2xl flex flex-col items-center justify-center text-center space-y-4">

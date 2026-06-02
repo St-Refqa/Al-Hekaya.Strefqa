@@ -151,6 +151,7 @@ export default function AdminAttendance() {
   // Custom Lectures / Meetings States
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [activeLecture, setActiveLecture] = useState<Lecture | null>(null);
+  const [editingLecture, setEditingLecture] = useState<Lecture | null>(null);
   const [newLecName, setNewLecName] = useState('');
   const [newLecDate, setNewLecDate] = useState(getLocalDateStr());
   const [newLecTime, setNewLecTime] = useState('19:00');
@@ -167,7 +168,6 @@ export default function AdminAttendance() {
   const [meetingType, setMeetingType] = useState<'OT' | 'NT' | 'general'>(() => {
     const day = new Date().getDay();
     if (day === 6) return 'OT';
-    if (day === 4) return 'NT';
     return 'general';
   });
   const [attendancePoints, setAttendancePoints] = useState<number>(20);
@@ -374,21 +374,33 @@ export default function AdminAttendance() {
     setIsCreatingLecture(true);
 
     try {
-      const id = `lecture_${Date.now()}`;
-      const newLec: Lecture = {
-        id,
-        name: newLecName,
-        date: newLecDate,
-        startTime: newLecTime,
-        meetingType: newLecType,
-        isActive: lectures.length === 0
-      };
+      if (editingLecture) {
+        const updatedLec: Lecture = {
+          ...editingLecture,
+          name: newLecName,
+          date: newLecDate,
+          startTime: newLecTime,
+          meetingType: newLecType
+        };
+        await setDoc(doc(db, 'lectures', editingLecture.id), updatedLec);
+        setEditingLecture(null);
+      } else {
+        const id = `lecture_${Date.now()}`;
+        const newLec: Lecture = {
+          id,
+          name: newLecName,
+          date: newLecDate,
+          startTime: newLecTime,
+          meetingType: newLecType,
+          isActive: lectures.length === 0
+        };
 
-      await setDoc(doc(db, 'lectures', id), newLec);
+        await setDoc(doc(db, 'lectures', id), newLec);
+      }
       setNewLecName('');
       triggerSuccessConfetti();
     } catch (err) {
-      console.error("Failed to create lecture:", err);
+      console.error("Failed to save lecture:", err);
     } finally {
       setIsCreatingLecture(false);
     }
@@ -847,8 +859,8 @@ export default function AdminAttendance() {
         'اسم الطالب': stat.name,
         'الكود الشخصي': stat.code,
         'الفئة / المجموعة': stat.team,
-        'حضور العهد القديم (السبت)': stat.otCount,
-        'حضور العهد الجديد (الخميس)': stat.ntCount,
+        'حضور العهد القديم': stat.otCount,
+        'حضور العهد الجديد': stat.ntCount,
         'حضور عام': stat.genCount,
         'إجمالي أيام الحضور': stat.totalCount,
         'مجموع نقاط الحضور الحالية': stat.totalPoints
@@ -1092,7 +1104,7 @@ export default function AdminAttendance() {
                 <div className="space-y-1 text-right">
                   <span className="text-[9px] font-black text-brand-beige uppercase tracking-wider block">المحاضرة النشطة المحددة</span>
                   <div className="text-sm font-black text-brand-text">
-                    {activeLecture ? activeLecture.name : "العهد القديم (السبت)"}
+                    {activeLecture ? activeLecture.name : "العهد القديم"}
                   </div>
                   <div className="flex justify-between items-center text-xs mt-2 bg-brand-cream/50 p-2.5 rounded-xl border border-brand-beige/10">
                     <span className="font-semibold text-brand-beige">موعد البدء المقرر</span>
@@ -1599,7 +1611,7 @@ export default function AdminAttendance() {
                     التسجيل اليدوي يخضع لنظام الحساب الزمني التلقائي (الربع ساعة الأولى ٢٠ درجة ثم يضل يقل درجة كل ٥ دقائق).
                   </span>
                   <span className="block text-[10px] text-brand-beige font-bold">
-                    المحاضرة النشطة حالياً: <strong className="text-brand-red">{activeLecture ? activeLecture.name : "العهد القديم (السبت)"}</strong> - موعد البدء: <strong className="text-brand-text">{activeLecture ? activeLecture.startTime : "19:00"}</strong>
+                    المحاضرة النشطة حالياً: <strong className="text-brand-red">{activeLecture ? activeLecture.name : "العهد القديم"}</strong> - موعد البدء: <strong className="text-brand-text">{activeLecture ? activeLecture.startTime : "19:00"}</strong>
                   </span>
                 </div>
               </div>
@@ -1609,8 +1621,8 @@ export default function AdminAttendance() {
                   onChange={(e) => setMeetingType(e.target.value as any)}
                   className="bg-white border border-brand-beige/15 text-xs font-bold rounded-lg px-3 py-1.5 text-right cursor-pointer"
                 >
-                  <option value="OT">العهد القديم (السبت)</option>
-                  <option value="NT">العهد الجديد (الخميس)</option>
+                  <option value="OT">العهد القديم</option>
+                  <option value="NT">العهد الجديد</option>
                   <option value="general">اجتماع عام</option>
                 </select>
               </div>
@@ -1723,20 +1735,11 @@ export default function AdminAttendance() {
                 </div>
                 <div className="space-y-3.5 text-xs text-brand-text">
                   <div className="p-3 bg-white rounded-2xl border border-brand-beige/5 space-y-1">
-                    <span className="font-black text-brand-text block">📍 اجتماع فئة العهد القديم:</span>
+                    <span className="font-black text-brand-text block">📍 الاجتماع الأسبوعي العام (السبت):</span>
                     <span className="text-brand-beige block">كل يوم <strong className="text-brand-red">السبت الساعة 7:00 مساءً</strong>.</span>
                     <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-extrabold mt-1">
                       <CheckCircle className="w-3 h-3" />
                       <span>تنبيه تذكيري تلقائي: السبت الساعة 9:00 صباحاً 🕒</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-white rounded-2xl border border-brand-beige/5 space-y-1">
-                    <span className="font-black text-brand-text block">📍 اجتماع فئة العهد الجديد:</span>
-                    <span className="text-brand-beige block">كل يوم <strong className="text-brand-red">الخميس الساعة 7:00 مساءً</strong>.</span>
-                    <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-extrabold mt-1">
-                      <CheckCircle className="w-3 h-3" />
-                      <span>تنبيه تذكيري تلقائي: الخميس الساعة 9:00 صباحاً 🕒</span>
                     </div>
                   </div>
                 </div>
@@ -1746,7 +1749,7 @@ export default function AdminAttendance() {
               <div className="bg-white p-6 rounded-3xl border border-brand-beige/10 space-y-4 text-right">
                 <div className="flex items-center gap-2 mb-1 text-brand-text">
                   <Plus className="w-5 h-5 text-brand-red" />
-                  <h4 className="font-extrabold text-sm">تثبيت محاضرة مخصصة جديدة</h4>
+                  <h4 className="font-extrabold text-sm">{editingLecture ? "تعديل المحاضرة المخصصة" : "تثبيت محاضرة مخصصة جديدة"}</h4>
                 </div>
                 
                 <form onSubmit={handleCreateLecture} className="space-y-3">
@@ -1789,8 +1792,8 @@ export default function AdminAttendance() {
                     <label className="text-[10px] font-black text-brand-beige uppercase">الفئة المستهدفة بالنقاط ورسائل التذكير</label>
                     <div className="flex gap-2">
                       {[
-                        { id: 'OT', label: 'العهد القديم (السبت)' },
-                        { id: 'NT', label: 'العهد الجديد (الخميس)' },
+                        { id: 'OT', label: 'العهد القديم' },
+                        { id: 'NT', label: 'العهد الجديد' },
                         { id: 'general', label: 'عام / لقاء شامل' }
                       ].map((type, idx) => (
                         <button
@@ -1810,13 +1813,30 @@ export default function AdminAttendance() {
                     </div>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isCreatingLecture}
-                    className="w-full py-3 bg-brand-red text-white hover:bg-brand-text font-black text-xs rounded-xl shadow-sm transition-all text-center"
-                  >
-                    {isCreatingLecture ? "جاري الحفظ..." : "تأكيد وإدراج المحاضرة المخصصة 📖"}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={isCreatingLecture}
+                      className="flex-1 py-3 bg-brand-red text-white hover:bg-brand-text font-black text-xs rounded-xl shadow-sm transition-all text-center cursor-pointer"
+                    >
+                      {isCreatingLecture ? "جاري الحفظ..." : (editingLecture ? "حفظ التعديلات 💾" : "تأكيد وإدراج المحاضرة المخصصة 📖")}
+                    </button>
+                    {editingLecture && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingLecture(null);
+                          setNewLecName('');
+                          setNewLecDate(getLocalDateStr());
+                          setNewLecTime('19:00');
+                          setNewLecType('OT');
+                        }}
+                        className="px-4 py-3 border border-brand-beige text-brand-text font-black text-xs rounded-xl hover:bg-brand-cream transition-all cursor-pointer"
+                      >
+                        إلغاء
+                      </button>
+                    )}
+                  </div>
                 </form>
               </div>
 
@@ -1869,7 +1889,7 @@ export default function AdminAttendance() {
                           <button
                             type="button"
                             onClick={() => handleToggleLectureActive(lec.id)}
-                            className="flex-1 py-1.5 bg-brand-text text-white hover:bg-brand-red rounded-lg text-[10px] font-black transition-all"
+                            className="flex-1 py-1.5 bg-brand-text text-white hover:bg-brand-red rounded-lg text-[10px] font-black transition-all cursor-pointer"
                           >
                             تنشيط للاعتماد اليوم
                           </button>
@@ -1880,8 +1900,23 @@ export default function AdminAttendance() {
                         )}
                         <button
                           type="button"
+                          onClick={() => {
+                            setEditingLecture(lec);
+                            setNewLecName(lec.name);
+                            setNewLecDate(lec.date);
+                            setNewLecTime(lec.startTime);
+                            setNewLecType(lec.meetingType);
+                            document.querySelector('#form-create-prep-meeting')?.scrollIntoView({ behavior: 'smooth' }); // Scroll to creator form area
+                          }}
+                          className="px-2 py-1.5 border border-brand-beige/25 hover:border-brand-text text-brand-beige hover:text-brand-text rounded-lg transition-all cursor-pointer"
+                          title="تعديل المحاضرة"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => handleDeleteLecture(lec.id)}
-                          className="px-2 py-1.5 border border-brand-beige/25 hover:border-red-600 text-brand-beige hover:text-red-600 rounded-lg transition-all"
+                          className="px-2 py-1.5 border border-brand-beige/25 hover:border-red-600 text-brand-beige hover:text-red-600 rounded-lg transition-all cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1931,8 +1966,8 @@ export default function AdminAttendance() {
                       <th className="p-4">العضو</th>
                       <th className="p-4">الكود</th>
                       <th className="p-4">الفئة/المجموعة</th>
-                      <th className="p-4 text-center">العهد القديم (السبت)</th>
-                      <th className="p-4 text-center">العهد الجديد (الخميس)</th>
+                      <th className="p-4 text-center">العهد القديم</th>
+                      <th className="p-4 text-center">العهد الجديد</th>
                       <th className="p-4 text-center">حضور عام</th>
                       <th className="p-4 text-center">إجمالي حضورك</th>
                       <th className="p-4 text-left font-sans text-brand-red">إجمالي نقاط الحضور</th>
@@ -1975,7 +2010,7 @@ export default function AdminAttendance() {
                     <div className="text-right">
                       <h4 className="font-extrabold text-sm text-brand-text">{log.studentName}</h4>
                       <p className="text-[10px] text-brand-beige font-black mt-1">
-                        تاريخ الحضور: {log.date} | ساعة الحضور (الساعة): <span className="text-brand-text font-mono font-bold">{log.scanTime || "00:00"}</span> | نوع الاجتماع: {log.meetingType === 'OT' ? 'العهد القديم (السبت)' : log.meetingType === 'NT' ? 'العهد الجديد (الخميس)' : 'عام'} | الممنوح: <span className="text-brand-red">+{log.points} نقطة</span>
+                        تاريخ الحضور: {log.date} | ساعة الحضور (الساعة): <span className="text-brand-text font-mono font-bold">{log.scanTime || "00:00"}</span> | نوع الاجتماع: {log.meetingType === 'OT' ? 'العهد القديم' : log.meetingType === 'NT' ? 'العهد الجديد' : 'عام'} | الممنوح: <span className="text-brand-red">+{log.points} نقطة</span>
                       </p>
                     </div>
 

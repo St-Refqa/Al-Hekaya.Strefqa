@@ -59,8 +59,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
       { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
       { icon: TrendingUp, label: t('sidebar.platform_analytics') || "تحليل المنصة", path: '/admin/analytics' },
-      { icon: Settings, label: t('sidebar.settings') || "الإعدادات العامة", path: '/admin/settings' },
-      { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
+      { icon: Settings, label: t('sidebar.settings') || "الإعدادات العامة", path: '/admin/settings' }
     );
   } else {
     const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true || userRole === 'scheduler';
@@ -93,11 +92,6 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
     if (isMeetingScheduler || isExamCreator || isAttendanceScanner || isStoreManager) {
       menuItems.push(
         { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
-      );
-    }
-    if (hasAnyPermission) {
-      menuItems.push(
-        { icon: Globe, label: t('sidebar.student_portal') || 'بوابة الطلاب للرجوع ↩️', path: '/student' },
       );
     }
   }

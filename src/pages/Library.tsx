@@ -187,7 +187,7 @@ export default function Library() {
               activeSection === 'OT' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
             )}
           >
-            العهد القديم (السبت)
+            العهد القديم
           </button>
         )}
         {(allowedSections.includes('NT')) && (
@@ -198,7 +198,7 @@ export default function Library() {
               activeSection === 'NT' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
             )}
           >
-            العهد الجديد (الخميس)
+            العهد الجديد
           </button>
         )}
         {(allowedSections.includes('general')) && (
@@ -299,8 +299,8 @@ export default function Library() {
                   className="w-full bg-brand-cream border-transparent focus:bg-white focus:border-brand-red rounded-xl p-3 border-2 transition-all font-bold"
                 >
                   <option value="general">عام (للجميع)</option>
-                  <option value="OT">العهد القديم (طلاب OT والخدام)</option>
-                  <option value="NT">العهد الجديد (طلاب NT والخدام)</option>
+                  <option value="OT">العهد القديم (طلاب العهد القديم والخدام)</option>
+                  <option value="NT">العهد الجديد (طلاب العهد الجديد والخدام)</option>
                 </select>
               </div>
 

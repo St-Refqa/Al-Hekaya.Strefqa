@@ -1,6 +1,6 @@
 import { collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, doc, runTransaction } from "firebase/firestore";
 import { db } from "./firebase";
-import { saturdaySchedules, thursdaySchedules } from "../data/fixedSchedules";
+import { saturdaySchedules } from "../data/fixedSchedules";
 
 export type NotificationType = "info" | "warning" | "success";
 export type NotificationCategory = "assessments" | "achievements" | "announcements" | "system";
@@ -79,16 +79,11 @@ export const notificationService = {
       let message = "";
       let tag = "";
 
-      if (day === 6) { // Saturday -> OT meeting
-        targetGroup = "OT";
-        title = "تذكير باجتماع العهد القديم اليوم! ⛪";
-        message = "مستنيينك النهاردة الساعة 7:00 مساءً في اجتماع العهد القديم. متنساش كارت الحضور الرقمي (QR) بتاعك لتسجيل نقاط حضورك اليوم! 🌟";
+      if (day === 6) { // Saturday -> Weekly meeting
+        targetGroup = "OT"; // Set dummy OT to pass truthy check
+        title = "تذكير بالاجتماع الأسبوعي اليوم! ⛪";
+        message = "مستنيينك النهاردة الساعة 7:00 مساءً في الاجتماع الأسبوعي العام. متنساش كارت الحضور الرقمي (QR) بتاعك لتسجيل نقاط حضورك اليوم! 🌟";
         tag = `OT_MEET_${weekId}`;
-      } else if (day === 4) { // Thursday -> NT meeting
-        targetGroup = "NT";
-        title = "تذكير باجتماع العهد الجديد اليوم! ⛪";
-        message = "مستنيينك النهاردة الساعة 7:00 مساءً في اجتماع العهد الجديد. متنساش كارت الحضور الرقمي (QR) بتاعك لتسجيل نقاط حضورك اليوم! 🌟";
-        tag = `NT_MEET_${weekId}`;
       }
 
       if (targetGroup && tag) {
@@ -106,14 +101,14 @@ export const notificationService = {
             category: "announcements",
             targetId: null,
             targetRole: "student",
-            targetGroups: [targetGroup],
+            targetGroups: ["OT", "NT"], // Target both student groups
             weeklyMeetingTag: tag,
             createdAt: serverTimestamp(),
             isRead: false,
             readBy: [],
             hiddenFrom: []
           });
-          console.log(`Weekly reminder notification generated for group ${targetGroup}`);
+          console.log(`Weekly reminder notification generated for Saturday`);
         }
       }
 
@@ -403,7 +398,6 @@ ${meeting.description}
       };
 
       await checkScheduleList(saturdaySchedules, "OT");
-      await checkScheduleList(thursdaySchedules, "NT");
 
       localStorage.setItem(localCheckKey, "true");
     } catch (err) {
@@ -453,7 +447,7 @@ ${meeting.description}
           const snap = await getDocs(qRef);
 
           if (snap.empty) {
-            const dayName = fav.type === "saturday" ? "السبت" : "الخميس";
+            const dayName = "السبت";
             const typeLabel = fav.type === "saturday" ? "العهد القديم" : "العهد الجديد";
 
             await addDoc(collection(db, "notifications"), {
