@@ -40,7 +40,7 @@ export default function StudentLeaderboard() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as User);
+        const data = snapshot.docs.map((doc) => ({ uid: doc.id, ...doc.data() } as User));
         setUsersList(data);
         setIsLoading(false);
       },
@@ -65,7 +65,7 @@ export default function StudentLeaderboard() {
          return false;
       })
       .map(u => ({
-        id: u.uid || u.id,
+        id: u.uid,
         name: u.fullName || "بدون اسم",
         totalScore: u.cumulativePoints ?? u.totalPoints ?? 0,
         streak: u.streak || 0,

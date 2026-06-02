@@ -105,6 +105,7 @@ export default function PublicAssessment() {
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [lastFeedback, setLastFeedback] = useState<string | null>(null);
   const [isGettingHint, setIsGettingHint] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const startAnsweringPhase = useCallback(() => {
     setAnsweringTimeLeft(assessment!.answerDuration * 60);
@@ -640,80 +641,87 @@ export default function PublicAssessment() {
   };
 
   const handleAnswerSubmit = async () => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setIsEvaluating(true);
 
-    let isCorrect: boolean;
-    let score: number;
-    let feedback = "";
-    const explanation = currentQuestion.explanation || "";
+    try {
+      let isCorrect: boolean;
+      let score: number;
+      let feedback = "";
+      const explanation = currentQuestion.explanation || "";
 
-    if (currentQuestion.type === "multiple-choice" || currentQuestion.type === "true-false") {
-      if (currentQuestion.type === "true-false") {
-        const normalizeTF = (val: string) => {
-          const clean = (val || "").trim().toLowerCase();
-          if (clean === "true" || clean === "صح" || clean === "صحيح" || clean === "correct") return "true";
-          if (clean === "false" || clean === "خطأ" || clean === "غير صحيح" || clean === "wrong") return "false";
-          return clean;
-        };
-        isCorrect = normalizeTF(userInput) === normalizeTF(currentQuestion.correctAnswer);
+      if (currentQuestion.type === "multiple-choice" || currentQuestion.type === "true-false") {
+        if (currentQuestion.type === "true-false") {
+          const normalizeTF = (val: string) => {
+            const clean = (val || "").trim().toLowerCase();
+            if (clean === "true" || clean === "صح" || clean === "صحيح" || clean === "correct") return "true";
+            if (clean === "false" || clean === "خطأ" || clean === "غير صحيح" || clean === "wrong") return "false";
+            return clean;
+          };
+          isCorrect = normalizeTF(userInput) === normalizeTF(currentQuestion.correctAnswer);
+        } else {
+          isCorrect = normalizeArabicName(userInput) === normalizeArabicName(currentQuestion.correctAnswer);
+        }
+        score = isCorrect ? currentQuestion.points : 0;
       } else {
-        isCorrect = normalizeArabicName(userInput) === normalizeArabicName(currentQuestion.correctAnswer);
+        // AI Evaluation for short answer
+        try {
+          const evaluation = await evaluateShortAnswer(
+            currentQuestion.text,
+            currentQuestion.correctAnswer,
+            userInput,
+            assessment!.text,
+            currentQuestion.aiRubric || "",
+          );
+          isCorrect = evaluation.score >= 0.8;
+          score = Math.round(evaluation.score * currentQuestion.points);
+          feedback = evaluation.feedback || "";
+        } catch (err) {
+          console.error("AI Eval failed", err);
+          isCorrect = userInput.trim().length > 10;
+          score = isCorrect ? Math.round(currentQuestion.points / 1.5) : 0;
+          feedback = "Evaluated via local verification system due to network delay.";
+        }
       }
-      score = isCorrect ? currentQuestion.points : 0;
-    } else {
-      // AI Evaluation for short answer
-      try {
-        const evaluation = await evaluateShortAnswer(
-          currentQuestion.text,
-          currentQuestion.correctAnswer,
-          userInput,
-          assessment!.text,
-          currentQuestion.aiRubric || "",
-        );
-        isCorrect = evaluation.score >= 0.8;
-        score = Math.round(evaluation.score * currentQuestion.points);
-        feedback = evaluation.feedback || "";
-      } catch (err) {
-        console.error("AI Eval failed", err);
-        isCorrect = userInput.trim().length > 10;
-        score = isCorrect ? Math.round(currentQuestion.points / 1.5) : 0;
-        feedback = "Evaluated via local verification system due to network delay.";
+
+      // Trigger animation status
+      setLastFeedback(feedback);
+      setAnswerStatus(isCorrect ? "correct" : "incorrect");
+      
+      // Brief delay to see the result
+      const displayTime = feedback ? 3000 : 1200;
+      await new Promise(resolve => setTimeout(resolve, displayTime));
+
+      const answer: UserAnswer = {
+        questionId: currentQuestion.id,
+        difficulty: currentQuestion.difficulty,
+        userAnswer: userInput,
+        correctAnswer: currentQuestion.correctAnswer,
+        isCorrect,
+        score,
+        maxPoints: currentQuestion.points,
+        feedback,
+        explanation,
+      };
+
+      const newAnswers = [...selectedAnswers, answer];
+      setSelectedAnswers(newAnswers);
+      setAnswerStatus("idle");
+      setLastFeedback(null);
+      setIsEvaluating(false);
+
+      if (currentQuestionIndex < allQuestions.length - 1) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+        setCurrentQuestion(allQuestions[currentQuestionIndex + 1]);
+        setUserInput("");
+        setAiHint(null);
+        setPhase("QUESTION");
+      } else {
+        await completeAssessment(newAnswers);
       }
-    }
-
-    // Trigger animation status
-    setLastFeedback(feedback);
-    setAnswerStatus(isCorrect ? "correct" : "incorrect");
-    
-    // Brief delay to see the result
-    const displayTime = feedback ? 3000 : 1200;
-    await new Promise(resolve => setTimeout(resolve, displayTime));
-
-    const answer: UserAnswer = {
-      questionId: currentQuestion.id,
-      difficulty: currentQuestion.difficulty,
-      userAnswer: userInput,
-      correctAnswer: currentQuestion.correctAnswer,
-      isCorrect,
-      score,
-      maxPoints: currentQuestion.points,
-      feedback,
-      explanation,
-    };
-
-    const newAnswers = [...selectedAnswers, answer];
-    setSelectedAnswers(newAnswers);
-    setAnswerStatus("idle");
-    setLastFeedback(null);
-    setIsEvaluating(false);
-
-    if (currentQuestionIndex < allQuestions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-      setCurrentQuestion(allQuestions[currentQuestionIndex + 1]);
-      setPhase("QUESTION");
-    } else {
-      await completeAssessment(newAnswers);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -1369,7 +1377,7 @@ export default function PublicAssessment() {
                     <Eye className="w-5 h-5" />
                     مراجعة الإجابات
                   </Link>
-                  {finalSubmission.finalScore / (finalSubmission.maxScore || 1) >= 0.9 && (
+                  {calculatePercentage(finalSubmission.finalScore, finalSubmission.maxScore) >= 90 && (
                     <Certificate 
                       studentName={finalSubmission.participantName}
                       assessmentTitle={finalSubmission.assessmentTitle}

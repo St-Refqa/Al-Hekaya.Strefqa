@@ -467,7 +467,7 @@ export default function AdminAttendance() {
 
     // Determine config lecture and start time
     const startTimeStr = activeLecture ? activeLecture.startTime : "19:00";
-    const lectureNameStr = activeLecture ? activeLecture.name : (meeting === 'OT' ? 'العهد القديم' : 'العهد الجديد');
+    const lectureNameStr = activeLecture ? activeLecture.name : (meeting === 'OT' ? 'طلاب اونلاين' : 'طلاب الورشة');
 
     // Calculate dynamic points points
     const calcResult = calculateDynamicPoints(startTimeStr, logTimeStr);
@@ -835,8 +835,8 @@ export default function AdminAttendance() {
       uid: st.uid,
       name: st.fullName,
       code: st.code,
-      team: st.code?.toUpperCase().startsWith('H') ? "العهد القديم" : 
-            st.code?.toUpperCase().startsWith('N') ? "العهد الجديد" :
+      team: st.code?.toUpperCase().startsWith('H') ? "طلاب اونلاين" : 
+            st.code?.toUpperCase().startsWith('N') ? "طلاب الورشة" :
             st.code?.toUpperCase().startsWith('S') ? "خدام" : "عام",
       otCount,
       ntCount,
@@ -859,8 +859,8 @@ export default function AdminAttendance() {
         'اسم الطالب': stat.name,
         'الكود الشخصي': stat.code,
         'الفئة / المجموعة': stat.team,
-        'حضور العهد القديم': stat.otCount,
-        'حضور العهد الجديد': stat.ntCount,
+        'حضور طلاب اونلاين': stat.otCount,
+        'حضور طلاب الورشة': stat.ntCount,
         'حضور عام': stat.genCount,
         'إجمالي أيام الحضور': stat.totalCount,
         'مجموع نقاط الحضور الحالية': stat.totalPoints
@@ -885,7 +885,7 @@ export default function AdminAttendance() {
           meetingsMap[key] = {
             date: log.date,
             meetingType: log.meetingType,
-            lectureName: log.lectureName || (log.meetingType === 'OT' ? 'العهد القديم' : log.meetingType === 'NT' ? 'العهد الجديد' : 'اجتماع عام'),
+            lectureName: log.lectureName || (log.meetingType === 'OT' ? 'طلاب اونلاين' : log.meetingType === 'NT' ? 'طلاب الورشة' : 'اجتماع عام'),
             logs: []
           };
         }
@@ -900,8 +900,8 @@ export default function AdminAttendance() {
       sortedMeetings.forEach((meeting) => {
         const meetingData = meeting.logs.map((log, lIdx) => {
           const student = students.find(s => s.uid === log.studentId);
-          const studentTeam = student && student.code?.toUpperCase().startsWith('H') ? "العهد القديم" :
-                             student && student.code?.toUpperCase().startsWith('N') ? "العهد الجديد" :
+          const studentTeam = student && student.code?.toUpperCase().startsWith('H') ? "طلاب اونلاين" :
+                             student && student.code?.toUpperCase().startsWith('N') ? "طلاب الورشة" :
                              student && student.code?.toUpperCase().startsWith('S') ? "خدام" : "عام";
           return {
             'الترتيب': lIdx + 1,
@@ -951,7 +951,7 @@ export default function AdminAttendance() {
         <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${log.studentName}</td>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-family: monospace;">${log.studentCode}</td>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.scanTime || '--:--'}</td>
-        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.studentCode?.toUpperCase().startsWith('S') ? 'خادم' : (log.studentCode?.toUpperCase().startsWith('N') ? 'عهد جديد' : (log.studentCode?.toUpperCase().startsWith('H') ? 'عهد قديم' : 'طالب'))}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.studentCode?.toUpperCase().startsWith('S') ? 'خادم' : (log.studentCode?.toUpperCase().startsWith('N') ? 'طلاب الورشة' : (log.studentCode?.toUpperCase().startsWith('H') ? 'طلاب اونلاين' : 'طالب'))}</td>
         <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${log.points}</td>
       </tr>
     `).join('');
@@ -973,7 +973,7 @@ export default function AdminAttendance() {
         </head>
         <body onload="window.print(); setTimeout(()=>window.close(), 500);">
           <h1>تقرير الحضور اليومي - الكنيسة</h1>
-          <div class="subtitle">التاريخ: ${todayDateStr} | الاجتماع: ${activeLecture ? activeLecture.name : (meetingType === 'OT' ? 'العهد القديم' : meetingType === 'NT' ? 'العهد الجديد' : 'عام')}</div>
+          <div class="subtitle">التاريخ: ${todayDateStr} | الاجتماع: ${activeLecture ? activeLecture.name : (meetingType === 'OT' ? 'طلاب اونلاين' : meetingType === 'NT' ? 'طلاب الورشة' : 'عام')}</div>
           
           <div class="summary">
             <span>إجمالي الحاضرين: <span class="highlight">${totalAttendedToday}</span></span>
@@ -1104,7 +1104,7 @@ export default function AdminAttendance() {
                 <div className="space-y-1 text-right">
                   <span className="text-[9px] font-black text-brand-beige uppercase tracking-wider block">المحاضرة النشطة المحددة</span>
                   <div className="text-sm font-black text-brand-text">
-                    {activeLecture ? activeLecture.name : "العهد القديم"}
+                    {activeLecture ? activeLecture.name : "طلاب اونلاين"}
                   </div>
                   <div className="flex justify-between items-center text-xs mt-2 bg-brand-cream/50 p-2.5 rounded-xl border border-brand-beige/10">
                     <span className="font-semibold text-brand-beige">موعد البدء المقرر</span>
@@ -1582,8 +1582,8 @@ export default function AdminAttendance() {
               <div className="flex flex-wrap gap-2">
                 {[
                   { id: 'all', label: 'الجميع' },
-                  { id: 'OT', label: 'العهد القديم (H)' },
-                  { id: 'NT', label: 'العهد الجديد (N)' },
+                  { id: 'OT', label: 'طلاب اونلاين (H)' },
+                  { id: 'NT', label: 'طلاب الورشة (N)' },
                   { id: 'S', label: 'الخدام (S)' }
                 ].map((g, idx) => (
                   <button
@@ -1611,7 +1611,7 @@ export default function AdminAttendance() {
                     التسجيل اليدوي يخضع لنظام الحساب الزمني التلقائي (الربع ساعة الأولى ٢٠ درجة ثم يضل يقل درجة كل ٥ دقائق).
                   </span>
                   <span className="block text-[10px] text-brand-beige font-bold">
-                    المحاضرة النشطة حالياً: <strong className="text-brand-red">{activeLecture ? activeLecture.name : "العهد القديم"}</strong> - موعد البدء: <strong className="text-brand-text">{activeLecture ? activeLecture.startTime : "19:00"}</strong>
+                    المحاضرة النشطة حالياً: <strong className="text-brand-red">{activeLecture ? activeLecture.name : "طلاب اونلاين"}</strong> - موعد البدء: <strong className="text-brand-text">{activeLecture ? activeLecture.startTime : "19:00"}</strong>
                   </span>
                 </div>
               </div>
@@ -1621,8 +1621,8 @@ export default function AdminAttendance() {
                   onChange={(e) => setMeetingType(e.target.value as any)}
                   className="bg-white border border-brand-beige/15 text-xs font-bold rounded-lg px-3 py-1.5 text-right cursor-pointer"
                 >
-                  <option value="OT">العهد القديم</option>
-                  <option value="NT">العهد الجديد</option>
+                  <option value="OT">طلاب اونلاين</option>
+                  <option value="NT">طلاب الورشة</option>
                   <option value="general">اجتماع عام</option>
                 </select>
               </div>
@@ -1665,7 +1665,7 @@ export default function AdminAttendance() {
                           "px-2 py-0.5 rounded-md text-[9px] font-black text-white",
                           isOt ? "bg-blue-600" : isNt ? "bg-purple-600" : isServ ? "bg-amber-600" : "bg-gray-500"
                         )}>
-                          {isOt ? "عهد قديم" : isNt ? "عهد جديد" : isServ ? "خادم" : "عام"}
+                          {isOt ? "طلاب اونلاين" : isNt ? "طلاب الورشة" : isServ ? "خادم" : "عام"}
                         </span>
                       </div>
                     </div>
@@ -1742,6 +1742,7 @@ export default function AdminAttendance() {
                       <span>تنبيه تذكيري تلقائي: السبت الساعة 9:00 صباحاً 🕒</span>
                     </div>
                   </div>
+
                 </div>
               </div>
 
@@ -1792,8 +1793,8 @@ export default function AdminAttendance() {
                     <label className="text-[10px] font-black text-brand-beige uppercase">الفئة المستهدفة بالنقاط ورسائل التذكير</label>
                     <div className="flex gap-2">
                       {[
-                        { id: 'OT', label: 'العهد القديم' },
-                        { id: 'NT', label: 'العهد الجديد' },
+                        { id: 'OT', label: 'طلاب اونلاين' },
+                        { id: 'NT', label: 'طلاب الورشة' },
                         { id: 'general', label: 'عام / لقاء شامل' }
                       ].map((type, idx) => (
                         <button
@@ -1872,7 +1873,7 @@ export default function AdminAttendance() {
                             "px-2 py-0.5 rounded text-[8px] font-black text-white",
                             lec.meetingType === 'OT' ? 'bg-blue-600' : lec.meetingType === 'NT' ? 'bg-purple-600' : 'bg-amber-600'
                           )}>
-                            {lec.meetingType === 'OT' ? 'العهد القديم' : lec.meetingType === 'NT' ? 'العهد الجديد' : 'عام'}
+                            {lec.meetingType === 'OT' ? 'طلاب اونلاين' : lec.meetingType === 'NT' ? 'طلاب الورشة' : 'عام'}
                           </span>
                           <h4 className="font-extrabold text-sm text-brand-text">{lec.name}</h4>
                         </div>
@@ -1966,8 +1967,8 @@ export default function AdminAttendance() {
                       <th className="p-4">العضو</th>
                       <th className="p-4">الكود</th>
                       <th className="p-4">الفئة/المجموعة</th>
-                      <th className="p-4 text-center">العهد القديم</th>
-                      <th className="p-4 text-center">العهد الجديد</th>
+                      <th className="p-4 text-center">طلاب اونلاين</th>
+                      <th className="p-4 text-center">طلاب الورشة</th>
                       <th className="p-4 text-center">حضور عام</th>
                       <th className="p-4 text-center">إجمالي حضورك</th>
                       <th className="p-4 text-left font-sans text-brand-red">إجمالي نقاط الحضور</th>
@@ -2010,7 +2011,7 @@ export default function AdminAttendance() {
                     <div className="text-right">
                       <h4 className="font-extrabold text-sm text-brand-text">{log.studentName}</h4>
                       <p className="text-[10px] text-brand-beige font-black mt-1">
-                        تاريخ الحضور: {log.date} | ساعة الحضور (الساعة): <span className="text-brand-text font-mono font-bold">{log.scanTime || "00:00"}</span> | نوع الاجتماع: {log.meetingType === 'OT' ? 'العهد القديم' : log.meetingType === 'NT' ? 'العهد الجديد' : 'عام'} | الممنوح: <span className="text-brand-red">+{log.points} نقطة</span>
+                        تاريخ الحضور: {log.date} | ساعة الحضور (الساعة): <span className="text-brand-text font-mono font-bold">{log.scanTime || "00:00"}</span> | نوع الاجتماع: {log.meetingType === 'OT' ? 'طلاب اونلاين' : log.meetingType === 'NT' ? 'طلاب الورشة' : 'عام'} | الممنوح: <span className="text-brand-red">+{log.points} نقطة</span>
                       </p>
                     </div>
 

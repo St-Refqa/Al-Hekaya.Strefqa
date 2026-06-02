@@ -57,7 +57,7 @@ export default function UserManager() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<"OT" | "NT" | "servants">("OT");
+  const [categoryFilter, setCategoryFilter] = useState<"OT" | "NT" | "servants" | "pending">("OT");
   const [rolePermissionFilter, setRolePermissionFilter] = useState<"all" | "examCreator" | "attendanceScanner" | "storeManager" | "meetingScheduler" | "libraryManager">("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -246,6 +246,7 @@ export default function UserManager() {
           address: userAddress.trim(),
           normalizedName: normalizedName,
           code: finalCode,
+          role: 'student',
           password: cleanPass
         });
 
@@ -516,7 +517,7 @@ export default function UserManager() {
     (u) => {
       if (u.role === "admin") return false;
 
-      const isServant = u.role === "servant" || u.code?.toUpperCase().startsWith('S');
+      const isServant = (u.role as string) === "servant" || u.code?.toUpperCase().startsWith('S');
       const isStudent = !isServant;
 
       const normalizedSearch = normalizeArabicName(searchTerm).toLowerCase();
@@ -530,6 +531,8 @@ export default function UserManager() {
         return isStudent && u.code?.toUpperCase().startsWith('H');
       } else if (categoryFilter === "NT") {
         return isStudent && u.code?.toUpperCase().startsWith('N');
+      } else if (categoryFilter === "pending") {
+        return isStudent && u.code?.toUpperCase().startsWith('P');
       } else {
         // categoryFilter === "servants"
         if (!isServant) return false;
@@ -638,8 +641,8 @@ export default function UserManager() {
           </div>
         </div>
 
-        {/* Main Switcher: Old Testament vs New Testament vs Servants */}
-        <div className="bg-white p-1.5 rounded-[24px] border border-brand-beige/12 grid grid-cols-1 md:grid-cols-3 gap-2 shadow-sm text-center">
+        {/* Main Switcher: Online Students vs Workshop Students vs Servants vs Pending */}
+        <div className="bg-white p-1.5 rounded-[24px] border border-brand-beige/12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 shadow-sm text-center">
           <button
             onClick={() => {
               setCategoryFilter("OT");
@@ -651,14 +654,14 @@ export default function UserManager() {
                 : "text-brand-beige hover:text-brand-text bg-transparent hover:bg-brand-cream/30"
             )}
           >
-            <span>عهد قديم 📜</span>
+            <span>طلاب اونلاين 🌐</span>
             <span className={cn(
               "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold transition-all",
               categoryFilter === "OT" 
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => u.role !== 'admin' && !(u.role === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('H')).length}
+              {users.filter(u => u.role !== 'admin' && !((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('H')).length}
             </span>
           </button>
 
@@ -673,14 +676,14 @@ export default function UserManager() {
                 : "text-brand-beige hover:text-brand-text bg-transparent hover:bg-brand-cream/30"
             )}
           >
-            <span>عهد جديد 📖</span>
+            <span>طلاب الورشة 🏫</span>
             <span className={cn(
               "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold transition-all",
               categoryFilter === "NT" 
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => u.role !== 'admin' && !(u.role === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('N')).length}
+              {users.filter(u => u.role !== 'admin' && !((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('N')).length}
             </span>
           </button>
           
@@ -696,14 +699,36 @@ export default function UserManager() {
                 : "text-brand-beige hover:text-brand-text bg-transparent hover:bg-brand-cream/30"
             )}
           >
-            <span>خدام ومسؤولو الخدمة 🛡️</span>
+            <span>خدام 🛡️</span>
             <span className={cn(
               "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold transition-all",
               categoryFilter === "servants" 
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => u.role === 'servant' || u.code?.toUpperCase().startsWith('S')).length}
+              {users.filter(u => (u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')).length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => {
+              setCategoryFilter("pending");
+            }}
+            className={cn(
+              "py-4 px-4 text-center font-black text-sm md:text-base rounded-[18px] transition-all flex items-center justify-center gap-2 cursor-pointer",
+              categoryFilter === "pending"
+                ? "bg-brand-red text-white shadow-lg shadow-brand-red/20"
+                : "text-brand-beige hover:text-brand-text bg-transparent hover:bg-brand-cream/30"
+            )}
+          >
+            <span>طلاب معلقين ⏳</span>
+            <span className={cn(
+              "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold transition-all",
+              categoryFilter === "pending" 
+                ? "bg-white/20 text-white" 
+                : "bg-brand-cream text-brand-red"
+            )}>
+              {users.filter(u => u.role !== 'admin' && u.code?.toUpperCase().startsWith('P')).length}
             </span>
           </button>
         </div>
@@ -825,13 +850,16 @@ export default function UserManager() {
                         
                         <div className="flex flex-wrap justify-end gap-1 mt-2">
                           {user.code?.toUpperCase().startsWith('H') && (
-                            <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider border border-blue-100 whitespace-nowrap">عهد قديم</span>
+                            <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider border border-blue-100 whitespace-nowrap">طلاب اونلاين</span>
                           )}
                           {user.code?.toUpperCase().startsWith('N') && (
-                            <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider border border-purple-100 whitespace-nowrap">عهد جديد</span>
+                            <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider border border-purple-100 whitespace-nowrap">طلاب الورشة</span>
                           )}
                           {user.code?.toUpperCase().startsWith('S') && (
                             <span className="px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider border border-amber-100 whitespace-nowrap">خادم</span>
+                          )}
+                          {user.code?.toUpperCase().startsWith('P') && (
+                            <span className="px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider border border-rose-100 whitespace-nowrap">معلق ⏳</span>
                           )}
                           <span className="px-2 py-0.5 bg-brand-cream text-brand-beige rounded-full text-[8px] md:text-[9px] font-black tracking-widest border border-brand-beige/5 whitespace-nowrap">{user.code}</span>
                         </div>

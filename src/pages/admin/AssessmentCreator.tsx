@@ -103,7 +103,7 @@ export default function AssessmentCreator() {
     }
 
     if (!manualQuestion.category?.trim()) {
-      setManualError("يرجى تحديد تصنيف السؤال أو هويته (مثلاً: عهد جديد، عهد قديم).");
+      setManualError("يرجى تحديد تصنيف السؤال أو هويته (مثلاً: طلاب الورشة، طلاب اونلاين).");
       return;
     }
 
@@ -877,8 +877,8 @@ export default function AssessmentCreator() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { id: 'all', label: 'الجميع', count: participantCounts.total, icon: <Globe className="w-4 h-4" /> },
-                  { id: 'OT', label: 'العهد القديم', count: participantCounts.OT, icon: <Church className="w-4 h-4" /> },
-                  { id: 'NT', label: 'العهد الجديد', count: participantCounts.NT, icon: <Sparkles className="w-4 h-4" /> },
+                  { id: 'OT', label: 'طلاب اونلاين', count: participantCounts.OT, icon: <Church className="w-4 h-4" /> },
+                  { id: 'NT', label: 'طلاب الورشة', count: participantCounts.NT, icon: <Sparkles className="w-4 h-4" /> },
                   { id: 'servant', label: 'الخدام', count: participantCounts.servant, icon: <Shield className="w-4 h-4" /> },
                 ].map((group) => (
                   <button
@@ -1021,7 +1021,7 @@ export default function AssessmentCreator() {
                         value={manualQuestion.category || ''}
                         onChange={e => setManualQuestion({ ...manualQuestion, category: e.target.value })}
                         className="flex-1 px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
-                        placeholder="مثال: عهد جديد، عهد قديم، طقوس..."
+                        placeholder="مثال: طلاب الورشة، طلاب اونلاين، طقوس..."
                       />
                       <select
                         onChange={e => {
@@ -1029,12 +1029,12 @@ export default function AssessmentCreator() {
                             setManualQuestion({ ...manualQuestion, category: e.target.value });
                           }
                         }}
-                        value={['عهد قديم', 'عهد جديد', 'طقوس', 'عقيدة', 'شخصيات'].includes(manualQuestion.category) ? manualQuestion.category : ''}
+                        value={['طلاب اونلاين', 'طلاب الورشة', 'طقوس', 'عقيدة', 'شخصيات'].includes(manualQuestion.category) ? manualQuestion.category : ''}
                         className="px-2 py-3 bg-white border border-brand-beige/10 rounded-xl outline-none font-bold text-brand-text text-right text-xs max-w-[120px]"
                       >
                         <option value="">سريع</option>
-                        <option value="عهد قديم">عهد قديم</option>
-                        <option value="عهد جديد">عهد جديد</option>
+                        <option value="طلاب اونلاين">طلاب اونلاين</option>
+                        <option value="طلاب الورشة">طلاب الورشة</option>
                         <option value="طقوس">طقوس</option>
                         <option value="عقيدة">عقيدة</option>
                         <option value="شخصيات">شخصيات</option>

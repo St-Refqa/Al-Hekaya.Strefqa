@@ -232,7 +232,11 @@ function AnimatedRoutes() {
         } />
         <Route path="/student/meetings" element={
           <ProtectedRoute role="student">
-            <motion.div {...pageTransition} className="w-full min-h-screen"><PreparationMeetings /></motion.div>
+            {user?.code?.toUpperCase().startsWith('H') ? (
+              <Navigate to="/student" replace />
+            ) : (
+              <motion.div {...pageTransition} className="w-full min-h-screen"><PreparationMeetings /></motion.div>
+            )}
           </ProtectedRoute>
         } />
 

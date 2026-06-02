@@ -395,6 +395,10 @@ export default function PreparationMeetings() {
           </div>
         </div>
       )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modern Booklet / Saturday Navigation Panel - hidden on print */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-brand-cream/30 p-3 rounded-[28px] border border-brand-beige/12 print:hidden shadow-sm">
@@ -604,6 +608,7 @@ export default function PreparationMeetings() {
               </div>
             </div>
 
+
           </div>
         </div>
       )}
@@ -708,7 +713,7 @@ export default function PreparationMeetings() {
               {filteredSaturdays.length === 0 && (
                 <div className="col-span-full py-12 text-center text-gray-400 space-y-4">
                   <AlertCircle className="w-12 h-12 text-brand-beige mx-auto" />
-                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج العهد القديم.</p>
+                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج طلاب اونلاين.</p>
                 </div>
               )}
             </div>
@@ -753,6 +758,7 @@ export default function PreparationMeetings() {
           )}
         </div>
       )}
+
 
 
 

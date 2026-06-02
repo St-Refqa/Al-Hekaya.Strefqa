@@ -93,7 +93,7 @@ export default function Achievements() {
               <StatCard icon={<Trophy className="w-4 h-4 md:w-5 md:h-5 text-amber-500" />} label="النقاط التراكمية 🏆" value={user.cumulativePoints ?? user.totalPoints ?? 0} />
               <StatCard icon={<Zap className="w-4 h-4 md:w-5 md:h-5" />} label={t('leaderboard.exams')} value={user.totalExams || 0} />
               <StatCard icon={<Flame className="w-4 h-4 md:w-5 md:h-5" />} label={t('dashboard.streak')} value={user.streak || 0} />
-              <StatCard icon={<Target className="w-4 h-4 md:w-5 md:h-5" />} label={t('dashboard.performance')} value={`${Math.round((user as any).averageScore || user.avgScore || 0)}%`} />
+              <StatCard icon={<Target className="w-4 h-4 md:w-5 md:h-5" />} label={t('dashboard.performance')} value={`${Math.round(user.averageScore || 0)}%`} />
             </div>
           </div>
         </div>

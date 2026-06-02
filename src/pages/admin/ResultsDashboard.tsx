@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { formatDate, cn } from "../../lib/utils";
+import { formatDate, cn, calculatePercentage } from "../../lib/utils";
 import * as XLSX from "xlsx";
 import { SmartImage } from "../../components/ui/SmartImage";
 import { deleteDoc } from "firebase/firestore";
@@ -297,8 +297,8 @@ export default function ResultsDashboard() {
         valA = a.date;
         valB = b.date;
       } else if (sortBy === "score") {
-        valA = a.finalScore / (a.maxScore || 1);
-        valB = b.finalScore / (b.maxScore || 1);
+        valA = calculatePercentage(a.finalScore, a.maxScore);
+        valB = calculatePercentage(b.finalScore, b.maxScore);
       } else {
         valA = a.streakCount;
         valB = b.streakCount;
@@ -355,7 +355,7 @@ export default function ResultsDashboard() {
             ),
           "الدرجة النهائية": s.finalScore,
           "أقصى درجة ممكنة": s.maxScore,
-          "النسبة المئوية": `${((s.finalScore / s.maxScore) * 100).toFixed(1)}%`,
+          "النسبة المئوية": `${calculatePercentage(s.finalScore, s.maxScore)}%`,
           "تم التعديل يدوياً": s.isManuallyAdjusted ? "نعم" : "لا",
           "ملاحظات المراجعة": s.adminReviewNotes || "",
         };
@@ -425,7 +425,7 @@ export default function ResultsDashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
       <AnimatePresence>
         {selectedSubmission && (
           <SubmissionModal
@@ -484,14 +484,14 @@ export default function ResultsDashboard() {
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-6 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-8">
         <Link
           to="/admin"
-          className="p-4 bg-white border border-brand-beige/20 rounded-2xl hover:bg-brand-cream transition-colors shadow-sm"
+          className="p-4 bg-white border border-brand-beige/20 rounded-2xl hover:bg-brand-cream transition-colors shadow-sm self-start sm:self-auto"
         >
           <ArrowLeft className="w-5 h-5 text-brand-beige" />
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-1 w-full">
           <div className="flex items-center -space-x-3">
             <div className="w-14 h-14 rounded-full bg-white border-2 border-brand-beige/20 shadow-xl flex items-center justify-center overflow-hidden z-10">
               <SmartImage
@@ -511,10 +511,10 @@ export default function ResultsDashboard() {
             </div>
           </div>
           <div className="text-right flex-1">
-            <h1 className="text-4xl font-black tracking-tight text-brand-text">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-brand-text">
               نتائج الطلاب
             </h1>
-            <p className="text-brand-beige font-bold mt-1">
+            <p className="text-brand-beige font-bold mt-1 text-sm sm:text-base">
               مراجعة يدوية وتصدير كامل لبيانات الاستيعاب.
             </p>
           </div>
@@ -523,7 +523,7 @@ export default function ResultsDashboard() {
                 const data = filteredSubmissions.map(s => [s.participantName, s.assessmentTitle, (s.score || 0) + '%', s.status === 'completed' ? 'مكتمل' : 'مرفوض', new Date(s.date).toLocaleString()]);
                 exportToCSV('results_export.csv', [['اسم الطالب', 'الاختبار', 'الدرجة', 'الحالة', 'التاريخ'], ...data]);
              }}
-             className="px-6 py-4 bg-brand-cream text-brand-text font-black rounded-[24px] hover:bg-brand-red hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 border border-brand-beige/10 shrink-0"
+             className="w-full md:w-auto px-6 py-4 bg-brand-cream text-brand-text font-black rounded-[24px] hover:bg-brand-red hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 border border-brand-beige/10 shrink-0"
           >
              <Download className="w-5 h-5"/> تصدير النتائج (CSV)
           </button>
@@ -540,7 +540,7 @@ export default function ResultsDashboard() {
           title="متوسط الدقة"
           value={
             submissions.length > 0
-              ? `${((submissions.reduce((acc, s) => acc + s.finalScore / (s.maxScore || 1), 0) / submissions.length) * 100).toFixed(1)}%`
+              ? `${(submissions.reduce((acc, s) => acc + calculatePercentage(s.finalScore, s.maxScore), 0) / submissions.length).toFixed(1)}%`
               : "0%"
           }
           icon={<Star className="w-5 h-5 text-amber-500" />}
@@ -548,7 +548,7 @@ export default function ResultsDashboard() {
         <StatCard
           title="المتفوقين"
           value={
-            submissions.filter((s) => s.finalScore / (s.maxScore || 1) >= 0.9).length
+            submissions.filter((s) => calculatePercentage(s.finalScore, s.maxScore) >= 90).length
           }
           icon={<Trophy className="w-5 h-5 text-brand-red" />}
         />
@@ -715,22 +715,22 @@ export default function ResultsDashboard() {
 
           <thead>
               <tr className="bg-brand-cream/20">
-                <th className="px-8 py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-right">
+                <th className="px-4 sm:px-8 py-3.5 sm:py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-right">
                   المشارك
                 </th>
-                <th className="px-8 py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-right">
+                <th className="px-4 sm:px-8 py-3.5 sm:py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-right">
                   تفاصيل الاختبار
                 </th>
-                <th className="px-8 py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-center">
+                <th className="px-4 sm:px-8 py-3.5 sm:py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-center">
                   نسبة الاستيعاب
                 </th>
-                <th className="px-8 py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-center">
+                <th className="px-4 sm:px-8 py-3.5 sm:py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-center">
                   الحالة
                 </th>
-                <th className="px-8 py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-center">
+                <th className="px-4 sm:px-8 py-3.5 sm:py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest text-center">
                   التاريخ
                 </th>
-                <th className="px-8 py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest"></th>
+                <th className="px-4 sm:px-8 py-3.5 sm:py-4 text-[10px] font-black text-brand-beige uppercase tracking-widest"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-beige/5">
@@ -758,7 +758,7 @@ export default function ResultsDashboard() {
                     onClick={() => setSelectedSubmission(s)}
                     className="hover:bg-brand-cream/20 transition-colors group cursor-pointer relative"
                   >
-                    <td className="px-8 py-5 relative">
+                    <td className="px-4 sm:px-8 py-3.5 sm:py-5 relative">
                       <div className={cn(
                         "absolute top-0 bottom-0 right-0 w-1 transition-all group-hover:w-2",
                         s.status === 'completed' ? "bg-emerald-500" :
@@ -782,7 +782,7 @@ export default function ResultsDashboard() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-5">
+                    <td className="px-4 sm:px-8 py-3.5 sm:py-5">
                       <div className="max-w-xs text-right group/cell">
                         <div className="flex items-center justify-end gap-2">
                            <button
@@ -808,7 +808,7 @@ export default function ResultsDashboard() {
                         </p>
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-center">
+                    <td className="px-4 sm:px-8 py-3.5 sm:py-5 text-center">
                       <div className="flex flex-col items-center">
                         <div className="flex items-center gap-2 mb-1.5">
                           <span className="text-sm font-black text-brand-text">
@@ -819,22 +819,22 @@ export default function ResultsDashboard() {
                           </span>
                           <span className={cn(
                             "text-[10px] font-black px-1.5 py-0.5 rounded-md",
-                            s.finalScore / (s.maxScore || 1) >= 0.8 ? "bg-emerald-50 text-emerald-600" :
-                            s.finalScore / (s.maxScore || 1) >= 0.5 ? "bg-amber-50 text-amber-600" :
+                            calculatePercentage(s.finalScore, s.maxScore) >= 80 ? "bg-emerald-50 text-emerald-600" :
+                            calculatePercentage(s.finalScore, s.maxScore) >= 50 ? "bg-amber-50 text-amber-600" :
                             "bg-rose-50 text-brand-red"
                           )}>
-                            {Math.round((s.finalScore / (s.maxScore || 1)) * 100)}%
+                            {calculatePercentage(s.finalScore, s.maxScore)}%
                           </span>
                         </div>
                         <div className="w-32 h-2 bg-brand-cream rounded-full overflow-hidden shadow-inner">
                           <motion.div
                             initial={{ width: 0 }}
-                            animate={{ width: `${(s.finalScore / (s.maxScore || 1)) * 100}%` }}
+                            animate={{ width: `${calculatePercentage(s.finalScore, s.maxScore)}%` }}
                             className={cn(
                               "h-full rounded-full transition-all duration-1000",
-                              s.finalScore / (s.maxScore || 1) >= 0.8
+                              calculatePercentage(s.finalScore, s.maxScore) >= 80
                                 ? "bg-gradient-to-l from-emerald-400 to-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]"
-                                : s.finalScore / (s.maxScore || 1) >= 0.5
+                                : calculatePercentage(s.finalScore, s.maxScore) >= 50
                                   ? "bg-gradient-to-l from-amber-400 to-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.3)]"
                                   : "bg-gradient-to-l from-rose-400 to-brand-red shadow-[0_0_8px_rgba(224,45,60,0.3)]",
                             )}
@@ -886,7 +886,7 @@ export default function ResultsDashboard() {
                         )}
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-center">
+                    <td className="px-4 sm:px-8 py-3.5 sm:py-5 text-center">
                       <p className="text-xs font-black text-brand-text">
                         {formatDate(s.date)}
                       </p>
@@ -897,7 +897,7 @@ export default function ResultsDashboard() {
                         })}
                       </p>
                     </td>
-                    <td className="px-8 py-5 text-right flex items-center justify-end gap-2">
+                    <td className="px-4 sm:px-8 py-3.5 sm:py-5 text-right flex items-center justify-end gap-2">
                       <Link
                         to={`/student/review/${s.id}`}
                         target="_blank"
@@ -965,8 +965,8 @@ function SubmissionModal({
         animate={{ scale: 1, opacity: 1, y: 0 }}
         className="bg-white w-full max-w-5xl h-[90vh] rounded-[40px] shadow-2xl flex flex-col overflow-hidden"
       >
-        <div className="p-8 border-b border-brand-beige/10 flex items-center justify-between bg-brand-cream/30">
-          <div className="flex items-center gap-6 justify-end flex-row-reverse w-full">
+        <div className="p-4 md:p-8 border-b border-brand-beige/10 flex flex-col md:flex-row md:items-center md:justify-between bg-brand-cream/30 gap-4">
+          <div className="flex items-center gap-4 md:gap-6 justify-end flex-row-reverse w-full md:w-auto">
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end mb-1">
                 {/* Submission Status */}
@@ -1027,7 +1027,7 @@ function SubmissionModal({
               ) : submission.participantName[0]}
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-brand-cream/50 p-1 rounded-xl">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 bg-brand-cream/50 p-1.5 rounded-2xl w-full md:w-auto">
             <button
               onClick={onClose}
               className="p-2 hover:bg-white rounded-lg transition-colors ml-2"
@@ -1090,7 +1090,7 @@ function SubmissionModal({
                   <div className="grid grid-cols-2 gap-4">
                     <SummaryItem
                       label="نسبة الدقة"
-                      value={`${((submission.finalScore / (submission.maxScore || 1)) * 100).toFixed(1)}%`}
+                      value={`${calculatePercentage(submission.finalScore, submission.maxScore)}%`}
                       sub={`${submission.finalScore} / ${submission.maxScore}`}
                     />
                     <SummaryItem

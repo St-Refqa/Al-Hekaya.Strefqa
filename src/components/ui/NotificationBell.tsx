@@ -7,6 +7,8 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../hooks/useAuth";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 interface AppNotification {
   id: string;
@@ -106,7 +108,6 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
             if (n.type === 'purchase' && user?.isStoreManager) return true;
             return false;
           }
-          if (targetRole === 'student' && userRole === 'admin') return true; 
           if (targetRole !== userRole) return false;
         }
 
@@ -122,24 +123,41 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
       });
       setUnreadCount(unread.length);
 
-      // Trigger native browser notification for new arrivals (not in initial load)
+      // Trigger native browser/mobile notification for new arrivals (not in initial load)
       if (isInitialLoad.current) {
         isInitialLoad.current = false;
       } else {
-        snapshot.docChanges().forEach((change) => {
+        snapshot.docChanges().forEach(async (change) => {
           if (change.type === "added") {
             const notifId = change.doc.id;
             const matchesFiltered = data.find(n => n.id === notifId);
-            if (matchesFiltered && Notification.permission === "granted") {
-              try {
-                new Notification(matchesFiltered.title, {
-                  body: matchesFiltered.message,
-                  icon: "/assets/logo-red.png",
-                  badge: "/assets/logo-red.png",
-                  dir: "rtl"
-                });
-              } catch (e) {
-                console.error("Failed to trigger native browser notification:", e);
+            if (matchesFiltered) {
+              if (Capacitor.isNativePlatform()) {
+                try {
+                  await LocalNotifications.schedule({
+                    notifications: [
+                      {
+                        title: matchesFiltered.title,
+                        body: matchesFiltered.message,
+                        id: Math.floor(Math.random() * 1000000),
+                        schedule: { at: new Date(Date.now() + 50) }
+                      }
+                    ]
+                  });
+                } catch (e) {
+                  console.error("Failed to trigger Capacitor local notification:", e);
+                }
+              } else if (Notification.permission === "granted") {
+                try {
+                  new Notification(matchesFiltered.title, {
+                    body: matchesFiltered.message,
+                    icon: "/assets/logo-red.png",
+                    badge: "/assets/logo-red.png",
+                    dir: "rtl"
+                  });
+                } catch (e) {
+                  console.error("Failed to trigger native browser notification:", e);
+                }
               }
             }
           }

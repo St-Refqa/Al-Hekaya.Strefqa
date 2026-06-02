@@ -835,8 +835,8 @@ export default function AdminDashboard() {
                             assessment.targetGroup === 'servant' ? "bg-amber-50 text-amber-600" :
                             assessment.targetGroup === 'admin' ? "bg-brand-red/10 text-brand-red" : "bg-brand-cream text-brand-beige"
                           )}>
-                            {assessment.targetGroup === 'OT' ? "عهد قديم" :
-                             assessment.targetGroup === 'NT' ? "عهد جديد" :
+                            {assessment.targetGroup === 'OT' ? "طلاب اونلاين" :
+                             assessment.targetGroup === 'NT' ? "طلاب الورشة" :
                              assessment.targetGroup === 'servant' ? "خدام" :
                              assessment.targetGroup === 'admin' ? "مديرين" : "الكل"}
                           </span>

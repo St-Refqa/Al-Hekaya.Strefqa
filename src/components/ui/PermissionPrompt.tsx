@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Bell, Camera, ShieldAlert, CheckCircle2, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 export function PermissionPrompt() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +26,16 @@ export function PermissionPrompt() {
   const handleRequestPermissions = async () => {
     // 1. Request Notifications Permission
     let notifGranted = false;
-    if ("Notification" in window) {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const result = await LocalNotifications.requestPermissions();
+        if (result.display === "granted") {
+          notifGranted = true;
+        }
+      } catch (err) {
+        console.error("Capacitor local notifications permission failed:", err);
+      }
+    } else if ("Notification" in window) {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
         notifGranted = true;
@@ -48,12 +59,25 @@ export function PermissionPrompt() {
     // Play premium native success notification if granted
     if (notifGranted) {
       try {
-        new Notification("تم تفعيل التنبيهات بنجاح! 🎉", {
-          body: "ستصلك إشعارات فورية بالاختبارات والاجتماعات الجديدة لتظل متميزاً.",
-          icon: "/assets/logo-red.png",
-          badge: "/assets/logo-red.png",
-          dir: "rtl"
-        });
+        if (Capacitor.isNativePlatform()) {
+          await LocalNotifications.schedule({
+            notifications: [
+              {
+                title: "تم تفعيل التنبيهات بنجاح! 🎉",
+                body: "ستصلك إشعارات فورية بالاختبارات والاجتماعات الجديدة لتظل متميزاً.",
+                id: 10001,
+                schedule: { at: new Date(Date.now() + 50) }
+              }
+            ]
+          });
+        } else {
+          new Notification("تم تفعيل التنبيهات بنجاح! 🎉", {
+            body: "ستصلك إشعارات فورية بالاختبارات والاجتماعات الجديدة لتظل متميزاً.",
+            icon: "/assets/logo-red.png",
+            badge: "/assets/logo-red.png",
+            dir: "rtl"
+          });
+        }
       } catch (e) {
         console.error("Test notification failed:", e);
       }

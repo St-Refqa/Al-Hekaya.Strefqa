@@ -175,8 +175,8 @@ export default function Leaderboard() {
       <div className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar mb-8">
           {[
             { id: 'all', label: 'الجميع' },
-            { id: 'OT', label: 'العهد القديم (H)' },
-            { id: 'NT', label: 'العهد الجديد (N)' },
+            { id: 'OT', label: 'طلاب اونلاين (H)' },
+            { id: 'NT', label: 'طلاب الورشة (N)' },
             { id: 'K', label: 'الخدام (S)' }
           ].map(cat => (
              <button 

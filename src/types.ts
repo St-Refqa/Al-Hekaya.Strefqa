@@ -40,6 +40,7 @@ export interface User {
   isLibraryManager?: boolean;
   isMeetingScheduler?: boolean;
   isMeetingManager?: boolean;
+  lastActive?: string;
 }
 
 export interface LoginLog {
@@ -93,7 +94,7 @@ export interface Question {
   explanation?: string;
   modelAnswer?: string; // For short answer
   aiRubric?: string; // Grading criteria for AI
-  category?: string; // e.g., 'عهد قديم', 'عهد جديد', 'طقوس', 'عقيدة', etc.
+  category?: string; // e.g., 'طلاب اونلاين', 'طلاب الورشة', 'طقوس', 'عقيدة', etc.
   reference?: string; // Biblical or study reference, e.g., 'لوقا ١: ٥' or 'ملوك الأول ٢'
   isLocked?: boolean;
   isReviewed?: boolean;
