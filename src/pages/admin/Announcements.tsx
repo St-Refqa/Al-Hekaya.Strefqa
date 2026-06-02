@@ -103,8 +103,8 @@ export default function Announcements() {
           <div className="grid grid-cols-3 gap-2">
             {[
               { id: 'all', label: 'الجميع' },
-              { id: 'OT', label: 'العهد القديم (H)' },
-              { id: 'NT', label: 'العهد الجديد (N)' },
+              { id: 'OT', label: 'طلاب اونلاين (H)' },
+              { id: 'NT', label: 'طلاب الورشة (N)' },
               { id: 'servant', label: 'الخدام (S)' },
               { id: 'admin', label: 'الآدمن' },
               { id: 'specific', label: 'تحديد شخص' }

@@ -368,7 +368,7 @@ export default function PreparationMeetings() {
                 <Sparkles className="w-5 h-5 animate-spin-slow" />
               </div>
               <div className="space-y-1 flex-1">
-                <span className="inline-block px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black rounded-full mb-1">الدرس القادم بالعهد القديم (السبت) 🌟</span>
+                <span className="inline-block px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black rounded-full mb-1">الدرس القادم بطلاب اونلاين (السبت) 🌟</span>
                 <h4 className="font-black text-brand-text text-sm leading-snug">{nextSaturdayMeeting.topic1} {nextSaturdayMeeting.topic2 ? `| ${nextSaturdayMeeting.topic2}` : ''}</h4>
                 <p className="text-[11px] text-brand-beige font-bold flex items-center gap-1">
                   <span>الموافق السبت {nextSaturdayMeeting.date}</span>
@@ -383,7 +383,7 @@ export default function PreparationMeetings() {
                 <BookmarkCheck className="w-5 h-5 animate-pulse" />
               </div>
               <div className="space-y-1 flex-1">
-                <span className="inline-block px-2.5 py-0.5 bg-rose-100 text-brand-red text-[10px] font-black rounded-full mb-1">الدرس القادم بالعهد الجديد (الخميس) 🌟</span>
+                <span className="inline-block px-2.5 py-0.5 bg-rose-100 text-brand-red text-[10px] font-black rounded-full mb-1">الدرس القادم بطلاب الورشة (الخميس) 🌟</span>
                 <h4 className="font-black text-brand-text text-sm leading-snug">{nextThursdayMeeting.topic1} {nextThursdayMeeting.topic2 ? `| ${nextThursdayMeeting.topic2}` : ''}</h4>
                 <p className="text-[11px] text-brand-beige font-bold flex items-center gap-1">
                   <span>الموافق الخميس {nextThursdayMeeting.date}</span>
@@ -553,7 +553,7 @@ export default function PreparationMeetings() {
             {/* Right Column: Saturday Old Testament */}
             <div id="old-testament-side" className="space-y-4">
               <div className="flex items-center justify-between bg-brand-text text-white p-4 rounded-2xl shadow-sm">
-                <span className="font-black text-sm">العهد القديم (السبت)</span>
+                <span className="font-black text-sm">طلاب اونلاين (السبت)</span>
                 <span className="text-xs bg-brand-red px-2.5 py-1 rounded-lg text-white font-mono font-bold">13/6 - 3/10</span>
               </div>
 
@@ -618,7 +618,7 @@ export default function PreparationMeetings() {
             {/* Left Column: Thursday New Testament */}
             <div id="new-testament-side" className="space-y-4">
               <div className="flex items-center justify-between bg-brand-text text-white p-4 rounded-2xl shadow-sm">
-                <span className="font-black text-sm">العهد الجديد (الخميس)</span>
+                <span className="font-black text-sm">طلاب الورشة (الخميس)</span>
                 <span className="text-xs bg-brand-red px-2.5 py-1 rounded-lg text-white font-mono font-bold">11/6 - 1/10</span>
               </div>
 
@@ -784,7 +784,7 @@ export default function PreparationMeetings() {
               {filteredSaturdays.length === 0 && (
                 <div className="col-span-full py-12 text-center text-gray-400 space-y-4">
                   <AlertCircle className="w-12 h-12 text-brand-beige mx-auto" />
-                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج العهد القديم.</p>
+                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج طلاب اونلاين.</p>
                 </div>
               )}
             </div>
@@ -930,7 +930,7 @@ export default function PreparationMeetings() {
               {filteredThursdays.length === 0 && (
                 <div className="col-span-full py-12 text-center text-gray-400 space-y-4">
                   <AlertCircle className="w-12 h-12 text-brand-beige mx-auto" />
-                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج العهد الجديد.</p>
+                  <p className="font-black">لا توجد نتائج مطابقة لبحثك في منهج طلاب الورشة.</p>
                 </div>
               )}
             </div>

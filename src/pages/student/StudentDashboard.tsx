@@ -998,31 +998,41 @@ export default function StudentDashboard() {
                 <Users className="w-4 h-4 text-[#DFC69D]" />
               </div>
 
-              {/* QR Code Image */}
-              <div
-                onClick={() => qrUrl && setIsQrModalOpen(true)}
-                className="bg-[#FFFDF6] p-3 md:p-4 rounded-2xl md:rounded-[28px] shadow-lg border-2 border-[#DFC69D] relative z-10 transition-transform hover:scale-[1.05] cursor-pointer group"
-                title="اضغط لتكبير كارت الحضور"
-              >
-                {qrUrl ? (
-                  <>
-                    <img
-                      src={qrUrl}
-                      alt="رابط كود الحضور"
-                      className="w-[110px] h-[110px] md:w-[140px] md:h-[140px] object-contain rounded-lg group-hover:opacity-80 transition-opacity"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <div className="bg-black/60 p-2 rounded-full text-white backdrop-blur-sm">
-                        <QrCode className="w-6 h-6" />
+              {/* QR Code Image or Online student info */}
+              {!user.code?.toUpperCase().startsWith("H") ? (
+                <div
+                  onClick={() => qrUrl && setIsQrModalOpen(true)}
+                  className="bg-[#FFFDF6] p-3 md:p-4 rounded-2xl md:rounded-[28px] shadow-lg border-2 border-[#DFC69D] relative z-10 transition-transform hover:scale-[1.05] cursor-pointer group"
+                  title="اضغط لتكبير كارت الحضور"
+                >
+                  {qrUrl ? (
+                    <>
+                      <img
+                        src={qrUrl}
+                        alt="رابط كود الحضور"
+                        className="w-[110px] h-[110px] md:w-[140px] md:h-[140px] object-contain rounded-lg group-hover:opacity-80 transition-opacity"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        <div className="bg-black/60 p-2 rounded-full text-white backdrop-blur-sm">
+                          <QrCode className="w-6 h-6" />
+                        </div>
                       </div>
+                    </>
+                  ) : (
+                    <div className="w-[110px] h-[110px] md:w-[140px] md:h-[140px] flex items-center justify-center text-brand-text font-bold text-xs">
+                      جاري التحميل...
                     </div>
-                  </>
-                ) : (
-                  <div className="w-[110px] h-[110px] md:w-[140px] md:h-[140px] flex items-center justify-center text-brand-text font-bold text-xs">
-                    جاري التحميل...
+                  )}
+                </div>
+              ) : (
+                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl relative z-10 flex flex-col items-center text-center max-w-[200px] w-full">
+                  <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-400 mb-3 shadow-inner">
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
-                )}
-              </div>
+                  <p className="text-[11px] font-black text-white leading-tight">حساب أونلاين 🌐</p>
+                  <p className="text-[9px] text-[#DFC69D] mt-1 font-bold leading-normal">غير مطالب برمز حضور QR الميداني</p>
+                </div>
+              )}
 
               {/* Student Details */}
               <div className="text-center mt-5 w-full relative z-10 space-y-1.5 pb-4 border-b border-white/10">
@@ -1035,109 +1045,115 @@ export default function StudentDashboard() {
                   </span>
                   <span className="px-3 py-1 bg-white/10 text-[#DFC69D] rounded-md text-[9px] font-black tracking-widest leading-none">
                     {user.code?.toUpperCase().startsWith("H")
-                      ? "العهد القديم"
+                      ? "طلاب اونلاين"
                       : user.code?.toUpperCase().startsWith("N")
-                        ? "العهد الجديد"
+                        ? "طلاب الورشة"
                         : user.code?.toUpperCase().startsWith("S")
                           ? "خدام"
                           : "مشارك عام"}
                   </span>
                 </div>
-                <p className="text-[8px] text-brand-beige/60 font-medium tracking-wide leading-relaxed pt-2 pb-1">
-                  وجه هذا الرمز للمسؤول لتسجيل حضورك ونقاطك اليوم
-                </p>
-                <button
-                  onClick={() => {
-                    if (qrUrl) {
-                      const link = document.createElement("a");
-                      link.href = qrUrl;
-                      link.download = `QR_${user.code || "code"}_${user.fullName}.png`;
-                      link.click();
-                    }
-                  }}
-                  className="mt-3.5 w-full py-2 bg-white/5 hover:bg-white/10 text-white hover:text-brand-red rounded-xl font-black text-[10px] transition-all border border-white/5 flex items-center justify-center gap-1.5 cursor-pointer"
-                  title="تحميل كارت الحضور QR للجهاز"
-                >
-                  <Download className="w-3.5 h-3.5 text-brand-red" />
-                  تحميل كارت الحضور الخاص بك
-                </button>
+                {!user.code?.toUpperCase().startsWith("H") && (
+                  <>
+                    <p className="text-[8px] text-brand-beige/60 font-medium tracking-wide leading-relaxed pt-2 pb-1">
+                      وجه هذا الرمز للمسؤول لتسجيل حضورك ونقاطك اليوم
+                    </p>
+                    <button
+                      onClick={() => {
+                        if (qrUrl) {
+                          const link = document.createElement("a");
+                          link.href = qrUrl;
+                          link.download = `QR_${user.code || "code"}_${user.fullName}.png`;
+                          link.click();
+                        }
+                      }}
+                      className="mt-3.5 w-full py-2 bg-white/5 hover:bg-white/10 text-white hover:text-brand-red rounded-xl font-black text-[10px] transition-all border border-white/5 flex items-center justify-center gap-1.5 cursor-pointer"
+                      title="تحميل كارت الحضور QR للجهاز"
+                    >
+                      <Download className="w-3.5 h-3.5 text-brand-red" />
+                      تحميل كارت الحضور الخاص بك
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* Live Attendance Status Badge/Panel */}
-              <div className="pt-4 w-full text-right space-y-3 relative z-10">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#DFC69D] block mb-1">
-                  حالة تسجيل الغياب والترتيبات اليوم
-                </span>
+              {!user.code?.toUpperCase().startsWith("H") && (
+                <div className="pt-4 w-full text-right space-y-3 relative z-10">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#DFC69D] block mb-1">
+                    حالة تسجيل الغياب والترتيبات اليوم
+                  </span>
 
-                {todayAttendance ? (
-                  <div className="bg-emerald-950/40 border border-emerald-500/20 p-3.5 rounded-2xl space-y-1.5 animate-fade-in relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl" />
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        تم رصد الحضور بنجاح ✅
-                      </span>
-                      <span className="font-sans font-black text-xs text-emerald-300">
-                        +{todayAttendance.points} درجة
-                      </span>
+                  {todayAttendance ? (
+                    <div className="bg-emerald-950/40 border border-emerald-500/20 p-3.5 rounded-2xl space-y-1.5 animate-fade-in relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl" />
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          تم رصد الحضور بنجاح ✅
+                        </span>
+                        <span className="font-sans font-black text-xs text-emerald-300">
+                          +{todayAttendance.points} درجة
+                        </span>
+                      </div>
+                      <p className="text-white text-xs font-black truncate leading-tight">
+                        {todayAttendance.lectureName ||
+                          (todayAttendance.meetingType === "OT"
+                            ? "طلاب اونلاين"
+                            : "طلاب الورشة")}
+                      </p>
+                      <div className="flex justify-between items-center text-[10px] text-white/50 pt-0.5 border-t border-white/5 mt-1 font-semibold">
+                        <span>وقت التسجيل:</span>
+                        <span className="font-sans font-extrabold text-white">
+                          {todayAttendance.scanTime || "غير محدد"}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-white text-xs font-black truncate leading-tight">
-                      {todayAttendance.lectureName ||
-                        (todayAttendance.meetingType === "OT"
-                          ? "العهد القديم"
-                          : "العهد الجديد")}
-                    </p>
-                    <div className="flex justify-between items-center text-[10px] text-white/50 pt-0.5 border-t border-white/5 mt-1 font-semibold">
-                      <span>وقت التسجيل:</span>
-                      <span className="font-sans font-extrabold text-white">
-                        {todayAttendance.scanTime || "غير محدد"}
-                      </span>
+                  ) : (
+                    <div className="bg-brand-red/10 border border-brand-red/20 p-3.5 rounded-2xl space-y-1.5 animate-fade-in">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black text-amber-400 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          بانتظار مسح كود الكارت...
+                        </span>
+                        <span className="text-[9px] font-black text-white/30">
+                          لم يسجل اليوم 🕒
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-brand-beige font-semibold leading-relaxed pt-1">
+                        اعرض الباركود الرقمي بالأعلى على أجهزة الخدام لرصد تواجدك
+                        بالمحاضرة الحالية تلقائياً.
+                      </p>
                     </div>
-                  </div>
-                ) : (
-                  <div className="bg-brand-red/10 border border-brand-red/20 p-3.5 rounded-2xl space-y-1.5 animate-fade-in">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-amber-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                        بانتظار مسح كود الكارت...
-                      </span>
-                      <span className="text-[9px] font-black text-white/30">
-                        لم يسجل اليوم 🕒
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-brand-beige font-semibold leading-relaxed pt-1">
-                      اعرض الباركود الرقمي بالأعلى على أجهزة الخدام لرصد تواجدك
-                      بالمحاضرة الحالية تلقائياً.
-                    </p>
-                  </div>
-                )}
+                  )}
 
-                {/* Attendance Stats Summary */}
-                {userAttendanceList.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 text-center pt-1 animate-fade-in">
-                    <div className="bg-white/5 border border-white/5 p-2 rounded-xl">
-                      <span className="text-[8px] text-brand-beige font-black block uppercase">
-                        إجمالي الحضور
-                      </span>
-                      <span className="text-xs font-black text-white font-sans">
-                        {userAttendanceList.length} محاضرات
-                      </span>
+                  {/* Attendance Stats Summary */}
+                  {userAttendanceList.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 text-center pt-1 animate-fade-in">
+                      <div className="bg-white/5 border border-white/5 p-2 rounded-xl">
+                        <span className="text-[8px] text-brand-beige font-black block uppercase">
+                          إجمالي الحضور
+                        </span>
+                        <span className="text-xs font-black text-white font-sans">
+                          {userAttendanceList.length} محاضرات
+                        </span>
+                      </div>
+                      <div className="bg-white/5 border border-white/5 p-2 rounded-xl">
+                        <span className="text-[8px] text-brand-beige font-black block uppercase">
+                          الدرجات المكتسبة
+                        </span>
+                        <span className="text-xs font-black text-[#DFC69D] font-sans">
+                          {userAttendanceList.reduce(
+                            (acc: number, curr: any) => acc + (curr.points || 0),
+                            0,
+                          )}{" "}
+                          درجة
+                        </span>
+                      </div>
                     </div>
-                    <div className="bg-white/5 border border-white/5 p-2 rounded-xl">
-                      <span className="text-[8px] text-brand-beige font-black block uppercase">
-                        الدرجات المكتسبة
-                      </span>
-                      <span className="text-xs font-black text-[#DFC69D] font-sans">
-                        {userAttendanceList.reduce(
-                          (acc: number, curr: any) => acc + (curr.points || 0),
-                          0,
-                        )}{" "}
-                        درجة
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Recent Achievements Panel */}

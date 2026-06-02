@@ -148,9 +148,10 @@ const resources = {
         "clear_all": "مسح جميع الطلاب",
         "search_placeholder": "ابحث بالاسم أو الكود...",
         "group_all": "الكل",
-        "group_ot": "عهد قديم",
-        "group_nt": "عهد جديد",
+        "group_ot": "طلاب اونلاين",
+        "group_nt": "طلاب الورشة",
         "group_servants": "خدام",
+        "group_pending": "طلاب معلقين",
         "table_rank": "رقم",
         "table_name": "الاسم بالكامل",
         "table_category": "الفئة",
@@ -172,7 +173,9 @@ const resources = {
         "edit_student": "تعديل بيانات الطالب",
         "student_photo": "صورة الطالب",
         "save_changes": "حفظ التعديلات",
-        "saving": "جاري الحفظ..."
+        "saving": "جاري الحفظ...",
+        "select_group_msg": "تحديد فئة الطالب لتوليد الكود:",
+        "group_servant": "خادم"
       },
       "admin_dashboard": {
         "title": "الإدارة العامة",
@@ -381,9 +384,10 @@ const resources = {
         "clear_all": "Clear All Students",
         "search_placeholder": "Search by name or code...",
         "group_all": "All",
-        "group_ot": "Old Testament",
-        "group_nt": "New Testament",
+        "group_ot": "Online Students",
+        "group_nt": "Workshop Students",
         "group_servants": "Servants",
+        "group_pending": "Pending Students",
         "table_rank": "Rank",
         "table_name": "Full Name",
         "table_category": "Category",
@@ -405,7 +409,9 @@ const resources = {
         "edit_student": "Edit Student Data",
         "student_photo": "Student Photo",
         "save_changes": "Save Changes",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "select_group_msg": "Select student category to generate code:",
+        "group_servant": "Servant"
       },
       "admin_dashboard": {
         "title": "General Management",

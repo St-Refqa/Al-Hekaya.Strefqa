@@ -14,7 +14,7 @@ export default function QuestionBank() {
     text: '',
     correctAnswer: '',
     options: ['', '', ''],
-    category: 'العهد الجديد'
+    category: 'طلاب الورشة'
   });
   const [filterCategory, setFilterCategory] = useState<string>('الكل');
   const [filterType, setFilterType] = useState<string>('الكل');
@@ -101,8 +101,8 @@ export default function QuestionBank() {
                 value={newQuestion.category || ''}
                 onChange={e => setNewQuestion({...newQuestion, category: e.target.value})}
               >
-                <option value="العهد الجديد">العهد الجديد</option>
-                <option value="العهد القديم">العهد القديم</option>
+                <option value="طلاب الورشة">طلاب الورشة</option>
+                <option value="طلاب اونلاين">طلاب اونلاين</option>
                 <option value="طقوس">طقوس وعقيدة</option>
                 <option value="عام">ثقافة عامة</option>
               </select>
@@ -219,7 +219,7 @@ export default function QuestionBank() {
           <div className="flex flex-wrap gap-2 items-center">
             <Filter className="w-4 h-4 text-brand-beige" />
             <span className="text-xs font-black text-brand-text">تصفية حسب القسم:</span>
-            {['الكل', 'العهد الجديد', 'العهد القديم', 'طقوس', 'عام'].map(cat => (
+            {['الكل', 'طلاب الورشة', 'طلاب اونلاين', 'طقوس', 'عام'].map(cat => (
               <button 
                 key={cat} 
                 onClick={() => setFilterCategory(cat)}

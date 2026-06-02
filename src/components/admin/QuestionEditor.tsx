@@ -101,7 +101,7 @@ export default function QuestionEditor({
 
     // 2. Validate category
     if (!edited.category?.trim()) {
-      setValidationError("يرجى تحديد تصنيف السؤال أو هويته (مثلاً: عهد جديد، عهد قديم).");
+      setValidationError("يرجى تحديد تصنيف السؤال أو هويته (مثلاً: طلاب الورشة، طلاب اونلاين).");
       return;
     }
 
@@ -255,7 +255,7 @@ export default function QuestionEditor({
                     value={edited.category || ''}
                     onChange={e => setEdited({ ...edited, category: e.target.value })}
                     className="flex-1 px-5 py-3.5 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right"
-                    placeholder="مثال: عهد جديد، عهد قديم، عقيدة، طقوس..."
+                    placeholder="مثال: طلاب الورشة، طلاب اونلاين، عقيدة، طقوس..."
                   />
                   <select
                     onChange={e => {
@@ -263,12 +263,12 @@ export default function QuestionEditor({
                         setEdited({ ...edited, category: e.target.value });
                       }
                     }}
-                    value={['عهد قديم', 'عهد جديد', 'طقوس', 'عقيدة', 'شخصيات'].includes(edited.category || '') ? edited.category : ''}
+                    value={['طلاب اونلاين', 'طلاب الورشة', 'طقوس', 'عقيدة', 'شخصيات'].includes(edited.category || '') ? edited.category : ''}
                     className="px-3 py-3 bg-white border border-brand-beige/10 rounded-xl outline-none font-bold text-brand-text text-right max-w-[130px]"
                   >
                     <option value="">اختر سريعاً</option>
-                    <option value="عهد قديم">عهد قديم</option>
-                    <option value="عهد جديد">عهد جديد</option>
+                    <option value="طلاب اونلاين">طلاب اونلاين</option>
+                    <option value="طلاب الورشة">طلاب الورشة</option>
                     <option value="طقوس">طقوس كنسية</option>
                     <option value="عقيدة">عقيدة وتاريخ</option>
                     <option value="شخصيات">شخصيات</option>

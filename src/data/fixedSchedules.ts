@@ -7,7 +7,7 @@ export interface ScheduleItem {
 }
 
 export const saturdaySchedules: ScheduleItem[] = [
-  { date: "13 / 6", dayText: "السبت", topic1: "العهد القديم", topic2: "اعرف كتابك" },
+  { date: "13 / 6", dayText: "السبت", topic1: "طلاب اونلاين", topic2: "اعرف كتابك" },
   { date: "20 / 6", dayText: "السبت", topic1: "التكوين", topic2: "استحالة التحريف" },
   { date: "27 / 6", dayText: "السبت", topic1: "الخروج", topic2: "الأعياد اليهودية 1" },
   { date: "4 / 7", dayText: "السبت", topic1: "يشوع", topic2: "امتحان 1 Round" },
@@ -34,7 +34,7 @@ export const thursdaySchedules: ScheduleItem[] = [
   { date: "9 / 7", dayText: "الخميس", topic1: "الخدمة الأخيرة في اليهودية وإقليم بيرية", topic2: "الخلفية الدينية اليهودية" },
   { date: "16 / 7", dayText: "الخميس", topic1: "أسبوع الآلام", topic2: "الخلفية السياسية والاقتصادية" },
   { date: "23 / 7", dayText: "الخميس", topic1: "أعمال الرسل 1 - 12", topic2: "الخلفية اللغوية (عبري - آرامي - يوناني)" },
-  { date: "30 / 7", dayText: "الخميس", topic1: "رحلات بولس الرسول 1 و 2", topic2: "النبوات والرموز في العهد القديم وتحقيقها في العهد الجديد" },
+  { date: "30 / 7", dayText: "الخميس", topic1: "رحلات بولس الرسول 1 و 2", topic2: "النبوات والرموز في طلاب اونلاين وتحقيقها في طلاب الورشة" },
   { date: "6 / 8", dayText: "الخميس", topic1: "رحلات 3 وروما", topic2: "امتحان 1 Round" },
   { date: "13 / 8", dayText: "الخميس", topic1: "نهضة العذراء مريم 🌸", isSpecialEvent: true },
   { date: "20 / 8", dayText: "الخميس", topic1: "نهضة العذراء مريم 🌸", isSpecialEvent: true },

@@ -39,40 +39,36 @@ export default function Register() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState<"OT" | "NT" | "K" | "">("");
+  useEffect(() => {
+    const generateAutoCode = async () => {
+      const prefix = "P";
+      try {
+        const q = query(
+          collection(db, "users"),
+          where("role", "==", "student"),
+          orderBy("code", "desc")
+        );
+        const snapshot = await getDocs(q);
+        const existingCodes = snapshot.docs
+          .map(doc => doc.data().code as string)
+          .filter(code => code && code.startsWith(prefix))
+          .map(code => {
+             const numPart = code.substring(1);
+             return parseInt(numPart);
+          })
+          .filter(num => !isNaN(num));
 
-  const generateNextCode = async (group: "OT" | "NT" | "K") => {
-    setSelectedGroup(group);
-    let prefix = "";
-    if (group === "OT") prefix = "H";
-    else if (group === "NT") prefix = "N";
-    else if (group === "K") prefix = "S";
-
-    try {
-      const q = query(
-        collection(db, "users"),
-        where("role", "==", "student"),
-        orderBy("code", "desc")
-      );
-      const snapshot = await getDocs(q);
-      const existingCodes = snapshot.docs
-        .map(doc => doc.data().code as string)
-        .filter(code => code && code.startsWith(prefix))
-        .map(code => {
-           const numPart = code.substring(1);
-           return parseInt(numPart);
-        })
-        .filter(num => !isNaN(num));
-
-      const nextNum = existingCodes.length > 0 ? Math.max(...existingCodes) + 1 : 1;
-      const formattedCode = `${prefix}${nextNum.toString().padStart(3, '0')}`;
-      setCode(formattedCode);
-    } catch (err) {
-      console.error("Error generating code:", err);
-      const fallback = `${prefix}${Math.floor(Math.random() * 899 + 100)}`;
-      setCode(fallback);
-    }
-  };
+        const nextNum = existingCodes.length > 0 ? Math.max(...existingCodes) + 1 : 1;
+        const formattedCode = `${prefix}${nextNum.toString().padStart(3, '0')}`;
+        setCode(formattedCode);
+      } catch (err) {
+        console.error("Error generating code:", err);
+        const fallback = `${prefix}${Math.floor(Math.random() * 899 + 100)}`;
+        setCode(fallback);
+      }
+    };
+    generateAutoCode();
+  }, []);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -312,43 +308,7 @@ export default function Register() {
                 </div>
               </div>
 
-              <div className="md:col-span-2 space-y-4">
-                <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-1 block text-right">اختيار الفئة (لتوليد كود الطالب)</label>
-                <div className="grid grid-cols-3 gap-4">
-                  <button 
-                    type="button"
-                    onClick={() => generateNextCode("OT")}
-                    className={cn(
-                      "py-4 rounded-2xl font-black text-[10px] transition-all border-2",
-                      selectedGroup === "OT" ? "bg-brand-red text-white border-brand-red shadow-lg shadow-brand-red/20" : "bg-brand-cream text-brand-beige border-transparent hover:border-brand-red/20"
-                    )}
-                  >
-                    عهد قديم (H)
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => generateNextCode("NT")}
-                    className={cn(
-                      "py-4 rounded-2xl font-black text-[10px] transition-all border-2",
-                      selectedGroup === "NT" ? "bg-brand-red text-white border-brand-red shadow-lg shadow-brand-red/20" : "bg-brand-cream text-brand-beige border-transparent hover:border-brand-red/20"
-                    )}
-                  >
-                    عهد جديد (N)
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => generateNextCode("K")}
-                    className={cn(
-                      "py-4 rounded-2xl font-black text-[10px] transition-all border-2",
-                      selectedGroup === "K" ? "bg-brand-red text-white border-brand-red shadow-lg shadow-brand-red/20" : "bg-brand-cream text-brand-beige border-transparent hover:border-brand-red/20"
-                    )}
-                  >
-                    خادم (S)
-                  </button>
-                </div>
-              </div>
-
-              <div className="md:col-span-1 space-y-2">
+               <div className="md:col-span-1 space-y-2">
                 <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-1">كود الطالب (تلقائي)</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none text-brand-beige">
@@ -359,7 +319,7 @@ export default function Register() {
                     value={code || ''}
                     readOnly
                     className="w-full bg-brand-cream/50 border-2 border-transparent rounded-[24px] py-4 pr-14 pl-6 outline-none transition-all font-black text-brand-text uppercase cursor-not-allowed"
-                    placeholder="اختر العهد"
+                    placeholder="جاري توليد الكود تلقائياً..."
                     required
                   />
                   {code && (

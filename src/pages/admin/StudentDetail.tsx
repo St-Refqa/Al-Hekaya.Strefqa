@@ -318,17 +318,22 @@ const StudentDetail: React.FC = () => {
                   </h1>
                   {student.code?.toUpperCase().startsWith("H") && (
                     <span className="px-2 md:px-3 py-0.5 md:py-1 bg-blue-50 text-blue-600 rounded-full text-[9px] md:text-[10px] font-black uppercase whitespace-nowrap">
-                      عهد قديم
+                      طلاب اونلاين
                     </span>
                   )}
                   {student.code?.toUpperCase().startsWith("N") && (
                     <span className="px-2 md:px-3 py-0.5 md:py-1 bg-purple-50 text-purple-600 rounded-full text-[9px] md:text-[10px] font-black uppercase whitespace-nowrap">
-                      عهد جديد
+                      طلاب الورشة
                     </span>
                   )}
                   {student.code?.toUpperCase().startsWith("S") && (
                     <span className="px-2 md:px-3 py-0.5 md:py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] md:text-[10px] font-black uppercase whitespace-nowrap">
                       خادم
+                    </span>
+                  )}
+                  {student.code?.toUpperCase().startsWith("P") && (
+                    <span className="px-2 md:px-3 py-0.5 md:py-1 bg-rose-50 text-rose-600 rounded-full text-[9px] md:text-[10px] font-black uppercase whitespace-nowrap">
+                      معلق
                     </span>
                   )}
                 </div>
