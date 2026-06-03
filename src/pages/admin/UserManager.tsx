@@ -40,7 +40,8 @@ import {
   QrCode,
   ShoppingBag,
   Calendar,
-  BookOpen
+  BookOpen,
+  Trophy
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { motion, AnimatePresence } from "motion/react";
@@ -472,6 +473,28 @@ export default function UserManager() {
       setTimeout(() => setNotification(null), 3000);
     } catch (err) {
       handleFirestoreError(err, OperationType.DELETE, "users/all");
+    }
+  };
+
+  const handleUpdatePoints = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPointsUser) return;
+    setIsSubmitting(true);
+    try {
+      await updateDoc(doc(db, "users", editingPointsUser.uid), {
+        totalPoints: Number(newTotalPoints),
+        cumulativePoints: Number(newCumulativePoints)
+      });
+      
+      setNotification({ type: 'success', text: `تم تحديث نقاط الطالب ${editingPointsUser.fullName} بنجاح!` });
+      setTimeout(() => setNotification(null), 3000);
+      setEditingPointsUser(null);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, `users/${editingPointsUser.uid}`);
+      setNotification({ type: 'error', text: 'فشل في تحديث نقاط الطالب.' });
+      setTimeout(() => setNotification(null), 3000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1037,6 +1060,21 @@ export default function UserManager() {
                         >
                           <Edit className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         </button>
+
+                        {/* Edit Student Points (Only for Students, not servants) */}
+                        {!user.code?.toUpperCase().startsWith('S') && (
+                          <button
+                            onClick={() => {
+                              setEditingPointsUser(user);
+                              setNewTotalPoints(user.totalPoints || 0);
+                              setNewCumulativePoints(user.cumulativePoints || user.totalPoints || 0);
+                            }}
+                            className="w-8 h-8 bg-white hover:bg-brand-cream text-amber-600 rounded-lg flex items-center justify-center transition-all border border-brand-beige/20 shadow-sm shrink-0"
+                            title="تعديل النقاط"
+                          >
+                            <Trophy className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                          </button>
+                        )}
                       </div>
 
                       {/* Hard Delete user account */}
@@ -1152,6 +1190,89 @@ export default function UserManager() {
                   نعم، امسح الكل
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+
+        {editingPointsUser && (
+          <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 md:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isSubmitting && setEditingPointsUser(null)}
+              className="absolute inset-0 bg-brand-text/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-2xl md:rounded-[40px] p-6 md:p-10 shadow-2xl border border-brand-cream text-right flex flex-col z-10 animate-fade-in"
+            >
+              <div className="flex items-center justify-between mb-8 flex-row-reverse">
+                <div className="flex items-center gap-3 flex-row-reverse">
+                  <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+                    <Trophy className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-black text-brand-text">تعديل نقاط الطالب</h3>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setEditingPointsUser(null)} 
+                  disabled={isSubmitting}
+                  className="p-2 hover:bg-brand-cream rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-brand-beige" />
+                </button>
+              </div>
+
+              <div className="p-4 bg-brand-cream/40 rounded-2xl mb-6 text-center">
+                <p className="font-black text-brand-text text-base">{editingPointsUser.fullName}</p>
+                <p className="text-xs text-brand-beige font-bold mt-1">كود الطالب: {editingPointsUser.code}</p>
+              </div>
+
+              <form onSubmit={handleUpdatePoints} className="space-y-6">
+                <div>
+                  <label className="text-[10px] font-black text-brand-beige uppercase tracking-widest block mb-2 text-right">إجمالي النقاط الحالي</label>
+                  <input
+                    type="number"
+                    value={newTotalPoints}
+                    onChange={e => setNewTotalPoints(Number(e.target.value))}
+                    className="w-full px-5 py-3 bg-brand-cream border border-brand-beige/10 rounded-xl outline-none focus:ring-2 focus:ring-brand-red/20 font-bold text-center text-brand-text"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-black text-brand-beige uppercase tracking-widest block mb-2 text-right">النقاط التراكمية (المجموع الكلي)</label>
+                  <input
+                    type="number"
+                    value={newCumulativePoints}
+                    onChange={e => setNewCumulativePoints(Number(e.target.value))}
+                    className="w-full px-5 py-3 bg-brand-cream border border-brand-beige/10 rounded-xl outline-none focus:ring-2 focus:ring-brand-red/20 font-bold text-center text-brand-text"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditingPointsUser(null)}
+                    disabled={isSubmitting}
+                    className="py-4 rounded-[24px] font-black text-brand-beige border-2 border-brand-cream hover:bg-brand-cream transition-all disabled:opacity-50"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="py-4 rounded-[24px] font-black text-white bg-brand-red hover:bg-brand-red/90 shadow-lg shadow-brand-red/10 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting && <RefreshCw className="w-4 h-4 animate-spin" />}
+                    حفظ التغييرات
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}
