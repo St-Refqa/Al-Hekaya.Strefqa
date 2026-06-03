@@ -187,7 +187,7 @@ export default function Library() {
               activeSection === 'OT' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
             )}
           >
-            طلاب اونلاين (السبت)
+            طلاب اونلاين
           </button>
         )}
         {(allowedSections.includes('NT')) && (
@@ -198,7 +198,7 @@ export default function Library() {
               activeSection === 'NT' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
             )}
           >
-            طلاب الورشة (الخميس)
+            طلاب الورشة
           </button>
         )}
         {(allowedSections.includes('general')) && (
