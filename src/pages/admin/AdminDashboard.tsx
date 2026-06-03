@@ -155,24 +155,25 @@ export default function AdminDashboard() {
         }
       );
 
-      // Fetch recent submissions only instead of ALL submissions
+      // Fetch submissions for points and stats
       const unsubscribeSubs = onSnapshot(
-        query(collection(db, "submissions"), orderBy("date", "desc"), limit(5)),
+        query(collection(db, "submissions"), orderBy("date", "desc")),
         (snap) => {
           const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as Submission);
-          setAllSubmissions([]); 
-          setRecentSubmissions(subs);
-          setStats(prev => ({ ...prev, totalSubmissions: prev.totalSubmissions || 0 }));
+          setAllSubmissions(subs); 
+          setRecentSubmissions(subs.slice(0, 5));
+          setStats(prev => ({ ...prev, totalSubmissions: snap.size }));
         },
         (error) => {
-          console.warn("Failed to load recent submissions:", error);
+          console.warn("Failed to load submissions:", error);
         }
       );
 
       const unsubscribeAtt = onSnapshot(
-        query(collection(db, "attendance"), orderBy("timestamp", "desc"), limit(5)),
+        query(collection(db, "attendance")),
         (snap) => {
-          setAllAttendances([]);
+          const atts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setAllAttendances(atts);
         },
         (error) => {
           console.warn("Failed to load attendance:", error);
@@ -180,9 +181,10 @@ export default function AdminDashboard() {
       );
 
       const unsubscribePur = onSnapshot(
-        query(collection(db, "purchases"), orderBy("purchaseDate", "desc"), limit(5)),
+        query(collection(db, "purchases")),
         (snap) => {
-          setAllPurchases([]);
+          const purs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as any);
+          setAllPurchases(purs);
         },
         (error) => {
           console.warn("Failed to load purchases:", error);
@@ -190,9 +192,10 @@ export default function AdminDashboard() {
       );
 
       const unsubscribeLogs = onSnapshot(
-        query(collection(db, "pointLogs"), orderBy("createdAt", "desc"), limit(5)),
+        query(collection(db, "pointLogs")),
         (snap) => {
-          setAllLogs([]);
+          const logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setAllLogs(logs);
         },
         (error) => {
           console.warn("Failed to load point logs:", error);

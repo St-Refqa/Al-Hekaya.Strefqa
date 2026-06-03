@@ -66,6 +66,7 @@ export async function getDocs(q: any) {
   if(error) throw error;
   return {
     empty: !data || data.length === 0,
+    size: data ? data.length : 0,
     docs: (data||[]).map(d => ({ id: d.id, exists: () => true, data: () => d })),
     forEach: (cb: any) => (data||[]).forEach(d => cb({ id: d.id, exists: () => true, data: () => d }))
   };

@@ -79,6 +79,7 @@ export async function getDocs(q: any) {
   if(error) throw error;
   return {
     empty: !data || data.length === 0,
+    size: data ? data.length : 0,
     docs: (data||[]).map(d => {
       const restored = restoreData(d, q._path);
       return { id: d.id, exists: () => true, data: () => restored };
