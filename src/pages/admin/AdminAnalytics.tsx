@@ -61,7 +61,7 @@ export default function AdminAnalytics() {
     });
 
     const unsubscribeUsers = onSnapshot(query(collection(db, "users"), where("role", "==", "student")), (snap) => {
-      setStudents(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as User)));
+      setStudents(snap.docs.map(doc => ({ uid: doc.id, ...doc.data() } as User)));
       setTimeout(() => setIsLoading(false), 0); // Stop loading without triggering sync state update in effect body
     });
 
@@ -152,7 +152,7 @@ export default function AdminAnalytics() {
           </div>
           <button 
              onClick={() => {
-                const data = students.map(s => [s.name, s.code, s.totalPoints || 0, s.xp || 0]);
+                const data = students.map(s => [s.fullName, s.code, s.totalPoints || 0, s.xp || 0]);
                 exportToCSV('students_report.csv', [['الاسم', 'الكود', 'النقاط', 'الخبرة'], ...data]);
              }}
              className="flex gap-2 items-center bg-brand-cream px-6 py-4 rounded-[24px] text-sm font-bold text-brand-text hover:bg-brand-red hover:text-white transition-all shadow-sm">

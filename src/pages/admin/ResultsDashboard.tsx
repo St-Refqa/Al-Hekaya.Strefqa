@@ -520,7 +520,7 @@ export default function ResultsDashboard() {
           </div>
           <button
              onClick={() => {
-                const data = filteredSubmissions.map(s => [s.participantName, s.assessmentTitle, (s.score || 0) + '%', s.status === 'completed' ? 'مكتمل' : 'مرفوض', new Date(s.date).toLocaleString()]);
+                const data = filteredSubmissions.map(s => [s.participantName, s.assessmentTitle, (s.finalScore || 0) + '%', s.status === 'completed' ? 'مكتمل' : 'مرفوض', new Date(s.date).toLocaleString()]);
                 exportToCSV('results_export.csv', [['اسم الطالب', 'الاختبار', 'الدرجة', 'الحالة', 'التاريخ'], ...data]);
              }}
              className="w-full md:w-auto px-6 py-4 bg-brand-cream text-brand-text font-black rounded-[24px] hover:bg-brand-red hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 border border-brand-beige/10 shrink-0"

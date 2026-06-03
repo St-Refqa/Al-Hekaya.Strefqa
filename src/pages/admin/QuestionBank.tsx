@@ -37,7 +37,7 @@ export default function QuestionBank() {
       category: newQuestion.category,
       difficulty: 'medium',
       createdAt: new Date().toISOString(),
-      createdBy: user?.fullName || user?.email || 'مجهول',
+      createdBy: user?.fullName || 'مجهول',
       creatorId: user?.uid || ''
     };
 

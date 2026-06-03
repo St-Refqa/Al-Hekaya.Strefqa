@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AssessmentCreator from './pages/admin/AssessmentCreator';
@@ -71,11 +71,16 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 
   return <>{children}</>;
 }
 
+function RedirectToAssessment() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/assessment/${id}`} replace />;
+}
+
 const pageTransition = {
   initial: { opacity: 0, y: 15, scale: 0.98 },
   animate: { opacity: 1, y: 0, scale: 1 },
   exit: { opacity: 0, y: -15, scale: 0.98 },
-  transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+  transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as any }
 };
 
 function AnimatedRoutes() {
@@ -187,7 +192,7 @@ function AnimatedRoutes() {
         <Route path="/register" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Register /></motion.div>} />
         <Route path="/assessment/:id" element={<motion.div {...pageTransition} className="w-full min-h-screen"><PublicAssessment /></motion.div>} />
         {/* Compatibility link */}
-        <Route path="/a/:id" element={<Navigate to={(params) => `/assessment/${params.id}`} replace />} />
+        <Route path="/a/:id" element={<RedirectToAssessment />} />
         
         {/* Student Routes */}
         <Route path="/student" element={

@@ -10,7 +10,7 @@ export function useSoundEffects() {
       const interactiveEl = target.closest('button, a, [role="button"]') as HTMLElement;
       
       if (interactiveEl && interactiveEl !== lastHoverTarget.current) {
-        if (!interactiveEl.disabled) {
+        if (!(interactiveEl as any).disabled) {
           playHoverSound();
         }
         lastHoverTarget.current = interactiveEl;

@@ -131,7 +131,7 @@ export default function PreparationMeetings() {
       try {
         await setDoc(doc(db, 'favorites', docId), {
           userId: user.uid,
-          userEmail: user.email || "",
+          userEmail: (user as any).email || "",
           type,
           date: item.date,
           topic1: item.topic1,

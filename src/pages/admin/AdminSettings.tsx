@@ -136,7 +136,7 @@ export default function AdminSettings() {
         // Find their submissions
         const mySubs = allSubs.filter(s => s.participantId === student.uid || s.participantName === student.normalizedName);
         const totalExams = mySubs.length;
-        const totalScoreSum = mySubs.reduce((acc, sub) => acc + (sub.finalScore ?? sub.score ?? sub.baseScore ?? 0), 0);
+        const totalScoreSum = mySubs.reduce((acc, sub) => acc + (sub.finalScore ?? (sub as any).score ?? sub.baseScore ?? 0), 0);
         const maxScoreSum = mySubs.reduce((acc, sub) => acc + (sub.maxScore || 100), 0);
         const calculatedAvg = maxScoreSum > 0 ? (totalScoreSum / maxScoreSum) * 100 : 0;
         const examPoints = totalScoreSum;

@@ -131,9 +131,9 @@ export function onSnapshot(q: any, cb: (snap: any) => void) {
     .on('postgres_changes', { event: '*', schema: 'public', table: q._path }, payload => {
        // Only trigger for this doc if it's a doc query
        if (q.id) {
-         if (payload.new && payload.new.id === q.id) {
+         if (payload.new && (payload.new as any).id === q.id) {
            getDoc(q).then(cb).catch(console.error);
-         } else if (payload.eventType === 'DELETE' && payload.old && payload.old.id === q.id) {
+         } else if (payload.eventType === 'DELETE' && payload.old && (payload.old as any).id === q.id) {
            cb({ exists: () => false, data: () => undefined, id: q.id });
          }
        } else {

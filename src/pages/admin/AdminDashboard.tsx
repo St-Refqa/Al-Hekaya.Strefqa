@@ -124,6 +124,10 @@ export default function AdminDashboard() {
           activeAssessments: data.filter(a => a.status === 'active').length
         }));
         setIsLoading(false);
+      },
+      (error) => {
+        console.error("Failed to load assessments:", error);
+        setIsLoading(false);
       }
     );
 
@@ -131,41 +135,69 @@ export default function AdminDashboard() {
     if (!isListView) {
       // Total Users (Students only)
       const usersQ = query(collection(db, "users"), where("role", "==", "student"));
-      const unsubscribeUsers = onSnapshot(usersQ, snap => {
-        const students = snap.docs.map(d => ({ uid: d.id, ...d.data() } as User));
-        setAllStudents(students);
-        
-        const photoMap: Record<string, string> = {};
-        snap.forEach(doc => {
-          const data = doc.data() as any;
-          if (data.photoUrl) photoMap[doc.id] = data.photoUrl;
-        });
-        setUserPhotos(photoMap);
+      const unsubscribeUsers = onSnapshot(
+        usersQ,
+        (snap) => {
+          const students = snap.docs.map(d => ({ uid: d.id, ...d.data() } as User));
+          setAllStudents(students);
+          
+          const photoMap: Record<string, string> = {};
+          snap.forEach(doc => {
+            const data = doc.data() as any;
+            if (data.photoUrl) photoMap[doc.id] = data.photoUrl;
+          });
+          setUserPhotos(photoMap);
 
-        setStats(prev => ({ ...prev, totalUsers: snap.size }));
-      });
+          setStats(prev => ({ ...prev, totalUsers: snap.size }));
+        },
+        (error) => {
+          console.warn("Failed to load users:", error);
+        }
+      );
 
       // Fetch recent submissions only instead of ALL submissions
-      const unsubscribeSubs = onSnapshot(query(collection(db, "submissions"), orderBy("createdAt", "desc"), limit(5)), snap => {
-        const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as Submission);
-        // We do not set allSubmissions here to avoid quota exhaustion. We only keep recent.
-        setAllSubmissions([]); 
-        setRecentSubmissions(subs);
-        setStats(prev => ({ ...prev, totalSubmissions: prev.totalSubmissions || 0 })); // We can't know total without count query
-      });
+      const unsubscribeSubs = onSnapshot(
+        query(collection(db, "submissions"), orderBy("date", "desc"), limit(5)),
+        (snap) => {
+          const subs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as Submission);
+          setAllSubmissions([]); 
+          setRecentSubmissions(subs);
+          setStats(prev => ({ ...prev, totalSubmissions: prev.totalSubmissions || 0 }));
+        },
+        (error) => {
+          console.warn("Failed to load recent submissions:", error);
+        }
+      );
 
-      const unsubscribeAtt = onSnapshot(query(collection(db, "attendance"), orderBy("timestamp", "desc"), limit(5)), snap => {
-         // Only keeping an empty array for now to prevent quota exhaustion
-         setAllAttendances([]);
-      });
+      const unsubscribeAtt = onSnapshot(
+        query(collection(db, "attendance"), orderBy("timestamp", "desc"), limit(5)),
+        (snap) => {
+          setAllAttendances([]);
+        },
+        (error) => {
+          console.warn("Failed to load attendance:", error);
+        }
+      );
 
-      const unsubscribePur = onSnapshot(query(collection(db, "purchases"), orderBy("createdAt", "desc"), limit(5)), snap => {
-         setAllPurchases([]);
-      });
+      const unsubscribePur = onSnapshot(
+        query(collection(db, "purchases"), orderBy("purchaseDate", "desc"), limit(5)),
+        (snap) => {
+          setAllPurchases([]);
+        },
+        (error) => {
+          console.warn("Failed to load purchases:", error);
+        }
+      );
 
-      const unsubscribeLogs = onSnapshot(query(collection(db, "pointLogs"), orderBy("createdAt", "desc"), limit(5)), snap => {
-         setAllLogs([]);
-      });
+      const unsubscribeLogs = onSnapshot(
+        query(collection(db, "pointLogs"), orderBy("createdAt", "desc"), limit(5)),
+        (snap) => {
+          setAllLogs([]);
+        },
+        (error) => {
+          console.warn("Failed to load point logs:", error);
+        }
+      );
 
       return () => {
         unsubscribeAssessments();
@@ -181,7 +213,7 @@ export default function AdminDashboard() {
   }, [isAuthorizedCreator, isListView]);
 
   const computedPoints = useMemo(() => {
-    const examPoints = allSubmissions.reduce((acc, curr) => acc + (curr.finalScore ?? curr.score ?? curr.baseScore ?? 0), 0);
+    const examPoints = allSubmissions.reduce((acc, curr) => acc + (curr.finalScore ?? (curr as any).score ?? curr.baseScore ?? 0), 0);
     const attPoints = allAttendances.reduce((acc, curr) => acc + (curr.points || 0), 0);
     const purPoints = allPurchases.reduce((acc, curr) => acc + (curr.pricePaid ?? curr.price ?? curr.totalPrice ?? 0), 0);
     return Math.max(0, examPoints + attPoints - purPoints);
@@ -678,7 +710,7 @@ export default function AdminDashboard() {
                         <div className="text-right">
                           <div className="text-sm font-black text-emerald-600">%{sub.maxScore ? ((sub.finalScore / sub.maxScore) * 100).toFixed(0) : 0} دقة</div>
                           <div className="text-[10px] text-brand-beige font-bold mt-1 uppercase">
-                            {formatDate(sub.createdAt)}
+                            {formatDate(sub.date)}
                           </div>
                         </div>
                       </div>
@@ -1038,7 +1070,7 @@ export default function AdminDashboard() {
                     return (b.totalPoints || 0) - (a.totalPoints || 0);
                   }).map(student => {
                     const myExams = allSubmissions.filter(s => s.participantId === student.uid || s.participantName === student.normalizedName);
-                    const examPoints = myExams.reduce((acc, curr) => acc + (curr.finalScore ?? curr.score ?? curr.baseScore ?? 0), 0);
+                    const examPoints = myExams.reduce((acc, curr) => acc + (curr.finalScore ?? (curr as any).score ?? curr.baseScore ?? 0), 0);
                     
                     const myAttendance = allAttendances.filter(a => a.studentId === student.uid);
                     const attPoints = myAttendance.reduce((acc, curr) => acc + (curr.points || 0), 0);
@@ -1065,7 +1097,7 @@ export default function AdminDashboard() {
                             <Award className="w-6 h-6 text-brand-red" />
                           </div>
                           <div>
-                            <h3 className="font-black text-brand-text text-lg">{student.name} <span className="text-brand-red">({student.code})</span></h3>
+                            <h3 className="font-black text-brand-text text-lg">{student.fullName} <span className="text-brand-red">({student.code})</span></h3>
                           </div>
                         </div>
                         

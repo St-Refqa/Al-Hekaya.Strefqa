@@ -740,7 +740,7 @@ export default function AdminAttendance() {
           // Option B: Try selection with completely empty config
           await html5QrCodeRef.current.start(
             cameraSel,
-            {},
+            {} as any,
             onScanSuccess,
             onScanFailure
           );
@@ -759,7 +759,7 @@ export default function AdminAttendance() {
             // Option D: Absolute fallback with minimal constraints
             await html5QrCodeRef.current.start(
               { facingMode: "user" },
-              {},
+              {} as any,
               onScanSuccess,
               onScanFailure
             );

@@ -140,7 +140,7 @@ export function useAuth() {
       setIsLoading(false);
     };
 
-    const unsubscribe = onAuthStateChanged(auth, syncUser);
+    const unsubscribe = onAuthStateChanged(auth as any, syncUser);
     return () => {
       unsubscribe();
       if (unsubscribeUser) unsubscribeUser();
@@ -356,7 +356,7 @@ export function useAuth() {
 
 
   const logout = async () => {
-    await signOut(auth);
+    await signOut(auth as any);
     safeLocalStorage.removeItem('auth_session');
     setUser(null);
   };
