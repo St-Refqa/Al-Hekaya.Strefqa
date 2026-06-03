@@ -12,14 +12,13 @@ import { runNotificationWorker } from "./server/notificationWorker";
 
 dotenv.config();
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+export const app = express();
+const PORT = 3000;
 
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-  // API routes
+// API routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
@@ -164,34 +163,41 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const { createServer: createViteServer } = await import("vite");
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
+  // Vite middleware and listener bootstrap function
+  async function bootstrap() {
+    if (process.env.NODE_ENV !== "production") {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), "dist");
+      app.use(express.static(distPath));
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(distPath, "index.html"));
+      });
+    }
+
+    if (!process.env.VERCEL) {
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+        
+        // Start server-side notification worker checks (Runs immediately, then every 5 minutes)
+        runNotificationWorker().catch(err => console.error("Error in initial notification worker cycle:", err));
+        setInterval(() => {
+          runNotificationWorker().catch(err => console.error("Error in scheduled notification worker cycle:", err));
+        }, 5 * 60 * 1000);
+      });
+    }
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    
-    // Start server-side notification worker checks (Runs immediately, then every 5 minutes)
-    runNotificationWorker().catch(err => console.error("Error in initial notification worker cycle:", err));
-    setInterval(() => {
-      runNotificationWorker().catch(err => console.error("Error in scheduled notification worker cycle:", err));
-    }, 5 * 60 * 1000);
+  bootstrap().catch(err => {
+    console.error("Critical error during bootstrap:", err);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   });
-}
 
-startServer().catch(err => {
-  console.error("Critical error starting server:", err);
-  process.exit(1);
-});
+export default app;
