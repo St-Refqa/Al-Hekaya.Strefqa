@@ -86,7 +86,7 @@ export default function Store() {
 
     try {
       // 1. Create Purchase record
-      await addDoc(collection(db, "purchases"), {
+      const purchaseRef = await addDoc(collection(db, "purchases"), {
         userId: user.uid,
         userName: user.fullName,
         itemId: item.id,
@@ -111,10 +111,12 @@ export default function Store() {
 
       // 4. Notify Admin
       await addDoc(collection(db, "notifications"), {
+        id: `purchase_notif_${purchaseRef.id}`,
         title: "طلب جديد من المتجر",
         message: `الطالب ${user.fullName} طلب شراء ${quantity} من "${item.title}" مقابل إجمالي ${totalPrice} نقطة.`,
         type: 'system',
         targetRole: 'admin',
+        weeklyMeetingTag: `purchase_notif_${purchaseRef.id}`,
         createdAt: serverTimestamp(),
         readBy: []
       });

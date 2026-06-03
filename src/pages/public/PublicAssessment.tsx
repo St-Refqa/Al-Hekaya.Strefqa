@@ -37,7 +37,9 @@ import {
   EyeOff,
   Eye,
   Church,
-  HelpCircle
+  HelpCircle,
+  SlidersHorizontal,
+  BookOpen
 } from "lucide-react";
 import Timer from "../../components/ui/Timer";
 import ReactMarkdown from "react-markdown";
@@ -201,7 +203,8 @@ export default function PublicAssessment() {
                 message: `لقد حصلت على وسام جديد لتفوقك!`,
                 type: "success",
                 category: "achievements",
-                targetId: uData.uid
+                targetId: uData.uid,
+                weeklyMeetingTag: `badge_notif_${uData.uid}_${bId}`
               })
             )).catch(console.error);
           }
@@ -215,7 +218,8 @@ export default function PublicAssessment() {
               message: `لقد وصلت للمستوى: ${newLevel.name}. استمر في التقدم!`,
               type: "success",
               category: "achievements",
-              targetId: uData.uid
+              targetId: uData.uid,
+              weeklyMeetingTag: `level_up_notif_${uData.uid}_${newLevel.name}`
             }).catch(console.error);
           }
 
@@ -227,7 +231,8 @@ export default function PublicAssessment() {
             message: `لقد أكملت اختبار ${assessment?.title} بنجاح. درجتك: ${baseScore}`,
             type: "info",
             category: "assessments",
-            targetId: uData.uid
+            targetId: uData.uid,
+            weeklyMeetingTag: `result_notif_${uData.uid}_${id}`
           }).catch(console.error);
         }
       });
@@ -429,9 +434,11 @@ export default function PublicAssessment() {
 
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isPriestMode, setIsPriestMode] = useState(false);
+  const [isPriestMode, setIsPriestMode] = useState(true);
   const [speakingProgress, setSpeakingProgress] = useState(0);
-  const [speechRate, setSpeechRate] = useState(1);
+  const [speechRate, setSpeechRate] = useState(0.95);
+  const [voicePitch, setVoicePitch] = useState(0.85);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
   const toggleFocusMode = () => {
@@ -451,50 +458,75 @@ export default function PublicAssessment() {
     // Stop any existing speech first
     window.speechSynthesis.cancel();
     
-    const textToRead = assessment.text.replace(/[#*]/g, '').trim();
+    // Clean text: remove markdown and footnote numbers
+    const textToRead = assessment.text
+      .replace(/[#*`_]/g, '') // remove markdown
+      .replace(/\[\d+\]/g, '') // remove footnote references [1], [2]
+      .replace(/\(\d+\)/g, '') // remove parenthesized numbers (1), (2)
+      .replace(/\d+:\d+/g, '') // remove bible verse references like 12:3
+      .trim();
+
     if (!textToRead) return;
 
     const newUtterance = new SpeechSynthesisUtterance(textToRead);
-    
-    // Modern browsers load voices async
     const voices = window.speechSynthesis.getVoices();
     
+    // Voice scoring algorithm to find the absolute best Egyptian male voice
+    const getVoiceScore = (v: SpeechSynthesisVoice) => {
+      const name = v.name.toLowerCase();
+      const lang = v.lang.toLowerCase();
+      
+      if (!lang.startsWith('ar')) return -1; // Ignore non-Arabic voices
+      
+      let score = 0;
+      
+      // Egyptian accent bonus
+      const isEgyptian = lang.includes('eg') || name.includes('egypt') || name.includes('مصر');
+      if (isEgyptian) score += 100;
+      
+      // Male voice bonus (heavy priority to satisfy "نبرة راجل")
+      const isMale = name.includes('male') || 
+                     name.includes('shakir') || 
+                     name.includes('maged') || 
+                     name.includes('tarik') || 
+                     name.includes('naim') || 
+                     name.includes('naeem') || 
+                     name.includes('hamed') || 
+                     name.includes('hamid') || 
+                     name.includes('youssef') ||
+                     name.includes('chakir');
+      if (isMale) {
+        score += 200;
+      }
+      
+      // Neural / Natural voice quality bonus (better compression and pronunciation)
+      const isNeural = name.includes('neural') || name.includes('natural') || name.includes('online') || name.includes('cloud');
+      if (isNeural) score += 50;
+      
+      return score;
+    };
+    
+    // Sort all Arabic voices
+    const sortedArabicVoices = voices
+      .map(v => ({ voice: v, score: getVoiceScore(v) }))
+      .filter(item => item.score >= 0)
+      .sort((a, b) => b.score - a.score);
+      
     let selectedVoice = null;
-    
-    if (isPriestMode) {
-      // Prioritize male voices for "priest" feel
-      selectedVoice = voices.find(v => v.lang.startsWith('ar') && (
-        v.name.toLowerCase().includes('male') || 
-        v.name.toLowerCase().includes('maged') || 
-        v.name.toLowerCase().includes('tarik') ||
-        v.name.toLowerCase().includes('naim') ||
-        v.name.toLowerCase().includes('hamed')
-      ));
-    }
-    
-    if (!selectedVoice) {
-      // Try to find an Arabic voice specifically, prioritizing local accents
-      selectedVoice = voices.find(v => v.lang === 'ar-EG') || 
-                      voices.find(v => v.lang === 'ar-SA') ||
-                      voices.find(v => v.lang.toLowerCase().includes('egypt')) ||
-                      voices.find(v => v.lang.startsWith('ar'));
+    if (sortedArabicVoices.length > 0) {
+      selectedVoice = sortedArabicVoices[0].voice;
     }
     
     if (selectedVoice) {
       newUtterance.voice = selectedVoice;
       newUtterance.lang = selectedVoice.lang;
     } else {
-      // Fallback lang
-      newUtterance.lang = 'ar-SA';
+      newUtterance.lang = 'ar-EG'; // Fallback to Egyptian Arabic
     }
 
-    // Priest Mode adjustments
-    if (isPriestMode) {
-      newUtterance.pitch = 0.7; // Even lower pitch for deeper voice
-      newUtterance.rate = speechRate * 0.8; 
-    } else {
-      newUtterance.rate = speechRate;
-    }
+    // Set voice properties
+    newUtterance.pitch = voicePitch; // Default to 0.85 for a deeper, more solemn male tone
+    newUtterance.rate = speechRate; 
     
     newUtterance.onstart = () => setIsSpeaking(true);
     newUtterance.onend = () => {
@@ -933,6 +965,68 @@ export default function PublicAssessment() {
                     {isSpeaking ? <Pause className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                     <span className="text-[10px] font-black uppercase hidden sm:block">{isSpeaking ? "توقف" : "قراءة"}</span>
                   </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+                      className={cn(
+                        "p-3 rounded-xl transition-all flex items-center justify-center gap-2",
+                        showVoiceSettings ? "bg-brand-red text-white shadow-lg shadow-brand-red/20" : "bg-brand-cream/50 text-brand-beige hover:text-brand-red hover:bg-brand-red/5"
+                      )}
+                      title="إعدادات الصوت"
+                    >
+                      <SlidersHorizontal className="w-5 h-5" />
+                    </button>
+                    {showVoiceSettings && (
+                      <div className="absolute top-14 left-0 w-64 bg-white rounded-3xl border border-brand-beige/20 shadow-2xl p-5 z-50 space-y-4 text-right">
+                        <h4 className="font-extrabold text-xs text-brand-text/80 border-b border-brand-beige/10 pb-2 mb-2">إعدادات قراءة النص</h4>
+                        
+                        {/* Speed range */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-brand-beige">
+                            <span>{speechRate}x</span>
+                            <span>سرعة القراءة</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.6"
+                            max="1.5"
+                            step="0.05"
+                            value={speechRate}
+                            onChange={(e) => {
+                              setSpeechRate(parseFloat(e.target.value));
+                              if (isSpeaking) {
+                                speakText();
+                              }
+                            }}
+                            className="w-full accent-brand-red cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Pitch range */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-brand-beige">
+                            <span>{voicePitch === 0.85 ? "وقور جداً" : voicePitch === 1.0 ? "طبيعي" : `${voicePitch}`}</span>
+                            <span>نبرة الصوت (الطبقة)</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.5"
+                            max="1.5"
+                            step="0.05"
+                            value={voicePitch}
+                            onChange={(e) => {
+                              setVoicePitch(parseFloat(e.target.value));
+                              if (isSpeaking) {
+                                speakText();
+                              }
+                            }}
+                            className="w-full accent-brand-red cursor-pointer"
+                          />
+                          <p className="text-[9px] text-brand-beige text-left font-black mt-1">الطبقات الأقل تعطي صوتاً أعمق وأكثر وقاراً.</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={toggleFocusMode}
                     className={cn(
@@ -982,6 +1076,16 @@ export default function PublicAssessment() {
               )}>
                 <ReactMarkdown>{assessment!.text}</ReactMarkdown>
               </article>
+
+              <div className="mt-12 pt-8 border-t border-brand-beige/10 flex justify-center">
+                <button
+                  onClick={finishReading}
+                  className="px-8 py-4 bg-brand-red text-white rounded-2xl text-sm font-black tracking-wider hover:bg-brand-red/90 transition-all shadow-xl shadow-brand-red/10 flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  انتهيت من القراءة، انتقل للأسئلة 📝
+                </button>
+              </div>
             </div>
 
             {assessment?.antiCopyMode && (

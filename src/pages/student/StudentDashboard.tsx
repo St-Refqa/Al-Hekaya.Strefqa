@@ -277,13 +277,14 @@ export default function StudentDashboard() {
       updateProfile({ badges: updatedBadges }).then((res) => {
         if (res && res.success) {
           // Notify
-          unattemptedNewBadges.forEach(() => {
+          unattemptedNewBadges.forEach((badgeName) => {
             notificationService.sendNotification({
               title: "مبروك وسام جديد! 🎖️",
               message: `لقد حصلت على وسام جديد لتفوقك! تفقد صفحة الأوسمة.`,
               type: "success",
               category: "achievements",
               targetId: user.uid,
+              weeklyMeetingTag: `badge_notif_${user.uid}_${badgeName}`,
             });
           });
         } else {
@@ -349,6 +350,7 @@ export default function StudentDashboard() {
               type: "info",
               category: "assessments",
               targetId: user.uid,
+              weeklyMeetingTag: lKey,
             });
             safeLocalStorage.setItem(lKey, "sent");
           }
@@ -381,6 +383,7 @@ export default function StudentDashboard() {
               type: "warning",
               category: "assessments",
               targetId: user.uid,
+              weeklyMeetingTag: lKey,
             });
             safeLocalStorage.setItem(lKey, "sent");
           }

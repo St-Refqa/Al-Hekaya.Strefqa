@@ -14,6 +14,7 @@ interface CreateNotificationParams {
   targetRole?: "admin" | "student"; // Optional role target
   targetGroups?: string[]; // Multiple groups
   actionUrl?: string;
+  weeklyMeetingTag?: string; // Add optional tag
 }
 
 export const notificationService = {
@@ -25,9 +26,11 @@ export const notificationService = {
     targetId,
     targetRole,
     targetGroups,
+    weeklyMeetingTag,
   }: CreateNotificationParams) {
     try {
       await addDoc(collection(db, "notifications"), {
+        id: weeklyMeetingTag || undefined, // Set custom primary key if tag is provided
         title,
         message,
         type,
@@ -35,13 +38,18 @@ export const notificationService = {
         targetId: targetId || null,
         targetRole: targetRole || null,
         targetGroups: targetGroups || [],
+        weeklyMeetingTag: weeklyMeetingTag || null,
         createdAt: serverTimestamp(),
         isRead: false,
         readBy: [],
         hiddenFrom: []
       });
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
+      if (error && error.code === "23505") {
+        console.log(`Notification with tag/id ${weeklyMeetingTag} already exists, skipping.`);
+        return { success: true, skipped: true };
+      }
       console.error("Error sending notification:", error);
       return { success: false, error };
     }
@@ -95,6 +103,7 @@ export const notificationService = {
 
         if (snap.empty) {
           await addDoc(collection(db, "notifications"), {
+            id: tag,
             title,
             message,
             type: "info",
@@ -192,13 +201,16 @@ export const notificationService = {
               hour12: true
             });
 
+            const tag = `prep_meeting_immediate_${d.id}`;
             await addDoc(collection(db, "notifications"), {
+              id: tag,
               title: `📅 اجتماع تحضيري جديد للخدمة`,
               message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${meeting.title}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
               type: "info",
               category: "announcements",
               targetId: null,
               targetGroups: ["servant"],
+              weeklyMeetingTag: tag,
               createdAt: serverTimestamp(),
               isRead: false,
               readBy: [],
@@ -254,13 +266,16 @@ ${meeting.description}
               hour12: true
             });
             
+            const tag = `prep_meeting_12h_${d.id}`;
             await addDoc(collection(db, "notifications"), {
+              id: tag,
               title: `تذكير بموعد: اجتماع تحضيري للم شمل الخدام ⏰`,
               message: `الاجتماع التحضيري الرئيسي "${meeting.title}" سيبدأ بعد أقل من 12 ساعة في تمام الساعة (${dateFormatted.split('،')[1] || dateFormatted}). رجاء الحضور والاستعداد لتجهيز فقرات الخدمة واليوم! ⛪💫`,
               type: "warning",
               category: "announcements",
               targetId: null,
               targetGroups: ["servant"],
+              weeklyMeetingTag: tag,
               createdAt: serverTimestamp(),
               isRead: false,
               readBy: [],
@@ -377,6 +392,7 @@ ${meeting.description}
 
               // Add notification targeted to students of that group + all servants
               await addDoc(collection(db, "notifications"), {
+                id: tag,
                 title,
                 message,
                 type: "warning",
@@ -451,6 +467,7 @@ ${meeting.description}
             const typeLabel = fav.type === "saturday" ? "طلاب اونلاين" : "طلاب الورشة";
 
             await addDoc(collection(db, "notifications"), {
+              id: tag,
               title: `⭐ تنبيه لمحاضرتك المفضلة: ${fav.topic1}`,
               message: `نود تذكيرك بمحاضرتك المفضلة: "${fav.topic1}" المقررة اليوم ${dayName} في تمام الساعة 7:00 مساءً ضمن منهج ${typeLabel}. نتمنى لك وقتاً روحياً نافعاً! 📚⛪✨`,
               type: "success",

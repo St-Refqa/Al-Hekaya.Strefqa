@@ -100,6 +100,7 @@ export async function checkAndInjectWeeklyReminders() {
 
       if (!errExist && (!existing || existing.length === 0)) {
         const { error } = await supabase.from("notifications").insert({
+          id: tag,
           title,
           message,
           type: "info",
@@ -114,7 +115,7 @@ export async function checkAndInjectWeeklyReminders() {
           hiddenFrom: []
         });
 
-        if (error) throw error;
+        if (error && error.code !== "23505") throw error;
         console.log(`[Worker] Generated weekly reminder for target group: ${targetGroup}`);
       }
     }
@@ -178,19 +179,23 @@ export async function checkAndInjectPrepMeetingReminders() {
             hour12: true
           });
 
-          await supabase.from("notifications").insert({
+          const tag = `prep_meeting_immediate_${meeting.id}`;
+          const { error: errInsert } = await supabase.from("notifications").insert({
+            id: tag,
             title: `📅 اجتماع تحضيري جديد للخدمة`,
             message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${meeting.title}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
             type: "info",
             category: "announcements",
             targetId: null,
             targetGroups: ["servant"],
+            weeklyMeetingTag: tag,
             createdAt: new Date().toISOString(),
             isRead: false,
             readBy: [],
             hiddenFrom: []
           });
 
+          if (errInsert && errInsert.code !== "23505") throw errInsert;
           console.log(`[Worker] Sent immediate meeting notification for: ${meeting.title}`);
 
           const phones = await getServantPhones();
@@ -228,19 +233,23 @@ ${meeting.description}
             hour12: true
           });
 
-          await supabase.from("notifications").insert({
+          const tag = `prep_meeting_12h_${meeting.id}`;
+          const { error: errInsert } = await supabase.from("notifications").insert({
+            id: tag,
             title: `تذكير بموعد: اجتماع تحضيري للم شمل الخدام ⏰`,
             message: `الاجتماع التحضيري الرئيسي "${meeting.title}" سيبدأ بعد أقل من 12 ساعة في تمام الساعة (${dateFormatted.split('،')[1] || dateFormatted}). رجاء الحضور والاستعداد لتجهيز فقرات الخدمة واليوم! ⛪💫`,
             type: "warning",
             category: "announcements",
             targetId: null,
             targetGroups: ["servant"],
+            weeklyMeetingTag: tag,
             createdAt: new Date().toISOString(),
             isRead: false,
             readBy: [],
             hiddenFrom: []
           });
 
+          if (errInsert && errInsert.code !== "23505") throw errInsert;
           console.log(`[Worker] Sent 12h pre-meeting notification for: ${meeting.title}`);
 
           const phones = await getServantPhones();
@@ -311,7 +320,8 @@ export async function checkAndInjectFixedMeetings12hReminders() {
               }
             }
 
-            await supabase.from("notifications").insert({
+            const { error: errInsert } = await supabase.from("notifications").insert({
+              id: tag,
               title,
               message,
               type: "warning",
@@ -326,6 +336,7 @@ export async function checkAndInjectFixedMeetings12hReminders() {
               hiddenFrom: []
             });
 
+            if (errInsert && errInsert.code !== "23505") throw errInsert;
             console.log(`[Worker] Broadcasted 12h fixed schedule warning for tag: ${tag}`);
           }
         }
@@ -374,7 +385,8 @@ export async function checkAndInjectFavorites12hReminders() {
           const dayName = "السبت";
           const typeLabel = fav.type === "saturday" ? "العهد القديم" : "العهد الجديد";
 
-          await supabase.from("notifications").insert({
+          const { error: errInsert } = await supabase.from("notifications").insert({
+            id: tag,
             title: `⭐ تنبيه لمحاضرتك المفضلة: ${fav.topic1}`,
             message: `نود تذكيرك بمحاضرتك المفضلة: "${fav.topic1}" المقررة اليوم ${dayName} في تمام الساعة 7:00 مساءً ضمن منهج ${typeLabel}. نتمنى لك وقتاً روحياً نافعاً! 📚⛪✨`,
             type: "success",
@@ -387,6 +399,7 @@ export async function checkAndInjectFavorites12hReminders() {
             hiddenFrom: []
           });
 
+          if (errInsert && errInsert.code !== "23505") throw errInsert;
           console.log(`[Worker] Injected personalized favorite reminder for user ${fav.userId}: ${fav.topic1}`);
         }
       }

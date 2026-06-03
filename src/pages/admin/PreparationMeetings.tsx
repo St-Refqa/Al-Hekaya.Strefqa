@@ -237,7 +237,8 @@ export default function PreparationMeetings() {
           message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${title.trim()}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
           type: 'info',
           category: 'announcements',
-          targetGroups: ['servant']
+          targetGroups: ['servant'],
+          weeklyMeetingTag: `prep_meeting_immediate_${docRef.id}`
         });
 
         triggerNotification('success', 'تم جدولة الاجتماع بنجاح وإرسال إشعار فوري لجميع الخدام! 🔔');

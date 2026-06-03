@@ -72,8 +72,14 @@ function restoreData(data: any, path: string) {
   return data;
 }
 
+function getTableName(path: string): string {
+  if (path === 'pointLogs') return 'point_logs';
+  return path;
+}
+
 export async function getDocs(q: any) {
-  let req = supabase.from(q._path).select('*');
+  const path = getTableName(q._path);
+  let req = supabase.from(path).select('*');
   req = await applyQuery(req, q);
   const { data, error } = await req;
   if(error) throw error;
@@ -92,7 +98,8 @@ export async function getDocs(q: any) {
 }
 
 export async function getDoc(ref: any) {
-  const { data, error } = await supabase.from(ref._path).select('*').eq('id', ref.id).single();
+  const path = getTableName(ref._path);
+  const { data, error } = await supabase.from(path).select('*').eq('id', ref.id).single();
   if(error || !data) return { exists: () => false, data: () => undefined, id: ref.id };
   const restored = restoreData(data, ref._path);
   return { exists: () => true, data: () => restored, id: data.id };
@@ -171,8 +178,16 @@ export async function addDoc(coll: any, data: any) {
   const dt = typeof data === 'function' ? data() : data;
   const id = dt.id || generateId();
   const cleanDt = cleanData(dt, coll._path);
-  const { error } = await supabase.from(coll._path).insert({ id, ...cleanDt });
-  if (error) throw error;
+  if (cleanDt.id) delete cleanDt.id;
+  const path = getTableName(coll._path);
+  const { error } = await supabase.from(path).insert({ id, ...cleanDt });
+  if (error) {
+    if (error.code === "23505") {
+      console.info(`[Firestore Mock] Document with id ${id} already exists in ${path}. Skipping write.`);
+      return { id, skipped: true };
+    }
+    throw error;
+  }
   return { id };
 }
 
@@ -180,15 +195,17 @@ export async function setDoc(ref: any, data: any, opts?: any) {
   const dt = typeof data === 'function' ? data() : data;
   const cleanDt = cleanData(dt, ref._path);
   const finalDt = { id: ref.id, ...cleanDt };
-  const { error } = await supabase.from(ref._path).upsert(finalDt);
+  const path = getTableName(ref._path);
+  const { error } = await supabase.from(path).upsert(finalDt);
   if (error) throw error;
 }
 
 export async function updateDoc(ref: any, data: any) {
   const parsedData = { ...data };
+  const path = getTableName(ref._path);
   for(const k of Object.keys(parsedData)) {
     if (parsedData[k] && parsedData[k]._isMockIncrement) {
-      const { data: current, error } = await supabase.from(ref._path).select(k).eq('id', ref.id).single();
+      const { data: current, error } = await supabase.from(path).select(k).eq('id', ref.id).single();
       if(!error && current) {
          parsedData[k] = (current[k] || 0) + parsedData[k].amount;
       } else {
@@ -197,12 +214,13 @@ export async function updateDoc(ref: any, data: any) {
     }
   }
   const cleanedData = cleanData(parsedData, ref._path);
-  const { error: err2 } = await supabase.from(ref._path).update(cleanedData).eq('id', ref.id);
+  const { error: err2 } = await supabase.from(path).update(cleanedData).eq('id', ref.id);
   if (err2) throw err2;
 }
 
 export async function deleteDoc(ref: any) {
-  const { error } = await supabase.from(ref._path).delete().eq('id', ref.id);
+  const path = getTableName(ref._path);
+  const { error } = await supabase.from(path).delete().eq('id', ref.id);
   // Do not throw on delete if missing
 }
 
@@ -219,11 +237,12 @@ export function onSnapshot(q: any, cb: (snap: any) => void) {
   };
 
   fetchState();
-  const fallbackInterval = setInterval(fetchState, 15000);
+  const fallbackInterval = setInterval(fetchState, 2500); // Poll every 2.5 seconds for instant real-time feel
   
-  const channelName = 'public:' + q._path + ':' + Math.random().toString(36).substring(2, 10);
+  const path = getTableName(q._path);
+  const channelName = 'public:' + path + ':' + Math.random().toString(36).substring(2, 10);
   const channel = supabase.channel(channelName)
-    .on('postgres_changes', { event: '*', schema: 'public', table: q._path }, payload => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: path }, payload => {
        fetchState();
     })
     .subscribe();
