@@ -163,6 +163,9 @@ function cleanData(data: any, path: string) {
     }
     return clone;
   }
+  if (path === 'storeItems') {
+    delete clone.status;
+  }
   
   // Strip any properties with value of undefined to prevent Supabase bad request / serialization failures
   for (const key of Object.keys(clone)) {
