@@ -82,10 +82,19 @@ export default function Library() {
   useEffect(() => {
     const q = query(collection(db, 'library'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const itemsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as LibraryItem[];
+      const itemsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const titleRaw = data.title || '';
+        const parts = titleRaw.split(' || ');
+        const title = parts[0];
+        const audience = parts[1] || 'all';
+        return {
+          id: doc.id,
+          ...data,
+          title,
+          audience
+        } as LibraryItem;
+      });
       setItems(itemsData);
     });
     return () => unsubscribe();
@@ -134,13 +143,13 @@ export default function Library() {
         fileName = editingItem.fileName || '';
       }
 
+      const rawTitle = newItemTitle + (newItemAudience && newItemAudience !== 'all' ? ` || ${newItemAudience}` : '');
       const itemData: any = {
-        title: newItemTitle,
+        title: rawTitle,
         type: newItemType,
         section: newItemSection,
         contentUrl: finalUrl,
         fileName: fileName || '',
-        audience: newItemAudience || 'all',
       };
 
       if (editingItem) {
@@ -186,13 +195,16 @@ export default function Library() {
     
     if (itemSection !== activeSection) return false;
 
-    // Filter by audience
+    // Filter by audience: "all" (الكل) items appear inside both "adults" (كبار) and "children" (صغيرين) filters
     const itemAudience = item.audience || 'all';
-    if (activeAudience !== 'all' && itemAudience !== activeAudience) {
-      return false;
+    if (activeAudience === 'adults') {
+      return itemAudience === 'adults' || itemAudience === 'all';
+    }
+    if (activeAudience === 'children') {
+      return itemAudience === 'children' || itemAudience === 'all';
     }
 
-    return true;
+    return true; // if activeAudience === 'all', show everything
   });
 
   return (
