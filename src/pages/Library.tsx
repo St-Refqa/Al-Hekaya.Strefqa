@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { cn, formatDate } from '../lib/utils';
 import { 
   BookOpen, FileText, FileSpreadsheet, FileIcon, LinkIcon, 
-  Trash2, Plus, Download, ExternalLink, AlertCircle 
+  Trash2, Plus, Download, ExternalLink, AlertCircle, Edit 
 } from 'lucide-react';
 
 interface LibraryItem {
@@ -19,6 +19,7 @@ interface LibraryItem {
   fileName?: string;
   createdAt: any;
   uploaderId?: string;
+  audience?: 'all' | 'adults' | 'children';
 }
 
 export default function Library() {
@@ -29,13 +30,50 @@ export default function Library() {
   const [activeSection, setActiveSection] = useState<'old_testament' | 'new_testament' | 'other'>('old_testament');
   const [isUploading, setIsUploading] = useState(false);
   
-  // Modal state
+  // Filters & Modal state
+  const [activeAudience, setActiveAudience] = useState<'all' | 'adults' | 'children'>('all');
+  const [editingItem, setEditingItem] = useState<LibraryItem | null>(null);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemType, setNewItemType] = useState<LibraryItem['type']>('pdf');
   const [newItemSection, setNewItemSection] = useState<LibraryItem['section']>('old_testament');
   const [newItemUrl, setNewItemUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [newItemAudience, setNewItemAudience] = useState<LibraryItem['audience']>('all');
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingItem(null);
+    setNewItemTitle('');
+    setNewItemSection('old_testament');
+    setNewItemType('pdf');
+    setNewItemUrl('');
+    setSelectedFile(null);
+    setNewItemAudience('all');
+  };
+
+  const handleNewItemClick = () => {
+    setEditingItem(null);
+    setNewItemTitle('');
+    setNewItemSection('old_testament');
+    setNewItemType('pdf');
+    setNewItemUrl('');
+    setSelectedFile(null);
+    setNewItemAudience('all');
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (item: LibraryItem) => {
+    setEditingItem(item);
+    setNewItemTitle(item.title);
+    setNewItemSection(item.section);
+    setNewItemType(item.type);
+    setNewItemUrl(item.type === 'link' ? item.contentUrl : '');
+    setNewItemAudience(item.audience || 'all');
+    setSelectedFile(null);
+    setIsModalOpen(true);
+  };
 
   const isLibraryManager = isAdmin || user?.isLibraryManager === true;
 
@@ -77,7 +115,7 @@ export default function Library() {
     
     setIsUploading(true);
     let finalUrl = newItemUrl;
-    let fileName = '';
+    let fileName = editingItem ? (editingItem.fileName || '') : '';
 
     try {
       if (newItemType !== 'link' && selectedFile) {
@@ -90,25 +128,33 @@ export default function Library() {
         });
         finalUrl = base64;
         fileName = selectedFile.name;
+      } else if (editingItem && newItemType !== 'link' && !selectedFile) {
+        // Keep existing file URL and name
+        finalUrl = editingItem.contentUrl;
+        fileName = editingItem.fileName || '';
       }
 
-      await addDoc(collection(db, 'library'), {
+      const itemData: any = {
         title: newItemTitle,
         type: newItemType,
         section: newItemSection,
         contentUrl: finalUrl,
         fileName: fileName || '',
-        createdAt: serverTimestamp(),
-        uploaderId: user?.uid || 'unknown'
-      });
+        audience: newItemAudience || 'all',
+      };
 
-      setIsModalOpen(false);
-      setNewItemTitle('');
-      setNewItemUrl('');
-      setSelectedFile(null);
+      if (editingItem) {
+        await updateDoc(doc(db, 'library', editingItem.id), itemData);
+      } else {
+        itemData.createdAt = serverTimestamp();
+        itemData.uploaderId = user?.uid || 'unknown';
+        await addDoc(collection(db, 'library'), itemData);
+      }
+
+      handleCloseModal();
     } catch (err) {
       console.error(err);
-      alert('حدث خطأ أثناء الرفع!');
+      alert('حدث خطأ أثناء حفظ الملف!');
     } finally {
       setIsUploading(false);
     }
@@ -138,7 +184,15 @@ export default function Library() {
     else if (itemSection === 'NT') itemSection = 'new_testament';
     else if (itemSection === 'general') itemSection = 'other';
     
-    return itemSection === activeSection;
+    if (itemSection !== activeSection) return false;
+
+    // Filter by audience
+    const itemAudience = item.audience || 'all';
+    if (activeAudience !== 'all' && itemAudience !== activeAudience) {
+      return false;
+    }
+
+    return true;
   });
 
   return (
@@ -159,7 +213,7 @@ export default function Library() {
 
         {isLibraryManager && (
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleNewItemClick}
             className="flex items-center gap-2 bg-brand-red hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-black text-sm transition-all"
           >
             <Plus className="w-5 h-5" />
@@ -199,6 +253,39 @@ export default function Library() {
         </button>
       </div>
 
+      {/* Audience Filter */}
+      <div className="flex justify-end">
+        <div className="flex bg-white rounded-2xl p-1.5 shadow-sm overflow-x-auto gap-1 border border-brand-beige/10">
+          <button 
+            onClick={() => setActiveAudience('children')}
+            className={cn(
+              "px-5 py-2 font-black text-xs rounded-xl transition-all flex items-center gap-1.5",
+              activeAudience === 'children' ? "bg-brand-red text-white shadow-sm" : "text-brand-text hover:bg-brand-cream"
+            )}
+          >
+            <span>صغيرين 👶</span>
+          </button>
+          <button 
+            onClick={() => setActiveAudience('adults')}
+            className={cn(
+              "px-5 py-2 font-black text-xs rounded-xl transition-all flex items-center gap-1.5",
+              activeAudience === 'adults' ? "bg-brand-red text-white shadow-sm" : "text-brand-text hover:bg-brand-cream"
+            )}
+          >
+            <span>كبار 👨‍🦳</span>
+          </button>
+          <button 
+            onClick={() => setActiveAudience('all')}
+            className={cn(
+              "px-5 py-2 font-black text-xs rounded-xl transition-all flex items-center gap-1.5",
+              activeAudience === 'all' ? "bg-brand-red text-white shadow-sm" : "text-brand-text hover:bg-brand-cream"
+            )}
+          >
+            <span>الكل</span>
+          </button>
+        </div>
+      </div>
+
       {/* Grid List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map(item => (
@@ -207,19 +294,26 @@ export default function Library() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={() => window.open(item.contentUrl, '_blank')}
-            className="bg-white p-6 rounded-[24px] border border-brand-beige/20 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between h-48 group relative cursor-pointer hover:border-brand-red/30"
+            className="bg-white p-6 rounded-[24px] border border-brand-beige/20 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer hover:border-brand-red/30"
           >
             <div className="flex justify-between items-start text-right">
               {isLibraryManager && (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(item.id);
-                  }}
-                  className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors relative z-20"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex gap-2 relative z-20" onClick={e => e.stopPropagation()}>
+                  <button 
+                    onClick={() => handleEdit(item)}
+                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                    title="تعديل"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(item.id)}
+                    className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors"
+                    title="حذف"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               )}
               <div className="flex bg-gray-50 p-3 rounded-2xl mr-auto">
                 {getIcon(item.type)}
@@ -228,9 +322,19 @@ export default function Library() {
             
             <div className="text-right mt-4 space-y-1">
               <h3 className="font-extrabold text-lg line-clamp-2 text-brand-text group-hover:text-brand-red transition-colors" title={item.title}>{item.title}</h3>
-              <p className="text-xs text-brand-beige font-semibold">
-                {item.createdAt ? formatDate(item.createdAt) : 'حديث'}
-              </p>
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-xs text-brand-beige font-semibold">
+                  {item.createdAt ? formatDate(item.createdAt) : 'حديث'}
+                </p>
+                {item.audience && item.audience !== 'all' && (
+                  <span className={cn(
+                    "text-[10px] font-black px-2 py-0.5 rounded-full",
+                    item.audience === 'adults' ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-sky-50 text-sky-700 border border-sky-200"
+                  )}>
+                    {item.audience === 'adults' ? "كبار 👨‍🦳" : "صغيرين 👶"}
+                  </span>
+                )}
+              </div>
             </div>
             
             {isLibraryManager && (
@@ -298,7 +402,9 @@ export default function Library() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <form onSubmit={handleAddItem} className="bg-white p-6 sm:p-8 rounded-[32px] w-full max-w-lg shadow-2xl space-y-6 text-right">
-            <h2 className="text-2xl font-black text-brand-text">إضافة للمكتبة</h2>
+            <h2 className="text-2xl font-black text-brand-text">
+              {editingItem ? "تعديل ملف" : "إضافة للمكتبة"}
+            </h2>
 
             <div className="space-y-4">
               <div className="space-y-2">
@@ -323,6 +429,42 @@ export default function Library() {
                   <option value="new_testament">عهد جديد</option>
                   <option value="other">موضوعات أخرى</option>
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase text-brand-beige">الفئة العمرية (المستهدف)</label>
+                <div className="flex gap-2">
+                  <button 
+                    type="button" 
+                    onClick={() => setNewItemAudience('all')} 
+                    className={cn(
+                      "p-2 rounded-xl flex-1 font-black text-sm transition-all", 
+                      newItemAudience === 'all' ? "bg-brand-red text-white" : "bg-brand-cream text-brand-text"
+                    )}
+                  >
+                    الكل
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setNewItemAudience('adults')} 
+                    className={cn(
+                      "p-2 rounded-xl flex-1 font-black text-sm transition-all", 
+                      newItemAudience === 'adults' ? "bg-brand-red text-white" : "bg-brand-cream text-brand-text"
+                    )}
+                  >
+                    كبار 👨‍🦳
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setNewItemAudience('children')} 
+                    className={cn(
+                      "p-2 rounded-xl flex-1 font-black text-sm transition-all", 
+                      newItemAudience === 'children' ? "bg-brand-red text-white" : "bg-brand-cream text-brand-text"
+                    )}
+                  >
+                    صغيرين 👶
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -351,7 +493,7 @@ export default function Library() {
                   <label className="text-xs font-black uppercase text-brand-beige">اختيار الملف</label>
                   <input 
                     type="file" 
-                    required
+                    required={!editingItem}
                     onChange={handleFileUpload}
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx"
                     className="w-full bg-brand-cream border-transparent rounded-xl p-3 border-2 font-bold focus:border-brand-red"
@@ -367,14 +509,14 @@ export default function Library() {
             <div className="flex gap-3 pt-4 border-t border-brand-beige/10">
               <button 
                 type="submit" 
-                disabled={isUploading || (!selectedFile && newItemType !== 'link')}
+                disabled={isUploading || (!selectedFile && newItemType !== 'link' && !editingItem)}
                 className="flex-1 bg-brand-red text-white rounded-xl py-3 font-black shadow-md hover:bg-red-700 disabled:opacity-50 transition-all font-bold"
               >
-                {isUploading ? "جاري الإضافة..." : "حفظ"}
+                {isUploading ? "جاري الحفظ..." : "حفظ"}
               </button>
               <button 
                 type="button" 
-                onClick={() => setIsModalOpen(false)}
+                onClick={handleCloseModal}
                 className="bg-brand-cream text-brand-text rounded-xl py-3 px-6 font-black hover:bg-brand-beige/20 transition-all font-bold"
               >
                 إلغاء
