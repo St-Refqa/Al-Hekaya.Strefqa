@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
@@ -232,6 +232,32 @@ export default function Library() {
                 {item.createdAt ? formatDate(item.createdAt) : 'حديث'}
               </p>
             </div>
+            
+            {isLibraryManager && (
+              <div className="mt-3 pt-2 border-t border-brand-beige/10 flex items-center justify-between relative z-20" onClick={e => e.stopPropagation()}>
+                <span className="text-[10px] font-black text-brand-beige">نقل إلى:</span>
+                <select
+                  value={item.section}
+                  onChange={async (e) => {
+                    const newSection = e.target.value as any;
+                    try {
+                      await updateDoc(doc(db, 'library', item.id), { section: newSection });
+                    } catch (err) {
+                      console.error(err);
+                      alert('حدث خطأ أثناء نقل الملف!');
+                    }
+                  }}
+                  className="bg-brand-cream text-[10px] font-black text-brand-text px-2 py-1 rounded-lg outline-none border border-brand-beige/20 focus:border-brand-red/20 cursor-pointer"
+                >
+                  <option value="old_testament">عهد قديم</option>
+                  <option value="new_testament">عهد جديد</option>
+                  <option value="other">موضوعات أخرى</option>
+                  {item.section === 'OT' && <option value="OT">عهد قديم (سابقاً)</option>}
+                  {item.section === 'NT' && <option value="NT">عهد جديد (سابقاً)</option>}
+                  {item.section === 'general' && <option value="general">موضوعات أخرى (سابقاً)</option>}
+                </select>
+              </div>
+            )}
 
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all z-10 w-full flex justify-center pointer-events-none">
               {item.type === 'link' ? (
