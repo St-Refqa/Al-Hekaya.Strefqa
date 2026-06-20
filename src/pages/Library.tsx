@@ -19,7 +19,7 @@ interface LibraryItem {
   fileName?: string;
   createdAt: any;
   uploaderId?: string;
-  audience?: 'all' | 'adults' | 'children';
+  audience?: 'adults' | 'children';
 }
 
 export default function Library() {
@@ -40,7 +40,7 @@ export default function Library() {
   const [newItemSection, setNewItemSection] = useState<LibraryItem['section']>('old_testament');
   const [newItemUrl, setNewItemUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [newItemAudience, setNewItemAudience] = useState<LibraryItem['audience']>('all');
+  const [newItemAudience, setNewItemAudience] = useState<LibraryItem['audience']>('adults');
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -50,7 +50,7 @@ export default function Library() {
     setNewItemType('pdf');
     setNewItemUrl('');
     setSelectedFile(null);
-    setNewItemAudience('all');
+    setNewItemAudience('adults');
   };
 
   const handleNewItemClick = () => {
@@ -60,7 +60,7 @@ export default function Library() {
     setNewItemType('pdf');
     setNewItemUrl('');
     setSelectedFile(null);
-    setNewItemAudience('all');
+    setNewItemAudience('adults');
     setIsModalOpen(true);
   };
 
@@ -70,7 +70,7 @@ export default function Library() {
     setNewItemSection(item.section);
     setNewItemType(item.type);
     setNewItemUrl(item.type === 'link' ? item.contentUrl : '');
-    setNewItemAudience(item.audience || 'all');
+    setNewItemAudience(item.audience || 'adults');
     setSelectedFile(null);
     setIsModalOpen(true);
   };
@@ -87,7 +87,7 @@ export default function Library() {
         const titleRaw = data.title || '';
         const parts = titleRaw.split(' || ');
         const title = parts[0];
-        const audience = parts[1] || 'all';
+        const audience = parts[1] || 'adults';
         return {
           id: doc.id,
           ...data,
@@ -143,7 +143,7 @@ export default function Library() {
         fileName = editingItem.fileName || '';
       }
 
-      const rawTitle = newItemTitle + (newItemAudience && newItemAudience !== 'all' ? ` || ${newItemAudience}` : '');
+      const rawTitle = newItemTitle + (newItemAudience ? ` || ${newItemAudience}` : ' || adults');
       const itemData: any = {
         title: rawTitle,
         type: newItemType,
@@ -195,13 +195,12 @@ export default function Library() {
     
     if (itemSection !== activeSection) return false;
 
-    // Filter by audience: "all" (الكل) items appear inside both "adults" (كبار) and "children" (صغيرين) filters
-    const itemAudience = item.audience || 'all';
+    const itemAudience = item.audience || 'adults';
     if (activeAudience === 'adults') {
-      return itemAudience === 'adults' || itemAudience === 'all';
+      return itemAudience === 'adults';
     }
     if (activeAudience === 'children') {
-      return itemAudience === 'children' || itemAudience === 'all';
+      return itemAudience === 'children';
     }
 
     return true; // if activeAudience === 'all', show everything
@@ -338,7 +337,7 @@ export default function Library() {
                 <p className="text-xs text-brand-beige font-semibold">
                   {item.createdAt ? formatDate(item.createdAt) : 'حديث'}
                 </p>
-                {item.audience && item.audience !== 'all' && (
+                {item.audience && (
                   <span className={cn(
                     "text-[10px] font-black px-2 py-0.5 rounded-full",
                     item.audience === 'adults' ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-sky-50 text-sky-700 border border-sky-200"
@@ -446,16 +445,6 @@ export default function Library() {
               <div className="space-y-2">
                 <label className="text-xs font-black uppercase text-brand-beige">الفئة العمرية (المستهدف)</label>
                 <div className="flex gap-2">
-                  <button 
-                    type="button" 
-                    onClick={() => setNewItemAudience('all')} 
-                    className={cn(
-                      "p-2 rounded-xl flex-1 font-black text-sm transition-all", 
-                      newItemAudience === 'all' ? "bg-brand-red text-white" : "bg-brand-cream text-brand-text"
-                    )}
-                  >
-                    الكل
-                  </button>
                   <button 
                     type="button" 
                     onClick={() => setNewItemAudience('adults')} 
