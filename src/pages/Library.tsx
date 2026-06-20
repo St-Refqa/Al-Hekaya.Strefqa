@@ -14,7 +14,7 @@ interface LibraryItem {
   id: string;
   title: string;
   type: 'pdf' | 'doc' | 'xls' | 'ppt' | 'link';
-  section: 'NT' | 'OT' | 'general';
+  section: 'old_testament' | 'new_testament' | 'other' | 'NT' | 'OT' | 'general';
   contentUrl: string; // link or base64
   fileName?: string;
   createdAt: any;
@@ -26,21 +26,14 @@ export default function Library() {
   const { t } = useTranslation();
   
   const [items, setItems] = useState<LibraryItem[]>([]);
-  const [activeSection, setActiveSection] = useState<'NT' | 'OT' | 'general'>(() => {
-    if (user?.role === 'student') {
-      const code = user.code?.toUpperCase() || '';
-      if (code.startsWith('H')) return 'OT';
-      if (code.startsWith('N')) return 'NT';
-    }
-    return 'general';
-  });
+  const [activeSection, setActiveSection] = useState<'old_testament' | 'new_testament' | 'other'>('old_testament');
   const [isUploading, setIsUploading] = useState(false);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemType, setNewItemType] = useState<LibraryItem['type']>('pdf');
-  const [newItemSection, setNewItemSection] = useState<LibraryItem['section']>('general');
+  const [newItemSection, setNewItemSection] = useState<LibraryItem['section']>('old_testament');
   const [newItemUrl, setNewItemUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -138,17 +131,15 @@ export default function Library() {
     }
   };
 
-  const filteredItems = items.filter(item => item.section === activeSection);
-  
-  // Decide which sections are allowed for this user
-  const allowedSections = ['general'];
-  if (isLibraryManager || (user?.role as string) === 'servant' || user?.code?.toUpperCase().startsWith('S')) {
-    allowedSections.push('NT', 'OT');
-  } else if (user?.role === 'student') {
-    const code = user.code?.toUpperCase() || '';
-    if (code.startsWith('H')) allowedSections.push('OT');
-    if (code.startsWith('N')) allowedSections.push('NT');
-  }
+  const filteredItems = items.filter(item => {
+    // Map old section keys to new ones so existing files aren't lost
+    let itemSection = item.section as string;
+    if (itemSection === 'OT') itemSection = 'old_testament';
+    else if (itemSection === 'NT') itemSection = 'new_testament';
+    else if (itemSection === 'general') itemSection = 'other';
+    
+    return itemSection === activeSection;
+  });
 
   return (
     <div className="p-4 sm:p-6 lg:p-10 bg-brand-cream min-h-screen text-[#1C0606] max-w-7xl mx-auto space-y-8">
@@ -178,40 +169,34 @@ export default function Library() {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white rounded-2xl p-2 shadow-sm justify-end overflow-x-auto">
-        {(allowedSections.includes('OT')) && (
-          <button 
-            onClick={() => setActiveSection('OT')}
-            className={cn(
-              "px-6 py-3 font-black text-sm rounded-xl transition-all",
-              activeSection === 'OT' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
-            )}
-          >
-            طلاب اونلاين
-          </button>
-        )}
-        {(allowedSections.includes('NT')) && (
-          <button 
-            onClick={() => setActiveSection('NT')}
-            className={cn(
-              "px-6 py-3 font-black text-sm rounded-xl transition-all",
-              activeSection === 'NT' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
-            )}
-          >
-            طلاب الورشة
-          </button>
-        )}
-        {(allowedSections.includes('general')) && (
-          <button 
-            onClick={() => setActiveSection('general')}
-            className={cn(
-              "px-6 py-3 font-black text-sm rounded-xl transition-all",
-              activeSection === 'general' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
-            )}
-          >
-            عام
-          </button>
-        )}
+      <div className="flex bg-white rounded-2xl p-2 shadow-sm justify-end overflow-x-auto gap-2">
+        <button 
+          onClick={() => setActiveSection('other')}
+          className={cn(
+            "px-6 py-3 font-black text-sm rounded-xl transition-all",
+            activeSection === 'other' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
+          )}
+        >
+          موضوعات أخرى
+        </button>
+        <button 
+          onClick={() => setActiveSection('new_testament')}
+          className={cn(
+            "px-6 py-3 font-black text-sm rounded-xl transition-all",
+            activeSection === 'new_testament' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
+          )}
+        >
+          عهد جديد
+        </button>
+        <button 
+          onClick={() => setActiveSection('old_testament')}
+          className={cn(
+            "px-6 py-3 font-black text-sm rounded-xl transition-all",
+            activeSection === 'old_testament' ? "bg-brand-red text-white" : "text-brand-text hover:bg-brand-cream"
+          )}
+        >
+          عهد قديم
+        </button>
       </div>
 
       {/* Grid List */}
@@ -292,15 +277,15 @@ export default function Library() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase text-brand-beige">القسم المستهدف</label>
+                <label className="text-xs font-black uppercase text-brand-beige">فئة الملف</label>
                 <select 
                   value={newItemSection || ''}
                   onChange={e => setNewItemSection(e.target.value as any)}
-                  className="w-full bg-brand-cream border-transparent focus:bg-white focus:border-brand-red rounded-xl p-3 border-2 transition-all font-bold"
+                  className="w-full bg-brand-cream border-transparent focus:bg-white focus:border-brand-red rounded-xl p-3 border-2 transition-all font-bold text-right"
                 >
-                  <option value="general">عام (للجميع)</option>
-                  <option value="OT">طلاب اونلاين (طلاب OT والخدام)</option>
-                  <option value="NT">طلاب الورشة (طلاب NT والخدام)</option>
+                  <option value="old_testament">عهد قديم</option>
+                  <option value="new_testament">عهد جديد</option>
+                  <option value="other">موضوعات أخرى</option>
                 </select>
               </div>
 
