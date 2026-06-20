@@ -158,17 +158,16 @@ export async function checkAndInjectPrepMeetingReminders() {
       const meetingTime = new Date(meeting.dateTime).getTime();
       const diffHours = (meetingTime - now) / (1000 * 60 * 60);
 
-      // A. Send immediate notification on newly scheduled meetings (Atomic DB Update Lock)
-      if (meetingTime > now && !meeting.immediateSent) {
-        const { data: updated, error: errUpdate } = await supabase
-          .from("preparationMeetings")
-          .update({ immediateSent: true })
-          .eq("id", meeting.id)
-          .eq("immediateSent", false)
-          .select();
+      const tagImmediate = `prep_meeting_immediate_${meeting.id}`;
+      // A. Send immediate notification on newly scheduled meetings (Atomic DB Update Lock via tag insertion)
+      if (meetingTime > now) {
+        // Query notifications table to see if immediate warning tag already exists
+        const { data: existing, error: errExist } = await supabase
+          .from("notifications")
+          .select("id")
+          .eq("weeklyMeetingTag", tagImmediate);
 
-        if (!errUpdate && updated && updated.length > 0) {
-          // Lock acquired! Proceed to send notifications
+        if (!errExist && (!existing || existing.length === 0)) {
           const dateFormatted = new Date(meeting.dateTime).toLocaleString('ar-EG', {
             weekday: 'long',
             year: 'numeric',
@@ -179,35 +178,37 @@ export async function checkAndInjectPrepMeetingReminders() {
             hour12: true
           });
 
-          const tag = `prep_meeting_immediate_${meeting.id}`;
           const { error: errInsert } = await supabase.from("notifications").insert({
-            id: tag,
+            id: tagImmediate,
             title: `📅 اجتماع تحضيري جديد للخدمة`,
             message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${meeting.title}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
             type: "info",
             category: "announcements",
             targetId: null,
             targetGroups: ["servant"],
-            weeklyMeetingTag: tag,
+            weeklyMeetingTag: tagImmediate,
             createdAt: new Date().toISOString(),
             isRead: false,
             readBy: [],
             hiddenFrom: []
           });
 
-          if (errInsert && errInsert.code !== "23505") throw errInsert;
-          console.log(`[Worker] Sent immediate meeting notification for: ${meeting.title}`);
+          if (errInsert) {
+            if (errInsert.code !== "23505") throw errInsert;
+          } else {
+            console.log(`[Worker] Sent immediate meeting notification for: ${meeting.title}`);
 
-          const phones = await getServantPhones();
-          if (phones.length > 0) {
-            const waMessage = `🔔 اجتماع تحضيري جديد للخدام:
+            const phones = await getServantPhones();
+            if (phones.length > 0) {
+              const waMessage = `🔔 اجتماع تحضيري جديد للخدام:
 📍 العنوان: ${meeting.title}
 📅 الموعد: ${dateFormatted}
 📝 الأجندة:
 ${meeting.description}
 
 يرجى من جميع الخدام الاستعداد وتجهيز فقرات الخدمة للتحضير واليوم! ⛪📿`;
-            await sendWhatsAppReminders(phones, waMessage);
+              await sendWhatsAppReminders(phones, waMessage);
+            }
           }
         }
       }

@@ -348,7 +348,7 @@ export default function StoreManager() {
                         <div key={idx} className="aspect-square rounded-[24px] overflow-hidden border-2 border-brand-cream relative group shadow-sm bg-brand-cream/30">
                           <SmartImage src={img} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={`Preview ${idx + 1}`} />
                           
-                          <div className="absolute inset-0 bg-brand-text/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+                          <div className="absolute inset-0 bg-brand-text/40 flex flex-col items-center justify-center transition-opacity gap-2 md:opacity-0 md:group-hover:opacity-100 opacity-100">
                              <span className="text-white font-black text-[10px] bg-brand-text/50 px-2 py-0.5 rounded-full">
                                {idx === 0 ? "الصورة الأساسية" : `صورة ${idx + 1}`}
                              </span>
@@ -440,7 +440,7 @@ export default function StoreManager() {
                 <div className="relative aspect-[4/3] rounded-[32px] overflow-hidden mb-6 bg-brand-cream/30">
                   <SmartImage src={item.images?.[0] || (item as any).image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.title} />
                   
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-black/20 transition-opacity md:opacity-0 md:group-hover:opacity-100" />
                   
                   {item.images && item.images.length > 1 && (
                     <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-2 border border-white/10">
@@ -449,7 +449,7 @@ export default function StoreManager() {
                     </div>
                   )}
                   
-                  <div className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-[-10px] group-hover:translate-y-0 transition-all duration-300">
+                  <div className="absolute top-4 left-4 flex gap-2 transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 md:translate-y-[-10px] md:group-hover:translate-y-0 opacity-100 translate-y-0">
                     <button 
                       onClick={() => startEdit(item)}
                       className="w-10 h-10 rounded-xl bg-white shadow-xl flex items-center justify-center text-brand-text hover:bg-brand-red hover:text-white transition-all transform hover:scale-110"

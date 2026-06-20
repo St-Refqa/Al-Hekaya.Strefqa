@@ -878,7 +878,7 @@ export default function AdminDashboard() {
                         )}
                       </div>
                       <div className={cn(
-                        "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0",
+                        "flex items-center gap-1 transition-all md:opacity-0 md:group-hover:opacity-100 md:translate-x-2 md:group-hover:translate-x-0 opacity-100 translate-x-0",
                         selectedIds.size > 0 && "hidden"
                       )}>
                         <button

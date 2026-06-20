@@ -601,7 +601,10 @@ export default function PublicAssessment() {
   }, [id]);
 
   const startAssessment = async () => {
-    if (!participantName || !participantPhone) return;
+    if (!participantName || !participantPhone) {
+      setDuplicateError("من فضلك اكتب اسمك بالكامل وكود الطالب الخاص بك.");
+      return;
+    }
     const normalizedPhone = participantPhone.trim().toUpperCase();
     const normalizedName = participantName.trim();
     setParticipantPhone(normalizedPhone);
@@ -800,7 +803,13 @@ export default function PublicAssessment() {
             <motion.button
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1);
+                } else {
+                  navigate("/", { replace: true });
+                }
+              }}
               className="absolute top-4 right-6 md:-right-20 md:top-24 flex flex-col items-center gap-2 group transition-all"
             >
               <div className="w-12 h-12 rounded-full bg-white border border-brand-beige/20 shadow-sm flex items-center justify-center group-hover:bg-brand-red group-hover:text-white transition-all text-brand-beige">
@@ -893,7 +902,7 @@ export default function PublicAssessment() {
 
               <button
                 onClick={startAssessment}
-                disabled={!participantName || !participantPhone}
+                disabled={isLoading}
                 className="w-full py-5 bg-brand-red text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-red/90 transition-all disabled:opacity-50 shadow-xl shadow-brand-red/20 active:scale-[0.98]"
               >
                 ابدأ الاختبار

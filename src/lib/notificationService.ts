@@ -173,24 +173,15 @@ export const notificationService = {
         const meetingDocRef = doc(db, "preparationMeetings", d.id);
         
         // 1. Send immediate notification on meeting scheduling (if not sent yet)
-        if (meetingTime > now && !meeting.immediateSent) {
-          // Attempt atomic database write lock using transaction
-          let acquiredImmediateLock = false;
-          try {
-            await runTransaction(db, async (transaction) => {
-              const mSnap = await transaction.get(meetingDocRef);
-              if (!mSnap.exists()) return;
-              const currentMeeting = mSnap.data();
-              if (!currentMeeting.immediateSent) {
-                transaction.update(meetingDocRef, { immediateSent: true });
-                acquiredImmediateLock = true;
-              }
-            });
-          } catch (tError) {
-            console.error(`Failed to acquire immediate lock for meeting ${d.id}:`, tError);
-          }
+        if (meetingTime > now) {
+          const tag = `prep_meeting_immediate_${d.id}`;
+          const qRef = query(
+            collection(db, "notifications"), 
+            where("weeklyMeetingTag", "==", tag)
+          );
+          const nSnap = await getDocs(qRef);
 
-          if (acquiredImmediateLock) {
+          if (nSnap.empty) {
             const dateFormatted = new Date(meeting.dateTime).toLocaleString('ar-EG', {
               weekday: 'long',
               year: 'numeric',
@@ -201,38 +192,32 @@ export const notificationService = {
               hour12: true
             });
 
-            const tag = `prep_meeting_immediate_${d.id}`;
-            await addDoc(collection(db, "notifications"), {
-              id: tag,
+            const res = await this.sendNotification({
               title: `📅 اجتماع تحضيري جديد للخدمة`,
               message: `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${meeting.title}" يوم (${dateFormatted}). يرجى من جميع الخدام الاستعداد وتجهيز الفقرات للخدمة! ⛪📿`,
               type: "info",
               category: "announcements",
-              targetId: null,
               targetGroups: ["servant"],
-              weeklyMeetingTag: tag,
-              createdAt: serverTimestamp(),
-              isRead: false,
-              readBy: [],
-              hiddenFrom: []
+              weeklyMeetingTag: tag
             });
 
-            console.log(`Automatic immediate scheduling reminder sent to database for: ${meeting.title}`);
-
-            try {
-              const phones = await getServantPhones();
-              if (phones.length > 0) {
-                const waMessage = `🔔 اجتماع تحضيري جديد للخدام:
+            if (res.success && !res.skipped) {
+              console.log(`Automatic immediate scheduling reminder sent to database for: ${meeting.title}`);
+              try {
+                const phones = await getServantPhones();
+                if (phones.length > 0) {
+                  const waMessage = `🔔 اجتماع تحضيري جديد للخدام:
 📍 العنوان: ${meeting.title}
 📅 الموعد: ${dateFormatted}
 📝 الأجندة:
 ${meeting.description}
 
 يرجى من جميع الخدام الاستعداد وتجهيز فقرات الخدمة للتحضير واليوم! ⛪📿`;
-                await this.sendWhatsAppReminders(phones, waMessage);
+                  await this.sendWhatsAppReminders(phones, waMessage);
+                }
+              } catch (err) {
+                console.error("Failed to run immediate WhatsApp reminders:", err);
               }
-            } catch (err) {
-              console.error("Failed to run immediate WhatsApp reminders:", err);
             }
           }
         }

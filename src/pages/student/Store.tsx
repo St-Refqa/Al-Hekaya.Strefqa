@@ -408,7 +408,7 @@ function StoreItemCard({
 
         {/* Image Controls */}
         {hasMultipleImages && (
-          <div className="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute inset-0 flex items-center justify-between px-4 transition-opacity md:opacity-0 md:group-hover:opacity-100 opacity-100">
             <button 
               onClick={(e) => {
                 e.stopPropagation();

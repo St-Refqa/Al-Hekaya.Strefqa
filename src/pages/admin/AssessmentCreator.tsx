@@ -1589,7 +1589,7 @@ function DifficultyColumn({
                 <p className="text-xs font-bold leading-relaxed line-clamp-3 text-brand-cream">
                   {q.text}
                 </p>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all flex-row-reverse">
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5 transition-all flex-row-reverse md:opacity-0 md:group-hover:opacity-100 opacity-100">
                   <div className="flex flex-row-reverse gap-2">
                     <button
                       type="button"

@@ -62,6 +62,23 @@ export default function PreparationMeetings() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [now] = useState(() => Date.now());
 
+  const userRole = (user?.role || '').toLowerCase();
+  const isExamCreator = user?.isExamCreator === true || userRole === 'creator';
+  const isAttendanceScanner = user?.isAttendanceScanner === true || userRole === 'attendance';
+  const isStoreManager = user?.isStoreManager === true || userRole === 'store';
+  const isLibraryManager = user?.isLibraryManager === true || userRole === 'library';
+  const isMeetingScheduler = user?.isMeetingScheduler === true || user?.isMeetingManager === true || userRole === 'scheduler';
+  
+  const isServant = 
+    isAdmin || 
+    isExamCreator || 
+    isAttendanceScanner || 
+    isStoreManager || 
+    isLibraryManager || 
+    isMeetingScheduler || 
+    userRole === 'servant' || 
+    (user?.code && user?.code.toUpperCase().startsWith('S'));
+
   // Navigation: 'booklet' | 'saturday' | 'prep_servants'
   const [activeTab, setActiveTab] = useState<'booklet' | 'saturday' | 'prep_servants'>('booklet');
   const [editingMeeting, setEditingMeeting] = useState<PrepMeeting | null>(null);
@@ -151,6 +168,11 @@ export default function PreparationMeetings() {
 
   // Realtime subscription for meetings
   useEffect(() => {
+    if (!isServant) {
+      setMeetings([]);
+      setLoading(false);
+      return;
+    }
     const q = query(
       collection(db, 'preparationMeetings'), 
       orderBy('dateTime', 'asc')
@@ -169,7 +191,7 @@ export default function PreparationMeetings() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isServant]);
 
   const triggerNotification = (type: 'success' | 'error', text: string) => {
     setNotification({ type, text });
@@ -205,15 +227,14 @@ export default function PreparationMeetings() {
           title: title.trim(),
           description: description.trim(),
           dateTime,
-          reminderSent12h: editingMeeting.dateTime !== dateTime ? false : (editingMeeting.reminderSent12h || false),
-          immediateSent: editingMeeting.dateTime !== dateTime ? false : ((editingMeeting as any).immediateSent || false)
+          reminderSent12h: editingMeeting.dateTime !== dateTime ? false : (editingMeeting.reminderSent12h || false)
         };
 
         await setDoc(meetingRef, updatedMeeting);
         triggerNotification('success', 'تم تعديل الاجتماع بنجاح.');
         setEditingMeeting(null);
       } else {
-        await addDoc(collection(db, 'preparationMeetings'), {
+        const docRef = await addDoc(collection(db, 'preparationMeetings'), {
           title: title.trim(),
           description: description.trim(),
           dateTime,
@@ -427,18 +448,20 @@ export default function PreparationMeetings() {
             <span>منهج السبت الأسبوعي</span>
           </button>
 
-          <button
-            id="tab-prep-servants"
-            onClick={() => { setActiveTab('prep_servants'); }}
-            className={`py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
-              activeTab === 'prep_servants'
-                ? 'bg-brand-red text-white shadow-lg'
-                : 'text-brand-text hover:text-brand-red hover:bg-white/50'
-            }`}
-          >
-            <Clock className="w-4 h-4 shrink-0" />
-            <span>اجتماعات الخدام 👥</span>
-          </button>
+          {isServant && (
+            <button
+              id="tab-prep-servants"
+              onClick={() => { setActiveTab('prep_servants'); }}
+              className={`py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+                activeTab === 'prep_servants'
+                  ? 'bg-brand-red text-white shadow-lg'
+                  : 'text-brand-text hover:text-brand-red hover:bg-white/50'
+              }`}
+            >
+              <Clock className="w-4 h-4 shrink-0" />
+              <span>اجتماعات الخدام 👥</span>
+            </button>
+          )}
         </div>
 
         {/* Live Controls on Grid/Table view */}
@@ -763,7 +786,7 @@ export default function PreparationMeetings() {
       {/* =========================================
           VIEW MODE 4: CUSTOM SERVANT MEETINGS & WORKSPACE
           ========================================= */}
-      {activeTab === 'prep_servants' && (
+      {activeTab === 'prep_servants' && isServant && (
         <div id="prep_servants_workspace" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left: Scheduled Preparation Meetings list */}
