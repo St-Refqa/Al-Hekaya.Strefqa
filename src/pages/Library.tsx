@@ -234,28 +234,38 @@ export default function Library() {
             </div>
             
             {isLibraryManager && (
-              <div className="mt-3 pt-2 border-t border-brand-beige/10 flex items-center justify-between relative z-20" onClick={e => e.stopPropagation()}>
-                <span className="text-[10px] font-black text-brand-beige">نقل إلى:</span>
-                <select
-                  value={item.section}
-                  onChange={async (e) => {
-                    const newSection = e.target.value as any;
-                    try {
-                      await updateDoc(doc(db, 'library', item.id), { section: newSection });
-                    } catch (err) {
-                      console.error(err);
-                      alert('حدث خطأ أثناء نقل الملف!');
-                    }
-                  }}
-                  className="bg-brand-cream text-[10px] font-black text-brand-text px-2 py-1 rounded-lg outline-none border border-brand-beige/20 focus:border-brand-red/20 cursor-pointer"
-                >
-                  <option value="old_testament">عهد قديم</option>
-                  <option value="new_testament">عهد جديد</option>
-                  <option value="other">موضوعات أخرى</option>
-                  {item.section === 'OT' && <option value="OT">عهد قديم (سابقاً)</option>}
-                  {item.section === 'NT' && <option value="NT">عهد جديد (سابقاً)</option>}
-                  {item.section === 'general' && <option value="general">موضوعات أخرى (سابقاً)</option>}
-                </select>
+              <div className="mt-3 pt-2 border-t border-brand-beige/5 flex items-center justify-between relative z-20" onClick={e => e.stopPropagation()}>
+                <span className="text-[10px] font-black text-brand-beige flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-red animate-pulse" />
+                  تصنيف الملف:
+                </span>
+                <div className="relative">
+                  <select
+                    value={item.section}
+                    onChange={async (e) => {
+                      const newSection = e.target.value as any;
+                      try {
+                        await updateDoc(doc(db, 'library', item.id), { section: newSection });
+                      } catch (err) {
+                        console.error(err);
+                        alert('حدث خطأ أثناء نقل الملف!');
+                      }
+                    }}
+                    className="bg-brand-cream/80 hover:bg-brand-cream text-[10px] font-black text-brand-text pl-7 pr-3 py-1 rounded-full outline-none border border-brand-beige/10 focus:border-brand-red/30 cursor-pointer appearance-none transition-all shadow-sm"
+                  >
+                    <option value="old_testament">عهد قديم</option>
+                    <option value="new_testament">عهد جديد</option>
+                    <option value="other">موضوعات أخرى</option>
+                    {item.section === 'OT' && <option value="OT">عهد قديم (سابقاً)</option>}
+                    {item.section === 'NT' && <option value="NT">عهد جديد (سابقاً)</option>}
+                    {item.section === 'general' && <option value="general">موضوعات أخرى (سابقاً)</option>}
+                  </select>
+                  <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-beige">
+                    <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 20 20">
+                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             )}
 
