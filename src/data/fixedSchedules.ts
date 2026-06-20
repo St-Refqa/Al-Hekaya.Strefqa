@@ -7,7 +7,6 @@ export interface ScheduleItem {
 }
 
 export const saturdaySchedules: ScheduleItem[] = [
-  { date: "13 / 6", dayText: "السبت", topic1: "لقاء تمهيدي", isSpecialEvent: true },
   { date: "20 / 6", dayText: "السبت", topic1: "البشارة و الميلاد و رحلة العائلة المقدسة", topic2: "مقارنة الأربع أناجيل" },
   { date: "27 / 6", dayText: "السبت", topic1: "بدايات الخدمة", topic2: "خلفية تاريخية" },
   { date: "4 / 7", dayText: "السبت", topic1: "الخدمة الأولى في اليهودية", topic2: "خلفية جغرافية" },
@@ -28,7 +27,6 @@ export const saturdaySchedules: ScheduleItem[] = [
 ];
 
 export const thursdaySchedules: ScheduleItem[] = [
-  { date: "11 / 6", dayText: "الخميس", topic1: "لقاء تمهيدي", isSpecialEvent: true },
   { date: "18 / 6", dayText: "الخميس", topic1: "البشارة والميلاد ورحلة العائلة المقدسة", topic2: "مقارنة الأربع أناجيل" },
   { date: "25 / 6", dayText: "الخميس", topic1: "بدايات الخدمة", topic2: "خلفية تاريخية" },
   { date: "2 / 7", dayText: "الخميس", topic1: "الخدمة الأولى في اليهودية", topic2: "خلفية جغرافية" },
