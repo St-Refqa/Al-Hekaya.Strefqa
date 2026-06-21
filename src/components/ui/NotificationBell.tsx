@@ -56,6 +56,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
+    isInitialLoad.current = true;
     // Determine which notifications to show
     const q = query(
       collection(db, "notifications"),
