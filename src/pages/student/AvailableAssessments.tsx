@@ -6,7 +6,7 @@ import {
   orderBy, 
   onSnapshot 
 } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
+import { db, handleFirestoreError, OperationType, supabase } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
 import { Assessment, Submission } from "../../types";
 import { 
@@ -131,6 +131,25 @@ export default function AvailableAssessments() {
       unsubscribeUserSubs();
     };
   }, [user]);
+
+  useEffect(() => {
+    const fetchParticipantCounts = async () => {
+      try {
+        const { data, error } = await supabase.from('submissions').select('assessmentId');
+        if (!error && data) {
+          const counts: Record<string, number> = {};
+          data.forEach(sub => {
+            counts[sub.assessmentId] = (counts[sub.assessmentId] || 0) + 1;
+          });
+          setParticipantCounts(counts);
+        }
+      } catch (err) {
+        console.error("Failed to fetch participant counts", err);
+      }
+    };
+
+    fetchParticipantCounts();
+  }, []);
 
   const completedAssessmentIds = useMemo(() => {
     return new Set(submissions.map(s => s.assessmentId));
