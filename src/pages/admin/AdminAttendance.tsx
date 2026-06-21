@@ -36,7 +36,8 @@ import {
   AlertCircle,
   Clock,
   Edit,
-  ExternalLink
+  ExternalLink,
+  Filter
 } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import * as XLSX from 'xlsx';
@@ -182,6 +183,7 @@ export default function AdminAttendance() {
   // Logs Filter State
   const [logsFilterQuery, setLogsFilterQuery] = useState('');
   const [liveFilterQuery, setLiveFilterQuery] = useState('');
+  const [logsDateFilter, setLogsDateFilter] = useState('');
   const [simDate, setSimDate] = useState(getLocalDateStr());
   const [simTime, setSimTime] = useState('19:10');
   const [simCode, setSimCode] = useState('');
@@ -2091,11 +2093,29 @@ export default function AdminAttendance() {
 
             {/* Journal of detailed chronologies */}
             <div className="space-y-4 pt-6">
-              <h3 className="text-lg font-black text-brand-text">يوميات الحضور التفصيلية</h3>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h3 className="text-lg font-black text-brand-text">يوميات الحضور التفصيلية</h3>
+                
+                {/* Date Filter */}
+                <div className="relative">
+                  <select
+                    value={logsDateFilter}
+                    onChange={(e) => setLogsDateFilter(e.target.value)}
+                    className="pl-4 pr-10 py-2 bg-white border border-brand-beige/15 rounded-xl text-xs font-bold w-full sm:w-auto focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all appearance-none text-right cursor-pointer"
+                  >
+                    <option value="">كل التواريخ</option>
+                    {Array.from(new Set(attendanceLogs.map(l => l.date))).sort().reverse().map(date => (
+                      <option key={date} value={date}>{date}</option>
+                    ))}
+                  </select>
+                  <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige opacity-50 pointer-events-none" />
+                </div>
+              </div>
               
               <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar border border-brand-beige/5 p-4 rounded-3xl bg-brand-cream/10">
                 {attendanceLogs
                   .filter(log => !logsFilterQuery || log.studentName.toLowerCase().includes(logsFilterQuery.toLowerCase()) || log.studentCode.includes(logsFilterQuery.toUpperCase()))
+                  .filter(log => !logsDateFilter || log.date === logsDateFilter)
                   .map((log, idx) => (
                   <div key={`${log.id || idx}-${idx}`} className="bg-white p-4 rounded-2xl border border-brand-beige/10 flex items-center justify-between group font-bold">
                     <div className="text-right">
