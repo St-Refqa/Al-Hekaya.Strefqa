@@ -11,6 +11,7 @@ export default function Announcements() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [type, setType] = useState('info'); // info, warning, success
+  const [logoType, setLogoType] = useState('warsha'); // warsha, church
   
   // Targeting States
   const [targetType, setTargetType] = useState<'all' | 'OT' | 'NT' | 'servant' | 'admin' | 'specific'>('all');
@@ -53,6 +54,7 @@ export default function Announcements() {
       title,
       message,
       type,
+      logoType,
       createdAt: serverTimestamp()
     };
 
@@ -95,6 +97,10 @@ export default function Announcements() {
             <option value="info">معلومة عامة (أزرق)</option>
             <option value="success">نجاح / إنجاز (أخضر)</option>
             <option value="warning">تنبيه هام (أحمر)</option>
+          </select>
+          <select className="w-full p-4 border border-gray-200 rounded-xl md:col-span-2" value={logoType || 'warsha'} onChange={e => setLogoType(e.target.value)}>
+            <option value="warsha">لوجو الورشة (افتراضي)</option>
+            <option value="church">لوجو الكنيسة والملاك</option>
           </select>
         </div>
 
@@ -187,7 +193,7 @@ export default function Announcements() {
                     <div className="flex gap-4 items-start">
                       <div className="w-12 h-12 shrink-0 rounded-2xl border border-brand-red/10 bg-brand-cream overflow-hidden flex items-center justify-center">
                         <img 
-                          src="/assets/logo-red.png" 
+                          src={ann.logoType === 'church' ? "/assets/logo-red.png" : "/assets/logo-beige.png"} 
                           alt="Logo" 
                           className="w-full h-full object-contain p-1" 
                           onError={(e) => {

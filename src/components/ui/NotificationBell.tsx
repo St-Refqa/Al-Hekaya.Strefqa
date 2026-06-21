@@ -294,7 +294,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
                           <div className="flex gap-4">
                             <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border border-brand-red/10 bg-brand-cream overflow-hidden">
                               <img 
-                                src="/assets/logo-red.png" 
+                                src={notif.logoType === 'church' ? "/assets/logo-red.png" : "/assets/logo-beige.png"} 
                                 alt="Logo" 
                                 className="w-full h-full object-contain p-1" 
                                 onError={(e) => {
