@@ -562,6 +562,45 @@ export default function AdminAttendance() {
     }
   };
 
+  // Edit attendance points
+  const handleEditPoints = async (log: AttendanceLog) => {
+    const newPointsStr = window.prompt(`تعديل درجات الحضور للطالب ${log.studentName}؟\nالدرجة الحالية: ${log.points}\nأدخل الدرجة الجديدة:`, log.points.toString());
+    if (newPointsStr === null || newPointsStr.trim() === '') return;
+    
+    const newPoints = parseInt(newPointsStr, 10);
+    if (isNaN(newPoints) || newPoints < 0) {
+      alert("الرجاء إدخال رقم صحيح.");
+      return;
+    }
+
+    if (newPoints === log.points) return; // No change
+
+    const pointsDiff = newPoints - log.points;
+
+    if (!window.confirm(`تأكيد تعديل الدرجة من ${log.points} إلى ${newPoints}؟`)) return;
+
+    try {
+      // 1. Update the log document
+      const logRef = doc(db, 'attendance', log.id);
+      await updateDoc(logRef, {
+        points: newPoints
+      });
+
+      // 2. Update the student document
+      const studentRef = doc(db, 'users', log.studentId);
+      await updateDoc(studentRef, {
+        totalPoints: increment(pointsDiff),
+        cumulativePoints: increment(pointsDiff),
+        xp: increment(pointsDiff)
+      });
+
+      triggerSuccessConfetti();
+    } catch (error) {
+      console.error("Failed to edit attendance points:", error);
+      alert("حدث خطأ أثناء تعديل النقاط.");
+    }
+  };
+
   // CAMERA SCANNER FUNCTIONS
   const startCamera = async () => {
     setScanResult(null);
@@ -2017,6 +2056,13 @@ export default function AdminAttendance() {
 
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[9px] bg-brand-cream px-2 py-1 rounded-sm text-brand-beige font-black">{log.studentCode}</span>
+                      <button 
+                        onClick={() => handleEditPoints(log)}
+                        className="p-2 text-brand-beige opacity-30 hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                        title="تعديل درجات الحضور"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
                       <button 
                         onClick={() => handleRevertAttendance(log)}
                         className="p-2 text-brand-beige opacity-30 hover:opacity-100 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
