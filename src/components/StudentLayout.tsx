@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StudentSidebar } from './StudentSidebar';
-import { Menu, User, Bell } from 'lucide-react';
+import { Menu, User, Bell, Home, Scroll, BookOpen, Trophy } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import NotificationBell from './ui/NotificationBell';
 import { cn } from '../lib/utils';
@@ -13,6 +14,14 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const { user } = useAuth();
   const { i18n } = useTranslation();
+  const location = useLocation();
+
+  const mobileNavItems = [
+    { icon: Home, label: 'الرئيسية', path: '/student' },
+    { icon: Scroll, label: 'الامتحانات', path: '/student/assessments' },
+    { icon: BookOpen, label: 'المكتبة', path: '/student/library' },
+    { icon: Trophy, label: 'الصدارة', path: '/student/leaderboard' },
+  ];
 
   if (!user) return <>{children}</>;
 
@@ -61,9 +70,55 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1">
+        <main className="flex-1 pb-24 lg:pb-0">
           {children}
         </main>
+
+        {/* Bottom Navigation for Mobile */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-brand-beige/10 z-[60] px-2 pb-4 pt-2 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+          <div className="flex justify-between items-center h-14">
+            {mobileNavItems.map(item => {
+              const isActive = location.pathname === item.path || (item.path === '/student/assessments' && location.pathname.startsWith('/student/review/'));
+              return (
+                <Link 
+                  key={item.path} 
+                  to={item.path} 
+                  className={cn(
+                    "flex flex-col items-center justify-center w-full h-full gap-1 transition-all",
+                    isActive ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
+                  )}
+                  onClick={() => {
+                     import('../lib/audio').then(m => m.playClickSound()).catch(console.error);
+                  }}
+                >
+                  <div className={cn(
+                    "relative p-1.5 rounded-xl transition-all duration-300",
+                    isActive ? "bg-brand-red/10 scale-110" : "bg-transparent"
+                  )}>
+                    <item.icon className={cn("w-5 h-5", isActive ? "fill-brand-red/10" : "")} />
+                  </div>
+                  <span className={cn(
+                    "text-[9px] font-black tracking-wider",
+                    isActive ? "text-brand-red" : ""
+                  )}>{item.label}</span>
+                </Link>
+              );
+            })}
+            
+            <button 
+              onClick={() => {
+                import('../lib/audio').then(m => m.playClickSound()).catch(console.error);
+                setIsSidebarOpen(true);
+              }}
+              className="flex flex-col items-center justify-center w-full h-full gap-1 text-brand-beige hover:text-brand-text transition-all"
+            >
+              <div className="relative p-1.5 rounded-xl transition-all duration-300 bg-transparent">
+                <Menu className="w-5 h-5" />
+              </div>
+              <span className="text-[9px] font-black tracking-wider">المزيد</span>
+            </button>
+          </div>
+        </nav>
       </div>
 
       <ProfileModal 
