@@ -1544,7 +1544,7 @@ export default function AdminAttendance() {
                   <h3 className="text-lg font-black text-brand-text">جدول الحضور السريع لليوم</h3>
                   
                   {/* Totals Pills & Export */}
-                  <div className="flex flex-wrap md:flex-nowrap gap-2 w-full md:w-auto text-[10px] font-black uppercase tracking-widest text-[#1C0606]">
+                  <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-start md:justify-end text-[10px] font-black uppercase tracking-widest text-[#1C0606]">
                     <div className="flex-1 md:flex-none bg-white border border-brand-beige/20 px-3 py-1.5 rounded-xl flex items-center justify-between md:justify-start gap-2 shadow-sm">
                        <span>الإجمالي</span>
                        <span className="bg-brand-red text-white px-2 py-0.5 rounded-md font-sans">{totalAttendedToday}</span>
