@@ -86,19 +86,37 @@ interface Lecture {
   isActive: boolean;
 }
 
-// Global precise timer helpers
+// Global precise timer helpers (Forced to Egypt Timezone)
 const getLocalDateStr = () => {
-  const d = new Date();
-  const offset = d.getTimezoneOffset();
-  const local = new Date(d.getTime() - (offset * 60 * 1000));
-  return local.toISOString().split('T')[0];
+  try {
+    return new Intl.DateTimeFormat('en-CA', { 
+      timeZone: 'Africa/Cairo', 
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit' 
+    }).format(new Date());
+  } catch (e) {
+    const d = new Date();
+    const offset = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - (offset * 60 * 1000));
+    return local.toISOString().split('T')[0];
+  }
 };
 
 const getLocalTimeStr = () => {
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2, '0');
-  const m = String(d.getMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
+  try {
+    const timeStr = new Intl.DateTimeFormat('en-GB', { 
+      timeZone: 'Africa/Cairo', 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    }).format(new Date());
+    const [h, m] = timeStr.split(':');
+    return `${h === '24' ? '00' : h}:${m}`;
+  } catch (e) {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }
 };
 
 // Calculates attendance points dynamically:
