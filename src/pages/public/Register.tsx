@@ -95,9 +95,24 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
     if (!fullName || !code || !password || !confirmPassword || !whatsappNumber || !church || !birthDate || !address) {
       setError("من فضلك املأ جميع الخانات");
+      import("../../lib/audio").then(m => m.playErrorSound());
+      return;
+    }
+
+    // Name validation: Arabic or English letters only, 3-50 characters
+    const nameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;
+    if (!nameRegex.test(fullName) || fullName.trim().length < 3 || fullName.length > 50) {
+      setError("يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)");
+      import("../../lib/audio").then(m => m.playErrorSound());
+      return;
+    }
+
+    // Phone validation: Egyptian format exactly 11 digits starting with 01
+    const phoneRegex = /^01[0125][0-9]{8}$/;
+    if (!phoneRegex.test(whatsappNumber)) {
+      setError("رقم الواتساب غير صحيح (يجب أن يكون ١١ رقم ويبدأ بـ 01)");
       import("../../lib/audio").then(m => m.playErrorSound());
       return;
     }
