@@ -182,6 +182,7 @@ export default function AdminAttendance() {
 
   // Logs Filter State
   const [logsFilterQuery, setLogsFilterQuery] = useState('');
+  const [logsCategoryFilter, setLogsCategoryFilter] = useState<'all' | 'OT' | 'NT' | 'S'>('all');
   const [liveFilterQuery, setLiveFilterQuery] = useState('');
   const [logsDateFilter, setLogsDateFilter] = useState('');
   const [simDate, setSimDate] = useState(getLocalDateStr());
@@ -2023,8 +2024,39 @@ export default function AdminAttendance() {
               </div>
 
               {/* Action Buttons & Filter */}
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative w-full sm:w-auto flex-1 max-w-sm">
+              <div className="flex flex-col xl:flex-row items-center gap-3 w-full">
+                <div className="flex bg-brand-cream/30 p-1.5 rounded-xl border border-brand-beige/5 w-full xl:w-auto overflow-x-auto hide-scrollbar shrink-0">
+                  <button
+                    onClick={() => setLogsCategoryFilter('all')}
+                    className={cn(
+                      "flex-none px-4 py-2 text-[10px] md:text-xs font-black transition-all rounded-lg whitespace-nowrap",
+                      logsCategoryFilter === 'all' ? "bg-white text-brand-text shadow-sm" : "text-brand-beige hover:text-brand-text"
+                    )}
+                  >الكل</button>
+                  <button
+                    onClick={() => setLogsCategoryFilter('OT')}
+                    className={cn(
+                      "flex-none px-4 py-2 text-[10px] md:text-xs font-black transition-all rounded-lg whitespace-nowrap",
+                      logsCategoryFilter === 'OT' ? "bg-white text-brand-text shadow-sm" : "text-brand-beige hover:text-brand-text"
+                    )}
+                  >طلاب اونلاين</button>
+                  <button
+                    onClick={() => setLogsCategoryFilter('NT')}
+                    className={cn(
+                      "flex-none px-4 py-2 text-[10px] md:text-xs font-black transition-all rounded-lg whitespace-nowrap",
+                      logsCategoryFilter === 'NT' ? "bg-white text-brand-text shadow-sm" : "text-brand-beige hover:text-brand-text"
+                    )}
+                  >طلاب الورشة</button>
+                  <button
+                    onClick={() => setLogsCategoryFilter('S')}
+                    className={cn(
+                      "flex-none px-4 py-2 text-[10px] md:text-xs font-black transition-all rounded-lg whitespace-nowrap",
+                      logsCategoryFilter === 'S' ? "bg-white text-brand-text shadow-sm" : "text-brand-beige hover:text-brand-text"
+                    )}
+                  >خدام</button>
+                </div>
+                
+                <div className="relative w-full xl:flex-1">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige opacity-50" />
                   <input
                     type="text"
@@ -2034,10 +2066,11 @@ export default function AdminAttendance() {
                     className="pl-4 pr-10 py-3 bg-white border border-brand-beige/15 rounded-2xl text-xs font-bold w-full focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all text-right"
                   />
                 </div>
+                
                 <button
                   onClick={handleExportExcel}
                   disabled={studentStats.length === 0}
-                  className="flex items-center justify-center gap-2.5 px-5 py-3 w-full sm:w-auto bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold text-xs rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
+                  className="flex items-center justify-center gap-2.5 px-5 py-3 w-full xl:w-auto bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold text-xs rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
                 >
                   <Download className="w-4 h-4" />
                   <span>تحميل كشف إكسل كامل</span>
@@ -2064,7 +2097,14 @@ export default function AdminAttendance() {
                   </thead>
                   <tbody className="divide-y divide-brand-beige/5">
                     {studentStats
-                      .filter(stat => !logsFilterQuery || stat.name.toLowerCase().includes(logsFilterQuery.toLowerCase()) || stat.code.includes(logsFilterQuery.toUpperCase()))
+                      .filter(stat => {
+                        const searchMatch = !logsFilterQuery || stat.name.toLowerCase().includes(logsFilterQuery.toLowerCase()) || stat.code.includes(logsFilterQuery.toUpperCase());
+                        let categoryMatch = true;
+                        if (logsCategoryFilter === 'OT') categoryMatch = stat.code.toUpperCase().startsWith('H');
+                        if (logsCategoryFilter === 'NT') categoryMatch = stat.code.toUpperCase().startsWith('N');
+                        if (logsCategoryFilter === 'S') categoryMatch = stat.code.toUpperCase().startsWith('S');
+                        return searchMatch && categoryMatch;
+                      })
                       .map((stat, idx) => (
                         <tr key={`${stat.uid || idx}-${idx}`} className="hover:bg-brand-cream/10 transition-colors font-bold text-[#1C0606]">
                         <td className="p-4 font-black text-brand-beige">{idx + 1}</td>
