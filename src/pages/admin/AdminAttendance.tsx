@@ -1984,76 +1984,115 @@ export default function AdminAttendance() {
 
         {/* TAB 3: ATTENDANCE LOGS & REPORTS */}
         {activeTab === 'logs' && (
-          <div className="space-y-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="space-y-1">
-                <h3 className="text-xl font-black text-brand-text">تقارير درجات الحضور الإجمالية</h3>
-                <p className="text-xs text-brand-beige font-semibold">تجميع درجات الحضور في السيزون النشط ({activeSeason?.name}) للطلاب.</p>
+          <div className="space-y-6">
+            <div className="space-y-1 text-right">
+              <h3 className="text-xl font-black text-brand-text">سجل الحضور الشامل</h3>
+              <p className="text-xs text-brand-beige font-semibold">تجميع درجات الحضور وتفاصيل الأيام في السيزون النشط ({activeSeason?.name}) للطلاب.</p>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col gap-3">
+              {/* Search */}
+              <div className="relative w-full">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige opacity-50" />
+                <input
+                  type="text"
+                  placeholder="ابحث عن الطالب بالاسم أو الكود..."
+                  value={logsFilterQuery}
+                  onChange={(e) => setLogsFilterQuery(e.target.value)}
+                  className="w-full pr-12 pl-4 py-3 bg-white border border-brand-beige/15 rounded-2xl text-xs font-bold focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all text-right shadow-sm"
+                />
               </div>
 
-              {/* Action Buttons & Filter */}
-              <div className="flex flex-col xl:flex-row items-center gap-3 w-full">
-
-                <div className="relative w-full xl:flex-1">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige opacity-50" />
-                  <input
-                    type="text"
-                    placeholder="بحث بالاسم أو الكود..."
-                    value={logsFilterQuery}
-                    onChange={(e) => setLogsFilterQuery(e.target.value)}
-                    className="pl-4 pr-10 py-3 bg-white border border-brand-beige/15 rounded-2xl text-xs font-bold w-full focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all text-right"
-                  />
+              {/* Date Filter & Export */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative w-full sm:flex-1">
+                  <select
+                    value={logsDateFilter}
+                    onChange={(e) => setLogsDateFilter(e.target.value)}
+                    className="w-full pl-4 pr-10 py-3 bg-white border border-brand-beige/15 rounded-2xl text-xs font-bold focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all appearance-none text-right cursor-pointer shadow-sm"
+                  >
+                    <option value="">كل التواريخ (عرض السجل الكامل)</option>
+                    {Array.from(new Set(attendanceLogs.map(l => l.date))).sort().reverse().map(date => (
+                      <option key={date} value={date}>{date}</option>
+                    ))}
+                  </select>
+                  <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige opacity-50 pointer-events-none" />
                 </div>
                 
                 <button
                   onClick={handleExportExcel}
-                  disabled={studentStats.length === 0}
-                  className="flex items-center justify-center gap-2.5 px-5 py-3 w-full xl:w-auto bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold text-xs rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
+                  disabled={attendanceLogs.length === 0}
+                  className="flex items-center justify-center gap-2.5 px-5 py-3 w-full sm:w-auto bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold text-xs rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
                 >
                   <Download className="w-4 h-4" />
-                  <span>تحميل كشف إكسل كامل</span>
+                  <span>تحميل كشف إكسل</span>
                 </button>
               </div>
             </div>
 
-            {/* Aggregated Scoreboard Table */}
-            <div className="border border-brand-beige/10 rounded-3xl overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-right border-collapse text-xs sm:text-sm font-sans">
-                  <thead>
-                    <tr className="bg-brand-cream/60 border-b border-brand-beige/10 text-brand-beige text-[10px] font-black uppercase tracking-widest">
+            {/* Unified Table */}
+            <div className="border border-brand-beige/10 rounded-3xl overflow-hidden shadow-sm bg-white">
+              <div className="overflow-x-auto max-h-[600px] custom-scrollbar">
+                <table className="w-full text-right border-collapse text-xs sm:text-sm font-sans relative">
+                  <thead className="sticky top-0 bg-brand-cream/95 backdrop-blur z-10">
+                    <tr className="border-b border-brand-beige/10 text-brand-beige text-[10px] font-black uppercase tracking-widest">
                       <th className="p-4">الترتيب</th>
                       <th className="p-4">العضو</th>
                       <th className="p-4">الكود</th>
                       <th className="p-4">الفئة/المجموعة</th>
-
-                      <th className="p-4 text-center">إجمالي حضورك</th>
-                      <th className="p-4 text-left font-sans text-brand-red">إجمالي نقاط الحضور</th>
+                      <th className="p-4 text-center">تاريخ وساعة الحضور</th>
+                      <th className="p-4 text-center">المحاضرة</th>
+                      <th className="p-4 text-center text-brand-red">نقاط اليوم</th>
+                      <th className="p-4 text-left font-sans text-brand-text">إجمالي النقاط</th>
+                      <th className="p-4 text-center">إجراءات</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-brand-beige/5">
-                    {studentStats
-                      .filter(stat => {
-                        const searchMatch = !logsFilterQuery || stat.name.toLowerCase().includes(logsFilterQuery.toLowerCase()) || stat.code.includes(logsFilterQuery.toUpperCase());
-                        let categoryMatch = true;
-                        if (logsCategoryFilter === 'OT') categoryMatch = stat.code.toUpperCase().startsWith('H');
-                        if (logsCategoryFilter === 'NT') categoryMatch = stat.code.toUpperCase().startsWith('N');
-                        if (logsCategoryFilter === 'S') categoryMatch = stat.code.toUpperCase().startsWith('S');
-                        return searchMatch && categoryMatch;
-                      })
-                      .map((stat, idx) => (
-                        <tr key={`${stat.uid || idx}-${idx}`} className="hover:bg-brand-cream/10 transition-colors font-bold text-[#1C0606]">
-                        <td className="p-4 font-black text-brand-beige">{idx + 1}</td>
-                        <td className="p-4 font-black">{stat.name}</td>
-                        <td className="p-4 font-mono font-black">{stat.code}</td>
-                        <td className="p-4">{stat.team}</td>
+                    {attendanceLogs
+                      .filter(log => !logsFilterQuery || log.studentName.toLowerCase().includes(logsFilterQuery.toLowerCase()) || log.studentCode.includes(logsFilterQuery.toUpperCase()))
+                      .filter(log => !logsDateFilter || log.date === logsDateFilter)
+                      .map((log, idx) => {
+                        const stat = studentStats.find(s => s.uid === log.studentId);
+                        const totalPoints = stat ? stat.totalPoints : 0;
+                        const group = stat ? stat.team : 'غير محدد';
+                        
+                        return (
+                          <tr key={`${log.id || idx}-${idx}`} className="hover:bg-brand-cream/10 transition-colors font-bold text-[#1C0606] group">
+                            <td className="p-4 font-black text-brand-beige">{idx + 1}</td>
+                            <td className="p-4 font-black">{log.studentName}</td>
+                            <td className="p-4 font-mono font-black text-[10px] text-brand-beige">{log.studentCode}</td>
+                            <td className="p-4 text-xs">{group}</td>
+                            <td className="p-4 text-center text-[10px] text-brand-beige">
+                               <span className="block font-bold text-brand-text">{log.date}</span>
+                               <span className="font-mono">{log.scanTime || "00:00"}</span>
+                            </td>
+                            <td className="p-4 text-center text-[10px] text-brand-beige max-w-[120px] truncate">{log.lectureName || 'محاضرة مخصصة'}</td>
+                            <td className="p-4 text-center font-black text-brand-red font-sans">+{log.points}</td>
+                            <td className="p-4 text-left font-black text-brand-text font-sans">{totalPoints}</td>
+                            <td className="p-4 text-center">
+                              <div className="flex items-center justify-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
+                                <button 
+                                  onClick={() => handleEditPoints(log)}
+                                  className="p-1.5 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                  title="تعديل درجات الحضور"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </button>
+                                <button 
+                                  onClick={() => handleRevertAttendance(log)}
+                                  className="p-1.5 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                  title="إلغاء هذا الحضور"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                    })}
 
-                        <td className="p-4 text-center font-black text-brand-text">{stat.totalCount} أيام</td>
-                        <td className="p-4 text-left font-black text-brand-red font-sans">{stat.totalPoints} نقطة</td>
-                      </tr>
-                    ))}
-
-                    {studentStats.length === 0 && (
+                    {attendanceLogs.length === 0 && (
                       <tr>
                         <td colSpan={9} className="p-10 text-center text-brand-beige opacity-35 font-bold">
                           لا توجد إحصائيات حضور مسجلة لهذا السيزون بعد.
@@ -2064,67 +2103,6 @@ export default function AdminAttendance() {
                 </table>
               </div>
             </div>
-
-            {/* Journal of detailed chronologies */}
-            <div className="space-y-4 pt-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h3 className="text-lg font-black text-brand-text">يوميات الحضور التفصيلية</h3>
-                
-                {/* Date Filter */}
-                <div className="relative">
-                  <select
-                    value={logsDateFilter}
-                    onChange={(e) => setLogsDateFilter(e.target.value)}
-                    className="pl-4 pr-10 py-2 bg-white border border-brand-beige/15 rounded-xl text-xs font-bold w-full sm:w-auto focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all appearance-none text-right cursor-pointer"
-                  >
-                    <option value="">كل التواريخ</option>
-                    {Array.from(new Set(attendanceLogs.map(l => l.date))).sort().reverse().map(date => (
-                      <option key={date} value={date}>{date}</option>
-                    ))}
-                  </select>
-                  <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige opacity-50 pointer-events-none" />
-                </div>
-              </div>
-              
-              <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar border border-brand-beige/5 p-4 rounded-3xl bg-brand-cream/10">
-                {attendanceLogs
-                  .filter(log => !logsFilterQuery || log.studentName.toLowerCase().includes(logsFilterQuery.toLowerCase()) || log.studentCode.includes(logsFilterQuery.toUpperCase()))
-                  .filter(log => !logsDateFilter || log.date === logsDateFilter)
-                  .map((log, idx) => (
-                  <div key={`${log.id || idx}-${idx}`} className="bg-white p-4 rounded-2xl border border-brand-beige/10 flex items-center justify-between group font-bold">
-                    <div className="text-right">
-                      <h4 className="font-extrabold text-sm text-brand-text">{log.studentName}</h4>
-                      <p className="text-[10px] text-brand-beige font-black mt-1">
-                        تاريخ الحضور: {log.date} | ساعة الحضور (الساعة): <span className="text-brand-text font-mono font-bold">{log.scanTime || "00:00"}</span> | نوع الاجتماع: {log.meetingType === 'OT' ? 'طلاب اونلاين' : log.meetingType === 'NT' ? 'طلاب الورشة' : 'عام'} | الممنوح: <span className="text-brand-red">+{log.points} نقطة</span>
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-[9px] bg-brand-cream px-2 py-1 rounded-sm text-brand-beige font-black">{log.studentCode}</span>
-                      <button 
-                        onClick={() => handleEditPoints(log)}
-                        className="p-2 text-brand-beige opacity-30 hover:opacity-100 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
-                        title="تعديل درجات الحضور"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleRevertAttendance(log)}
-                        className="p-2 text-brand-beige opacity-30 hover:opacity-100 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                        title="إلغاء هذا الحضور"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                {attendanceLogs.length === 0 && (
-                  <p className="text-center text-xs text-brand-beige py-6 opacity-35 font-bold">لم يحضر أي طالب بعد اليوم.</p>
-                )}
-              </div>
-            </div>
-
           </div>
         )}
 
