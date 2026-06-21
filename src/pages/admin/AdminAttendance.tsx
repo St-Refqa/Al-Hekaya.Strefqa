@@ -1985,9 +1985,34 @@ export default function AdminAttendance() {
         {/* TAB 3: ATTENDANCE LOGS & REPORTS */}
         {activeTab === 'logs' && (
           <div className="space-y-6">
-            <div className="space-y-1 text-right">
-              <h3 className="text-xl font-black text-brand-text">سجل الحضور الشامل</h3>
-              <p className="text-xs text-brand-beige font-semibold">تجميع درجات الحضور وتفاصيل الأيام في السيزون النشط ({activeSeason?.name}) للطلاب.</p>
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+              <div className="space-y-1 text-right">
+                <h3 className="text-xl font-black text-brand-text">سجل الحضور الشامل</h3>
+                <p className="text-xs text-brand-beige font-semibold">تجميع درجات الحضور وتفاصيل الأيام في السيزون النشط ({activeSeason?.name}) للطلاب.</p>
+              </div>
+
+              {/* Group Filters */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'all', label: 'الجميع' },
+                  { id: 'OT', label: 'طلاب اونلاين (H)' },
+                  { id: 'NT', label: 'طلاب الورشة (N)' },
+                  { id: 'S', label: 'الخدام (S)' }
+                ].map((g, idx) => (
+                  <button
+                    key={`${g.id}-${idx}`}
+                    onClick={() => setLogsCategoryFilter(g.id as any)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                      logsCategoryFilter === g.id 
+                        ? "bg-brand-text text-white border-brand-text" 
+                        : "bg-brand-cream/30 text-brand-text border-brand-beige/10 hover:border-brand-text/10"
+                    )}
+                  >
+                    {g.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Filters */}
@@ -2052,6 +2077,13 @@ export default function AdminAttendance() {
                     {attendanceLogs
                       .filter(log => !logsFilterQuery || log.studentName.toLowerCase().includes(logsFilterQuery.toLowerCase()) || log.studentCode.includes(logsFilterQuery.toUpperCase()))
                       .filter(log => !logsDateFilter || log.date === logsDateFilter)
+                      .filter(log => {
+                        if (logsCategoryFilter === 'all') return true;
+                        if (logsCategoryFilter === 'OT') return log.studentCode.toUpperCase().startsWith('H');
+                        if (logsCategoryFilter === 'NT') return log.studentCode.toUpperCase().startsWith('N');
+                        if (logsCategoryFilter === 'S') return log.studentCode.toUpperCase().startsWith('S');
+                        return true;
+                      })
                       .map((log, idx) => {
                         const stat = studentStats.find(s => s.uid === log.studentId);
                         const totalPoints = stat ? stat.totalPoints : 0;
