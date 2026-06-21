@@ -635,8 +635,8 @@ const StudentDetail: React.FC = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white rounded-[32px] overflow-hidden border border-brand-beige/10">
-                  <table className="w-full text-right">
+                <div className="bg-white rounded-[32px] overflow-hidden overflow-x-auto border border-brand-beige/10">
+                  <table className="w-full text-right min-w-[600px]">
                     <thead className="bg-brand-cream/50 text-brand-beige text-[10px] font-black uppercase tracking-widest border-b border-brand-beige/10">
                       <tr>
                         <th className="px-8 py-6">اسم الاختبار</th>
@@ -718,8 +718,8 @@ const StudentDetail: React.FC = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-6"
               >
-                <div className="bg-white rounded-[32px] overflow-hidden border border-brand-beige/10">
-                  <table className="w-full text-right">
+                <div className="bg-white rounded-[32px] overflow-hidden overflow-x-auto border border-brand-beige/10">
+                  <table className="w-full text-right min-w-[600px]">
                     <thead className="bg-brand-cream/50 text-brand-beige text-[10px] font-black uppercase tracking-widest border-b border-brand-beige/10">
                       <tr>
                         <th className="px-8 py-6">المنتج</th>
@@ -864,8 +864,8 @@ const StudentDetail: React.FC = () => {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto space-y-6"
               >
-                <div className="bg-white rounded-[32px] overflow-hidden border border-brand-beige/10">
-                  <table className="w-full text-right">
+                <div className="bg-white rounded-[32px] overflow-hidden overflow-x-auto border border-brand-beige/10">
+                  <table className="w-full text-right min-w-[600px]">
                     <thead className="bg-brand-cream/50 text-brand-beige text-[10px] font-black uppercase tracking-widest border-b border-brand-beige/10">
                       <tr>
                         <th className="px-8 py-6">الوقت والتاريخ</th>

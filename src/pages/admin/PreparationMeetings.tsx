@@ -421,11 +421,11 @@ export default function PreparationMeetings() {
 
       {/* Modern Booklet / Saturday Navigation Panel - hidden on print */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-brand-cream/30 p-3 rounded-[28px] border border-brand-beige/12 print:hidden shadow-sm">
-        <div className="grid grid-cols-3 gap-2 w-full lg:w-auto">
+        <div className="flex overflow-x-auto custom-scrollbar hide-scrollbar gap-2 w-full lg:w-auto">
           <button
             id="tab-booklet"
             onClick={() => { setActiveTab('booklet'); }}
-            className={`py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+            className={`flex-none whitespace-nowrap py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
               activeTab === 'booklet'
                 ? 'bg-brand-red text-white shadow-lg'
                 : 'text-brand-text hover:text-brand-red hover:bg-white/50'
@@ -438,7 +438,7 @@ export default function PreparationMeetings() {
           <button
             id="tab-saturday"
             onClick={() => { setActiveTab('saturday'); }}
-            className={`py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+            className={`flex-none whitespace-nowrap py-3 px-4 rounded-[18px] font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
               activeTab === 'saturday'
                 ? 'bg-brand-red text-white shadow-lg'
                 : 'text-brand-text hover:text-brand-red hover:bg-white/50'
@@ -739,8 +739,8 @@ export default function PreparationMeetings() {
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-3xl border border-brand-beige/10 overflow-hidden shadow-sm">
-              <table className="w-full text-right text-xs md:text-sm">
+            <div className="bg-white rounded-3xl border border-brand-beige/10 overflow-hidden shadow-sm overflow-x-auto">
+              <table className="w-full text-right text-xs md:text-sm min-w-[600px]">
                 <thead>
                   <tr className="bg-brand-cream/40 border-b border-brand-beige/10 font-bold text-brand-text">
                     <th className="p-4 text-center w-20">تاريخ السبت</th>

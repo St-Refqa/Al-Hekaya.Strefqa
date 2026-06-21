@@ -645,8 +645,8 @@ export default function ResultsDashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4 border-t border-brand-beige/5 pt-6 justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 bg-brand-cream/30 p-1 rounded-xl border border-brand-beige/10">
+            <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto hide-scrollbar custom-scrollbar pb-1">
+              <div className="flex items-center gap-2 bg-brand-cream/30 p-1 rounded-xl border border-brand-beige/10 flex-none">
                 <button
                   onClick={() => setStatusFilter("all")}
                   className={cn(

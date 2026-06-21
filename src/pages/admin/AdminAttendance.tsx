@@ -1118,7 +1118,7 @@ export default function AdminAttendance() {
       </div>
 
       {/* Tabs Switcher */}
-      <div className="flex flex-wrap gap-2.5 bg-brand-text p-1.5 rounded-[24px]">
+      <div className="flex overflow-x-auto custom-scrollbar hide-scrollbar gap-2.5 bg-brand-text p-1.5 rounded-[24px]">
         {[
           { id: 'scan', label: 'ماسح الـ QR للطلاب', icon: QrCode },
           { id: 'manual', label: 'تسجيل يدوي سريع', icon: Users },
@@ -1136,7 +1136,7 @@ export default function AdminAttendance() {
                 setActiveTab(tab.id as any);
               }}
               className={cn(
-                "flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-black text-xs transition-all uppercase tracking-tight",
+                "flex-none flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-black text-xs transition-all uppercase tracking-tight whitespace-nowrap",
                 isActive 
                   ? "bg-brand-red text-white shadow-md shadow-brand-red/10 animate-fade-in" 
                   : "text-white/40 hover:text-white"
@@ -1604,7 +1604,7 @@ export default function AdminAttendance() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-brand-beige/10 rounded-2xl overflow-hidden min-h-[160px] max-h-[300px] overflow-y-auto custom-scrollbar">
+                <div className="bg-white border border-brand-beige/10 rounded-2xl overflow-hidden min-h-[160px] max-h-[300px] overflow-y-auto overflow-x-auto custom-scrollbar">
                   {todaysMeetingLogs.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center py-10 opacity-40">
                       <Users className="w-10 h-10 mb-2 opacity-50 text-brand-beige" />
