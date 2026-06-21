@@ -178,6 +178,9 @@ export default function AdminAttendance() {
 
   // Simulation / Code & Clock Testing States
   const [isTestMode, setIsTestMode] = useState(false);
+
+  // Logs Filter State
+  const [logsFilterQuery, setLogsFilterQuery] = useState('');
   const [simDate, setSimDate] = useState(getLocalDateStr());
   const [simTime, setSimTime] = useState('19:10');
   const [simCode, setSimCode] = useState('');
@@ -2003,15 +2006,27 @@ export default function AdminAttendance() {
                 <p className="text-xs text-brand-beige font-semibold">تجميع درجات الحضور في السيزون النشط ({activeSeason?.name}) للطلاب.</p>
               </div>
 
-              {/* Action Buttons */}
-              <button
-                onClick={handleExportExcel}
-                disabled={studentStats.length === 0}
-                className="flex items-center gap-2.5 px-5 py-3.5 bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold text-xs rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                <Download className="w-4 h-4" />
-                <span>تحميل كشف إكسل كامل لدفتر الدرجات</span>
-              </button>
+              {/* Action Buttons & Filter */}
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="relative w-full sm:w-auto flex-1 max-w-sm">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige opacity-50" />
+                  <input
+                    type="text"
+                    placeholder="بحث بالاسم أو الكود..."
+                    value={logsFilterQuery}
+                    onChange={(e) => setLogsFilterQuery(e.target.value)}
+                    className="pl-4 pr-10 py-3 bg-white border border-brand-beige/15 rounded-2xl text-xs font-bold w-full focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all text-right"
+                  />
+                </div>
+                <button
+                  onClick={handleExportExcel}
+                  disabled={studentStats.length === 0}
+                  className="flex items-center justify-center gap-2.5 px-5 py-3 w-full sm:w-auto bg-emerald-600 text-white hover:bg-emerald-700 font-extrabold text-xs rounded-2xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>تحميل كشف إكسل كامل</span>
+                </button>
+              </div>
             </div>
 
             {/* Aggregated Scoreboard Table */}
@@ -2032,8 +2047,10 @@ export default function AdminAttendance() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-brand-beige/5">
-                    {studentStats.map((stat, idx) => (
-                      <tr key={`${stat.uid || idx}-${idx}`} className="hover:bg-brand-cream/10 transition-colors font-bold text-[#1C0606]">
+                    {studentStats
+                      .filter(stat => !logsFilterQuery || stat.name.toLowerCase().includes(logsFilterQuery.toLowerCase()) || stat.code.includes(logsFilterQuery.toUpperCase()))
+                      .map((stat, idx) => (
+                        <tr key={`${stat.uid || idx}-${idx}`} className="hover:bg-brand-cream/10 transition-colors font-bold text-[#1C0606]">
                         <td className="p-4 font-black text-brand-beige">{idx + 1}</td>
                         <td className="p-4 font-black">{stat.name}</td>
                         <td className="p-4 font-mono font-black">{stat.code}</td>
@@ -2063,7 +2080,9 @@ export default function AdminAttendance() {
               <h3 className="text-lg font-black text-brand-text">يوميات الحضور التفصيلية</h3>
               
               <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar border border-brand-beige/5 p-4 rounded-3xl bg-brand-cream/10">
-                {attendanceLogs.map((log, idx) => (
+                {attendanceLogs
+                  .filter(log => !logsFilterQuery || log.studentName.toLowerCase().includes(logsFilterQuery.toLowerCase()) || log.studentCode.includes(logsFilterQuery.toUpperCase()))
+                  .map((log, idx) => (
                   <div key={`${log.id || idx}-${idx}`} className="bg-white p-4 rounded-2xl border border-brand-beige/10 flex items-center justify-between group font-bold">
                     <div className="text-right">
                       <h4 className="font-extrabold text-sm text-brand-text">{log.studentName}</h4>
