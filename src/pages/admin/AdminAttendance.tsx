@@ -181,6 +181,7 @@ export default function AdminAttendance() {
 
   // Logs Filter State
   const [logsFilterQuery, setLogsFilterQuery] = useState('');
+  const [liveFilterQuery, setLiveFilterQuery] = useState('');
   const [simDate, setSimDate] = useState(getLocalDateStr());
   const [simTime, setSimTime] = useState('19:10');
   const [simCode, setSimCode] = useState('');
@@ -1554,6 +1555,17 @@ export default function AdminAttendance() {
                        <span className="bg-amber-600 text-white px-2 py-0.5 rounded-md font-sans">{servantsAttendedCount}</span>
                     </div>
                     
+                    <div className="flex-1 md:flex-none relative">
+                      <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-beige opacity-60" />
+                      <input
+                        type="text"
+                        placeholder="بحث بالاسم أو الكود..."
+                        value={liveFilterQuery}
+                        onChange={(e) => setLiveFilterQuery(e.target.value)}
+                        className="pl-2 pr-7 py-1.5 bg-white border border-brand-beige/20 rounded-xl text-xs font-bold w-full md:w-48 focus:border-brand-red focus:ring-1 focus:ring-brand-red outline-none transition-all text-right"
+                      />
+                    </div>
+
                     <button
                       onClick={handlePrintTodayPDF}
                       disabled={todaysMeetingLogs.length === 0}
@@ -1609,7 +1621,9 @@ export default function AdminAttendance() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-brand-beige/10 font-bold text-brand-text">
-                        {todaysMeetingLogs.map((log, index) => (
+                        {todaysMeetingLogs
+                          .filter(log => !liveFilterQuery || log.studentName.toLowerCase().includes(liveFilterQuery.toLowerCase()) || log.studentCode.includes(liveFilterQuery.toUpperCase()))
+                          .map((log, index) => (
                            <tr key={log.id} className="hover:bg-brand-cream/40 transition-colors">
                               <td className="p-3 text-center text-brand-beige">{index + 1}</td>
                               <td className="p-3 text-sm font-extrabold">{log.studentName}</td>
