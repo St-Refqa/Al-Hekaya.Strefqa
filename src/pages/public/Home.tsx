@@ -448,15 +448,15 @@ export default function Home() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col items-center justify-center p-8 rounded-[40px] bg-white border border-brand-beige/10 hover:border-transparent transition-all shadow-sm hover:shadow-2xl hover:shadow-brand-beige/20 group relative overflow-hidden"
+                  className="flex flex-col items-center justify-center p-5 sm:p-6 rounded-[28px] sm:rounded-[32px] bg-white border border-brand-beige/10 hover:border-transparent transition-all shadow-sm hover:shadow-2xl hover:shadow-brand-beige/20 group relative overflow-hidden"
                 >
                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-cream/50 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                   <div className={cn("relative z-10 w-20 h-20 rounded-3xl flex items-center justify-center text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-xl mb-6", social.color)}>
-                      <social.icon className="w-10 h-10" />
+                   <div className={cn("relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl flex items-center justify-center text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-xl mb-4", social.color)}>
+                      <social.icon className="w-6 h-6 sm:w-8 sm:h-8" />
                    </div>
                    <div className="relative z-10 text-center">
-                      <span className="font-black text-brand-text text-2xl block mb-1 group-hover:text-brand-red transition-colors">{social.name}</span>
-                      <span className="text-[10px] font-black text-brand-beige uppercase tracking-wider">تابع حكاياتنا</span>
+                      <span className="font-black text-brand-text text-lg sm:text-xl block mb-1 group-hover:text-brand-red transition-colors">{social.name}</span>
+                      <span className="text-[9px] sm:text-[10px] font-black text-brand-beige uppercase tracking-wider">تابع حكاياتنا</span>
                    </div>
                 </motion.a>
               ))}
