@@ -179,6 +179,7 @@ export default function AdminAttendance() {
 
   // Simulation / Code & Clock Testing States
   const [isTestMode, setIsTestMode] = useState(false);
+  const [lectureToDelete, setLectureToDelete] = useState<string | null>(null);
 
   // Logs Filter State
   const [logsFilterQuery, setLogsFilterQuery] = useState('');
@@ -446,9 +447,9 @@ export default function AdminAttendance() {
   };
 
   const handleDeleteLecture = async (id: string) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذه المحاضرة؟")) return;
     try {
       await deleteDoc(doc(db, 'lectures', id));
+      setLectureToDelete(null);
     } catch (err) {
       console.error("Failed to delete lecture:", err);
     }
@@ -1986,15 +1987,15 @@ export default function AdminAttendance() {
                             setNewLecType(lec.meetingType);
                             document.querySelector('#form-create-prep-meeting')?.scrollIntoView({ behavior: 'smooth' }); // Scroll to creator form area
                           }}
-                          className="px-2 py-1.5 border border-brand-beige/25 hover:border-brand-text text-brand-beige hover:text-brand-text rounded-lg transition-all cursor-pointer"
+                          className="px-3 py-1.5 border border-brand-beige/40 bg-white hover:bg-brand-cream text-brand-text rounded-lg transition-all shadow-sm cursor-pointer"
                           title="تعديل المحاضرة"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteLecture(lec.id)}
-                          className="px-2 py-1.5 border border-brand-beige/25 hover:border-red-600 text-brand-beige hover:text-red-600 rounded-lg transition-all cursor-pointer"
+                          onClick={() => setLectureToDelete(lec.id)}
+                          className="px-3 py-1.5 border border-red-200 bg-white hover:bg-red-50 text-brand-red rounded-lg transition-all shadow-sm cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -2313,6 +2314,34 @@ export default function AdminAttendance() {
         )}
 
       </div>
+      {/* Delete Lecture Confirm Modal */}
+      {lectureToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#FFFDF9] w-full max-w-sm rounded-[32px] p-6 shadow-2xl relative border border-brand-beige/20 text-center">
+            <div className="w-16 h-16 bg-red-100 text-brand-red rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-black text-brand-text mb-2">تأكيد الحذف</h3>
+            <p className="text-brand-beige font-semibold text-sm mb-6">
+              هل أنت متأكد أنك تريد حذف هذه المحاضرة نهائياً؟
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setLectureToDelete(null)}
+                className="flex-1 py-3 bg-brand-cream text-brand-text font-black rounded-xl hover:bg-brand-beige/20 transition-all"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={() => handleDeleteLecture(lectureToDelete)}
+                className="flex-1 py-3 bg-brand-red text-white font-black rounded-xl hover:bg-red-700 transition-all shadow-md shadow-brand-red/20"
+              >
+                تأكيد الحذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
