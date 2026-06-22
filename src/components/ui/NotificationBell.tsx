@@ -132,18 +132,17 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
 
       // Trigger native browser/mobile notification for new arrivals (not in initial load)
       if (isInitialLoad.current) {
-        snapshot.docs.forEach(doc => seenNotifications.current.add(doc.id));
+        snapshot.docs.forEach((doc: any) => seenNotifications.current.add(doc.id));
         isInitialLoad.current = false;
       } else {
-        snapshot.docChanges().forEach(async (change) => {
-          if (change.type === "added") {
-            const notifId = change.doc.id;
-            if (!seenNotifications.current.has(notifId)) {
-              seenNotifications.current.add(notifId);
-              const matchesFiltered = data.find(n => n.id === notifId);
-              if (matchesFiltered) {
-                if (Capacitor.isNativePlatform()) {
-                  try {
+        snapshot.docs.forEach(async (doc: any) => {
+          const notifId = doc.id;
+          if (!seenNotifications.current.has(notifId)) {
+            seenNotifications.current.add(notifId);
+            const matchesFiltered = data.find(n => n.id === notifId);
+            if (matchesFiltered) {
+              if (Capacitor.isNativePlatform()) {
+                try {
                   await LocalNotifications.schedule({
                     notifications: [
                       {
@@ -159,10 +158,11 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
                 }
               } else if (Notification.permission === "granted") {
                 try {
+                  const logoPath = matchesFiltered.logoType === 'church' ? "/assets/logo-red.png" : "/assets/logo-beige.png";
                   new Notification(matchesFiltered.title, {
                     body: matchesFiltered.message,
-                    icon: "/assets/logo-red.png",
-                    badge: "/assets/logo-red.png",
+                    icon: logoPath,
+                    badge: logoPath,
                     dir: "rtl"
                   });
                 } catch (e) {
