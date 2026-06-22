@@ -54,9 +54,15 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
   const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuth(); // Add useAuth to get user details for code check
   const isInitialLoad = useRef(true);
+  const seenNotifications = useRef<Set<string>>(new Set());
+  const prevUserId = useRef<string | null>(null);
 
   useEffect(() => {
-    isInitialLoad.current = true;
+    if (userId !== prevUserId.current) {
+      isInitialLoad.current = true;
+      seenNotifications.current.clear();
+      prevUserId.current = userId || null;
+    }
     // Determine which notifications to show
     const q = query(
       collection(db, "notifications"),
@@ -126,15 +132,18 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
 
       // Trigger native browser/mobile notification for new arrivals (not in initial load)
       if (isInitialLoad.current) {
+        snapshot.docs.forEach(doc => seenNotifications.current.add(doc.id));
         isInitialLoad.current = false;
       } else {
         snapshot.docChanges().forEach(async (change) => {
           if (change.type === "added") {
             const notifId = change.doc.id;
-            const matchesFiltered = data.find(n => n.id === notifId);
-            if (matchesFiltered) {
-              if (Capacitor.isNativePlatform()) {
-                try {
+            if (!seenNotifications.current.has(notifId)) {
+              seenNotifications.current.add(notifId);
+              const matchesFiltered = data.find(n => n.id === notifId);
+              if (matchesFiltered) {
+                if (Capacitor.isNativePlatform()) {
+                  try {
                   await LocalNotifications.schedule({
                     notifications: [
                       {
@@ -192,6 +201,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
     try {
       const unread = notifications.filter(n => !(n.readBy || []).includes(userId));
       await Promise.all(unread.map(n => markAsRead(n.id)));
+      setIsOpen(false);
     } catch (err) {
       console.error("Error marking all as read:", err);
     }
