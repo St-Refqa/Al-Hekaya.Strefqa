@@ -37,7 +37,8 @@ import {
   Tag,
   Award,
   CheckCircle,
-  PlusCircle
+  PlusCircle,
+  User
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { formatDate, cn, toLocalDatetimeString } from "../../lib/utils";
@@ -72,6 +73,10 @@ export default function AssessmentCreator() {
   });
   const [participantCounts, setParticipantCounts] = useState({ OT: 0, NT: 0, servant: 0, total: 0 });
   const [error, setError] = useState<string | null>(null);
+  const [students, setStudents] = useState<{ uid: string; fullName: string; code: string }[]>([]);
+  const [isSpecificStudent, setIsSpecificStudent] = useState(false);
+  const [targetStudentCode, setTargetStudentCode] = useState("");
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
   const [editingQuestion, setEditingQuestion] = useState<{
     q: Question;
     diff: string;
@@ -207,6 +212,7 @@ export default function AssessmentCreator() {
         const q = query(collection(db, "users"));
         const snapshot = await getDocs(q);
         const counts = { OT: 0, NT: 0, servant: 0, total: 0 };
+        const studentList: { uid: string; fullName: string; code: string }[] = [];
         snapshot.docs.forEach(doc => {
           const data = doc.data();
           if (data.role === 'student') {
@@ -215,15 +221,36 @@ export default function AssessmentCreator() {
              if (upperCode.startsWith('H')) counts.OT++;
              else if (upperCode.startsWith('N')) counts.NT++;
              else if (upperCode.startsWith('S')) counts.servant++;
+             if (data.code && data.fullName) {
+               studentList.push({
+                 uid: doc.id,
+                 fullName: data.fullName,
+                 code: data.code
+               });
+             }
           }
         });
         setParticipantCounts(counts);
+        setStudents(studentList);
       } catch (err) {
         console.error("Error fetching user counts:", err);
       }
     };
     fetchCounts();
   }, []);
+
+  useEffect(() => {
+    if (formData.targetStudentCode && students.length > 0) {
+      setIsSpecificStudent(true);
+      setTargetStudentCode(formData.targetStudentCode);
+      const match = students.find(s => s.code.toUpperCase() === formData.targetStudentCode!.toUpperCase());
+      if (match) {
+        setStudentSearchQuery(`${match.fullName} (${match.code})`);
+      } else {
+        setStudentSearchQuery(formData.targetStudentCode);
+      }
+    }
+  }, [formData.targetStudentCode, students]);
 
   useEffect(() => {
     if (!isAuthorizedCreator) return;
@@ -449,14 +476,27 @@ export default function AssessmentCreator() {
         }
 
         if (publish) {
-          await notificationService.sendNotification({
+          const notificationParams: any = {
             title: "اختبار جديد متاح! 🚀",
             message: `تم نشر اختبار جديد: ${formData.title}. ابدأ الحل دلوقتي وزود نقاطك!`,
             type: "success",
             category: "assessments",
             targetRole: "student",
-            targetGroups: formData.targetGroup ? [formData.targetGroup] : ["all"]
-          });
+          };
+
+          if (formData.targetStudentCode) {
+            const targetStudent = students.find(
+              s => s.code.toUpperCase() === formData.targetStudentCode!.toUpperCase()
+            );
+            if (targetStudent) {
+              notificationParams.targetId = targetStudent.uid;
+              notificationParams.message = `تم نشر اختبار جديد مخصص لك: ${formData.title}. ابدأ الحل دلوقتي وزود نقاطك!`;
+            }
+          } else {
+            notificationParams.targetGroups = formData.targetGroup ? [formData.targetGroup] : ["all"];
+          }
+
+          await notificationService.sendNotification(notificationParams);
         }
 
         navigate(isAuthorizedCreator ? "/admin/assessments" : "/student");
@@ -910,6 +950,91 @@ export default function AssessmentCreator() {
                   </button>
                 ))}
               </div>
+
+              {/* Target specific student by code checkbox */}
+              <div className="mt-4 flex items-center gap-3 justify-end">
+                <label htmlFor="targetSpecificStudent" className="text-xs font-black text-brand-text cursor-pointer select-none">
+                  تخصيص لطالب محدد فقط (باستخدام الكود الشخصي) 👤
+                </label>
+                <input
+                  type="checkbox"
+                  id="targetSpecificStudent"
+                  checked={isSpecificStudent}
+                  onChange={(e) => {
+                    setIsSpecificStudent(e.target.checked);
+                    if (e.target.checked) {
+                      setFormData({ ...formData, targetGroup: 'all' });
+                    } else {
+                      setTargetStudentCode("");
+                      setStudentSearchQuery("");
+                      setFormData({ ...formData, targetStudentCode: "" });
+                    }
+                  }}
+                  className="w-4 h-4 text-brand-red rounded border-brand-beige/20 focus:ring-brand-red cursor-pointer"
+                />
+              </div>
+
+              {isSpecificStudent && (
+                <div className="mt-3 p-5 bg-brand-cream/30 border border-brand-beige/10 rounded-3xl space-y-3 text-right">
+                  <label className="block text-[10px] font-black uppercase text-brand-beige">
+                    ابحث عن الطالب أو اكتب الكود الخاص به:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="ابحث بالاسم أو الكود (مثال: H101)..."
+                      value={studentSearchQuery}
+                      onChange={(e) => {
+                        setStudentSearchQuery(e.target.value);
+                        const queryVal = e.target.value.trim().toUpperCase();
+                        setTargetStudentCode("");
+                        setFormData(prev => ({ ...prev, targetStudentCode: "" }));
+
+                        const match = students.find(s => s.code.toUpperCase() === queryVal);
+                        if (match) {
+                          setTargetStudentCode(match.code);
+                          setFormData(prev => ({ ...prev, targetStudentCode: match.code }));
+                        }
+                      }}
+                      className="w-full bg-white border border-brand-beige/15 rounded-2xl p-3.5 text-xs font-bold focus:border-brand-red focus:outline-none text-right"
+                    />
+                    
+                    {/* Autocomplete Results Dropdown */}
+                    {studentSearchQuery && !targetStudentCode && (
+                      <div className="absolute z-20 left-0 right-0 mt-1.5 max-h-40 overflow-y-auto bg-white border border-brand-beige/15 rounded-2xl shadow-xl custom-scrollbar">
+                        {students
+                          .filter(
+                            s =>
+                              s.fullName.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+                              s.code.toLowerCase().includes(studentSearchQuery.toLowerCase())
+                          )
+                          .map((s, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                setTargetStudentCode(s.code);
+                                setFormData(prev => ({ ...prev, targetStudentCode: s.code }));
+                                setStudentSearchQuery(`${s.fullName} (${s.code})`);
+                              }}
+                              className="w-full text-right px-4 py-2.5 hover:bg-brand-cream/40 text-xs font-bold text-brand-text flex justify-between items-center border-b border-gray-50 last:border-b-0"
+                            >
+                              <span className="font-mono text-[10px] text-brand-red">{s.code}</span>
+                              <span>{s.fullName}</span>
+                            </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {targetStudentCode && (
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-emerald-600 justify-end">
+                      <span>محدد للاختبار: {students.find(s => s.code.toUpperCase() === targetStudentCode.toUpperCase())?.fullName} ({targetStudentCode})</span>
+                      <CheckCircle className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </section>

@@ -81,6 +81,7 @@ export interface Assessment {
   isReviewed?: boolean;
   targetGroup?: 'OT' | 'NT' | 'servant' | 'admin' | 'all';
   assessmentType?: 'reading-questions' | 'questions-only';
+  targetStudentCode?: string;
 }
 
 export interface Question {

@@ -578,7 +578,13 @@ export default function PublicAssessment() {
           const now = new Date();
           const expiryDate = new Date(data.expiresAt);
           const availableDate = data.availableFrom ? new Date(data.availableFrom) : null;
-          if (data.status !== "active") {
+          
+          const targetCode = data.targetStudentCode?.trim().toUpperCase();
+          const studentCode = authUser?.code?.trim().toUpperCase() || "";
+
+          if (targetCode && studentCode !== targetCode && authUser?.role !== 'admin') {
+            setError("عذراً، هذا الاختبار مخصص لطالب آخر ولا يمكن فتحه بحسابك.");
+          } else if (data.status !== "active") {
             setError("الاختبار ده مش متاح حالياً.");
           } else if (availableDate && availableDate > now) {
             setError(`الاختبار لسه ميعاده مجاش.`);
@@ -598,7 +604,7 @@ export default function PublicAssessment() {
       }
     };
     fetchAssessment();
-  }, [id]);
+  }, [id, authUser]);
 
   const startAssessment = async () => {
     if (!participantName || !participantPhone) {

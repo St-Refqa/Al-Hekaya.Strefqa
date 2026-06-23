@@ -181,15 +181,22 @@ export default function StudentDashboard() {
       );
       let allActive = data.filter((a) => a.status === "active" && new Date(a.expiresAt) > new Date());
       
-      // Filter based on target group for dashboard widget
+      // Filter based on target group or target student code for dashboard widget
       if (user) {
         allActive = allActive.filter(a => {
           if (user.role === 'admin') return true;
+          
+          const targetCode = a.targetStudentCode?.trim().toUpperCase();
+          const studentCode = user.code?.trim().toUpperCase() || "";
+
+          if (targetCode) {
+            return studentCode === targetCode;
+          }
+
           if (!a.targetGroup || a.targetGroup === 'all') return true;
-          const upperCode = user.code?.toUpperCase() || "";
-          if (a.targetGroup === 'servant' && user.role === 'student' && upperCode.startsWith('S')) return true;
-          if (a.targetGroup === 'OT' && user.role === 'student' && upperCode.startsWith('H')) return true;
-          if (a.targetGroup === 'NT' && user.role === 'student' && upperCode.startsWith('N')) return true;
+          if (a.targetGroup === 'servant' && user.role === 'student' && studentCode.startsWith('S')) return true;
+          if (a.targetGroup === 'OT' && user.role === 'student' && studentCode.startsWith('H')) return true;
+          if (a.targetGroup === 'NT' && user.role === 'student' && studentCode.startsWith('N')) return true;
           return false;
         });
       }
