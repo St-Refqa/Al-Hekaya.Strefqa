@@ -935,7 +935,7 @@ export default function AdminDashboard() {
                           الأسئلة
                         </p>
                         <p className="text-xl font-black text-brand-text tracking-tighter text-right">
-                          {Object.values(assessment.questions).flat().length}
+                          {(assessment.questions?.easy?.length || 0) + (assessment.questions?.medium?.length || 0) + (assessment.questions?.hard?.length || 0)}
                         </p>
                       </div>
                     </div>

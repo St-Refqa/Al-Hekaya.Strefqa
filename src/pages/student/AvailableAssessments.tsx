@@ -380,12 +380,12 @@ export default function AvailableAssessments() {
                             <span>{participantCounts[assessment.id!] || 0} {t('dashboard.participants')}</span>
                           </div>
                           <div className="flex items-center gap-2 text-brand-beige text-[11px] font-bold">
-                            <BookOpen className="w-4 h-4 text-brand-red/40" />
-                            <span>
-                              {Object.values(assessment.questions || {}).flat().length}{" "}
-                              {t('admin.questions_count')}
-                            </span>
-                          </div>
+                             <BookOpen className="w-4 h-4 text-brand-red/40" />
+                             <span>
+                               {(assessment.questions?.easy?.length || 0) + (assessment.questions?.medium?.length || 0) + (assessment.questions?.hard?.length || 0)}{" "}
+                               {t('admin.questions_count')}
+                             </span>
+                           </div>
                           {!isScheduled && (
                             <div className="flex items-center gap-2 text-brand-beige text-[11px] font-bold">
                               <Calendar className="w-4 h-4 text-brand-red/40" />

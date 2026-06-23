@@ -264,12 +264,13 @@ export default function AssessmentCreator() {
             const data = docSnap.data() as Assessment;
             if (data.questions) {
               const updatedQuestions = { ...data.questions };
-              Object.keys(updatedQuestions).forEach((diff) => {
-                updatedQuestions[diff as keyof typeof updatedQuestions] =
-                  updatedQuestions[diff as keyof typeof updatedQuestions].map((q) => ({
+              (['easy', 'medium', 'hard'] as const).forEach((diff) => {
+                if (updatedQuestions[diff]) {
+                  updatedQuestions[diff] = updatedQuestions[diff].map((q) => ({
                     ...q,
                     isReviewed: true,
                   }));
+                }
               });
               data.questions = updatedQuestions;
             }
@@ -385,8 +386,8 @@ export default function AssessmentCreator() {
       }
     };
 
-    const hasUnlockedQuestions = Object.values(formData.questions || {}).some(
-      (arr) => arr.some((q) => !q.isLocked),
+    const hasUnlockedQuestions = (['easy', 'medium', 'hard'] as const).some(
+      (diff) => formData.questions?.[diff]?.some((q) => !q.isLocked)
     );
 
     if (hasUnlockedQuestions) {
@@ -413,7 +414,9 @@ export default function AssessmentCreator() {
       return;
     }
 
-    const allQuestions = Object.values(formData.questions || {}).flat();
+    const allQuestions = (['easy', 'medium', 'hard'] as const).flatMap(
+      (diff) => formData.questions?.[diff] || []
+    );
     if (allQuestions.length === 0) {
       setError("Please generate or add questions before saving.");
       return;
@@ -1453,9 +1456,9 @@ export default function AssessmentCreator() {
         </div>
 
         {/* Questions Preview */}
-        {Object.values(formData.questions || {}).some(
-          (arr) => arr.length > 0,
-        ) && (
+        {((['easy', 'medium', 'hard'] as const).some(
+          (diff) => (formData.questions?.[diff]?.length || 0) > 0
+        )) && (
           <section className="bg-brand-text rounded-[48px] p-12 text-white space-y-10">
             <div className="flex items-center justify-between border-b border-white/5 pb-8">
               <div className="flex items-center gap-4 text-right justify-end w-full">
@@ -1463,7 +1466,7 @@ export default function AssessmentCreator() {
                   <h2 className="text-2xl font-black">الأسئلة المتاحة</h2>
                   <p className="text-brand-beige/50 text-sm font-bold">
                     تم إنشاء{" "}
-                    {Object.values(formData.questions || {}).flat().length} سؤال
+                    {((['easy', 'medium', 'hard'] as const).flatMap((diff) => formData.questions?.[diff] || [])).length} سؤال
                     عبر المستويات المختلفة.
                   </p>
                 </div>
