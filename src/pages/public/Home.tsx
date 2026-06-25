@@ -39,6 +39,8 @@ const socialLinks = [
     href: "https://www.facebook.com/share/1Cqc7Fuhi3/?mibextid=wwXIfr",
     color: "bg-[#1877F2]",
     handle: "الحكاية ومافيها",
+    stat: "8.9K",
+    statLabel: "متابع",
   },
   {
     name: "Instagram",
@@ -46,6 +48,8 @@ const socialLinks = [
     href: "https://www.instagram.com/elhkaya0?igsh=MTQ5eGE3eHl4Mm5q&utm_source=qr",
     color: "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]",
     handle: "@elhkaya0",
+    stat: "2.2K",
+    statLabel: "متابع",
   },
   {
     name: "TikTok",
@@ -53,13 +57,17 @@ const socialLinks = [
     href: "https://www.tiktok.com/@elhkaya1?_r=1&_t=ZS-96KJ9nxg4bC",
     color: "bg-black",
     handle: "@elhkaya1",
+    stat: "3.4K",
+    statLabel: "متابع • 10.8K لايك",
   },
   {
     name: "WhatsApp",
     icon: FaWhatsapp,
     href: "https://wa.me/201055082964",
     color: "bg-[#25D366]",
-    handle: "تواصل معنا",
+    handle: "تواصل مباشر",
+    stat: "💬",
+    statLabel: "كلمنا دلوقتي",
   },
 ];
 
@@ -307,9 +315,17 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
-            className="text-brand-text/55 text-lg sm:text-xl font-bold max-w-2xl mx-auto leading-relaxed mb-4"
+            className="text-brand-text/55 text-lg sm:text-xl font-bold max-w-2xl mx-auto leading-relaxed mb-2"
           >
-            منصة تعليمية تفاعلية مبنية على محبة الكتاب المقدس — لأبناء الكنيسة وكل من يريد أن يتعلم ويستزيد
+            قصص تنور طريقك ❤️
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="text-brand-text/40 text-sm sm:text-base font-bold max-w-xl mx-auto leading-relaxed mb-4"
+          >
+            ورشة تفاعلية للكتاب المقدس بكنيسة القديسة رفقة وأولادها بالقناطر الخيرية
           </motion.p>
 
           {/* Bible Quote */}
@@ -361,7 +377,7 @@ export default function Home() {
           >
             {[
               { val: "+١٠٠", label: "كنيسة بتستخدم ورشنا" },
-              { val: "+٢١٣٨", label: "متابع على السوشيال" },
+              { val: "+١٤K", label: "متابع على السوشيال" },
               { val: "٢٠٢٥", label: "بداية الرحلة" },
             ].map((s, i) => (
               <motion.div
@@ -563,7 +579,7 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -8, scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex flex-col items-center gap-4 py-8 px-4 bg-white rounded-[24px] border border-brand-beige/10 shadow-sm hover:shadow-xl hover:shadow-black/5 hover:border-transparent transition-all group relative overflow-hidden"
+                className="flex flex-col items-center gap-3 py-8 px-4 bg-white rounded-[24px] border border-brand-beige/10 shadow-sm hover:shadow-xl hover:shadow-black/5 hover:border-transparent transition-all group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-cream/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className={cn("relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300", s.color)}>
@@ -571,7 +587,9 @@ export default function Home() {
                 </div>
                 <div className="relative z-10 text-center">
                   <p className="font-black text-brand-text text-sm group-hover:text-brand-red transition-colors">{s.name}</p>
-                  <p className="text-brand-beige text-[10px] font-black tracking-wide mt-0.5">{s.handle}</p>
+                  <p className="text-2xl font-black text-brand-text mt-1">{s.stat}</p>
+                  <p className="text-brand-beige text-[10px] font-black tracking-wide">{s.statLabel}</p>
+                  <p className="text-brand-beige/60 text-[9px] font-bold mt-0.5">{s.handle}</p>
                 </div>
               </motion.a>
             ))}
