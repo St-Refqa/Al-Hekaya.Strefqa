@@ -232,7 +232,7 @@ ${meeting.description}
               if (!mSnap.exists()) return;
               const currentMeeting = mSnap.data();
               if (!currentMeeting.reminderSent12h) {
-                transaction.update(meetingDocRef, { reminderSent12h: true });
+                await transaction.update(meetingDocRef, { reminderSent12h: true });
                 acquired12hLock = true;
               }
             });

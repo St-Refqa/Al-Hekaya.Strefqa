@@ -135,10 +135,29 @@ export default function PublicAssessment() {
     let streakCount = 1;
     const today = format(new Date(), "yyyy-MM-dd");
 
+    let targetUserId = authUser?.uid || null;
+
+    // If not logged in, try to resolve user ID by student code
+    if (!targetUserId && participantPhone) {
+      try {
+        const qCode = query(
+          collection(db, "users"),
+          where("code", "==", participantPhone.trim().toUpperCase()),
+          limit(1)
+        );
+        const userSnapByCode = await getDocs(qCode);
+        if (!userSnapByCode.empty) {
+          targetUserId = userSnapByCode.docs[0].id;
+        }
+      } catch (err) {
+        console.warn("Failed to find user by code:", err);
+      }
+    }
+
     try {
       await runTransaction(db, async (transaction) => {
         const participantRef = doc(db, "participants", participantPhone);
-        const userRef = authUser?.uid ? doc(db, "users", authUser.uid) : null;
+        const userRef = targetUserId ? doc(db, "users", targetUserId) : null;
         
         const participantSnap = await transaction.get(participantRef);
         const userSnap = userRef ? await transaction.get(userRef) : null;
@@ -156,14 +175,14 @@ export default function PublicAssessment() {
             streakCount = 1;
           }
 
-          transaction.set(participantRef, {
+          await transaction.set(participantRef, {
             name: participantName,
             phoneOrId: participantPhone,
             streakCount,
             lastCompletedDate: today,
           }, { merge: true });
         } else {
-          transaction.set(participantRef, {
+          await transaction.set(participantRef, {
             name: participantName,
             phoneOrId: participantPhone,
             streakCount: 1,
@@ -223,7 +242,7 @@ export default function PublicAssessment() {
             }).catch(console.error);
           }
 
-          transaction.update(userRef, updatedUser);
+          await transaction.update(userRef, updatedUser);
 
           // General Result Notification
           notificationService.sendNotification({
@@ -238,7 +257,7 @@ export default function PublicAssessment() {
       });
 
       const submission: Submission = {
-        participantId: authUser?.uid || participantPhone,
+        participantId: targetUserId || participantPhone,
         assessmentId: id!,
         participantName,
         participantPhoneOrId: participantPhone,
