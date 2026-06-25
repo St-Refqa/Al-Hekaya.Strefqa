@@ -24,6 +24,7 @@ import {
   Trash2,
   Search,
   UserPlus,
+  UserMinus,
   Shield,
   Ban,
   CheckCircle,
@@ -63,6 +64,11 @@ export default function UserManager() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeletedModalOpen, setIsDeletedModalOpen] = useState(false);
+  
+  const deletedUsers = useMemo(() => {
+    return users.filter(u => u.status === 'deleted');
+  }, [users]);
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [editingPointsUser, setEditingPointsUser] = useState<User | null>(null);
   const [newTotalPoints, setNewTotalPoints] = useState<number>(0);
@@ -415,29 +421,58 @@ export default function UserManager() {
     const user = userToDelete;
     setIsSubmitting(true);
     try {
+      // Soft Delete: update status to 'deleted'
+      await updateDoc(doc(db, "users", user.uid), {
+        status: 'deleted',
+        deletedAt: new Date().toISOString()
+      });
+
+      setNotification({ type: 'success', text: `تم حذف الطالب ${user.fullName} بنجاح. يمكنك استرجاعه من قائمة المحذوفات.` });
+      setTimeout(() => setNotification(null), 3000);
+      setUserToDelete(null); // Close modal only after success
+    } catch (err) {
+      console.error("Delete error:", err);
+      handleFirestoreError(err, OperationType.DELETE, `users/${user.uid}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRestoreUser = async (user: User) => {
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        status: 'active',
+        deletedAt: null
+      });
+      setNotification({ type: 'success', text: `تم استرجاع الطالب ${user.fullName} بنجاح` });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (err) {
+      console.error("Restore error:", err);
+      setNotification({ type: 'error', text: "حدث خطأ أثناء استرجاع الطالب" });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const handleHardDeleteUser = async (user: User) => {
+    if (!window.confirm(`هل أنت متأكد من حذف الطالب "${user.fullName}" نهائياً؟ لا يمكن التراجع عن هذا الإجراء وسيتم مسح جميع بياناته ونتائجه.`)) return;
+    setIsSubmitting(true);
+    try {
       const batch = writeBatch(db);
-      
       // 1. Delete user profile
       batch.delete(doc(db, "users", user.uid));
-      
       // 2. Delete participant record (streaks) if exists
       if (user.code) {
         batch.delete(doc(db, "participants", user.code.toLowerCase()));
       }
-
       // 3. Delete submissions
-      const subQ = query(collection(db, "submissions"), where("participantId", "==", user.uid));
-      const subSnap = await getDocs(subQ);
+      const subSnap = await getDocs(query(collection(db, "submissions"), where("participantId", "==", user.uid)));
       subSnap.forEach(d => batch.delete(d.ref));
-
       // 4. Delete login logs
-      const logQ = query(collection(db, "loginLogs"), where("code", "==", user.code || ""));
-      const logSnap = await getDocs(logQ);
+      const logSnap = await getDocs(query(collection(db, "loginLogs"), where("uid", "==", user.uid)));
       logSnap.forEach(d => batch.delete(d.ref));
 
       await batch.commit();
-      setUserToDelete(null); // Close modal only after success
-      setNotification({ type: 'success', text: "تم حذف الطالب بنجاح" });
+      setNotification({ type: 'success', text: `تم حذف الطالب ${user.fullName} نهائياً وبنجاح` });
       setTimeout(() => setNotification(null), 3000);
     } catch (err: any) {
       console.error("Delete error:", err);
@@ -446,6 +481,7 @@ export default function UserManager() {
       setIsSubmitting(false);
     }
   };
+
 
   const handleClearAllUsers = async () => {
     try {
@@ -521,7 +557,7 @@ export default function UserManager() {
 
   const onlineStudentsCount = useMemo(() => {
     return users.filter(u => {
-      if (u.role !== 'student' || !u.lastActive) return false;
+      if (u.role !== 'student' || u.status === 'deleted' || !u.lastActive) return false;
       const lastActiveTime = new Date(u.lastActive).getTime();
       return (now - lastActiveTime) < 120000;
     }).length;
@@ -529,7 +565,7 @@ export default function UserManager() {
 
   const offlineStudentsCount = useMemo(() => {
     return users.filter(u => {
-      if (u.role !== 'student') return false;
+      if (u.role !== 'student' || u.status === 'deleted') return false;
       if (!u.lastActive) return true;
       const lastActiveTime = new Date(u.lastActive).getTime();
       return (now - lastActiveTime) >= 120000;
@@ -539,6 +575,7 @@ export default function UserManager() {
   const filteredUsers = users.filter(
     (u) => {
       if (u.role === "admin") return false;
+      if (u.status === 'deleted') return false;
 
       const isServant = (u.role as string) === "servant" || u.code?.toUpperCase().startsWith('S');
       const isStudent = !isServant;
@@ -596,6 +633,19 @@ export default function UserManager() {
             >
               <Trash2 className="w-4 h-4 md:w-5 md:h-5 shrink-0" />
               <span className="truncate">{t('userManager.clear_all')}</span>
+            </button>
+            <button
+              onClick={() => setIsDeletedModalOpen(true)}
+              className="flex-1 lg:flex-initial flex items-center justify-center gap-2 px-5 py-3.5 bg-white border border-brand-beige/25 text-brand-beige hover:text-brand-red rounded-2xl shadow-sm hover:bg-brand-cream hover:border-brand-beige/40 active:scale-95 transition-all text-xs md:text-sm cursor-pointer relative"
+              title="الطلاب المحذوفين"
+            >
+              <UserMinus className="w-4 h-4 md:w-5 md:h-5 text-rose-500 shrink-0" />
+              <span className="truncate">المحذوفين</span>
+              {deletedUsers.length > 0 && (
+                <span className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-brand-red text-white text-[9px] font-black rounded-full flex items-center justify-center border border-white animate-bounce">
+                  {deletedUsers.length}
+                </span>
+              )}
             </button>
             <button
               onClick={exportUsers}
@@ -684,7 +734,7 @@ export default function UserManager() {
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => u.role !== 'admin' && !((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('H')).length}
+              {users.filter(u => u.role !== 'admin' && u.status !== 'deleted' && !((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('H')).length}
             </span>
           </button>
 
@@ -706,7 +756,7 @@ export default function UserManager() {
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => u.role !== 'admin' && !((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('N')).length}
+              {users.filter(u => u.role !== 'admin' && u.status !== 'deleted' && !((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')) && u.code?.toUpperCase().startsWith('N')).length}
             </span>
           </button>
           
@@ -729,7 +779,7 @@ export default function UserManager() {
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => (u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S')).length}
+              {users.filter(u => u.status !== 'deleted' && ((u.role as string) === 'servant' || u.code?.toUpperCase().startsWith('S'))).length}
             </span>
           </button>
 
@@ -751,7 +801,7 @@ export default function UserManager() {
                 ? "bg-white/20 text-white" 
                 : "bg-brand-cream text-brand-red"
             )}>
-              {users.filter(u => u.role !== 'admin' && u.code?.toUpperCase().startsWith('P')).length}
+              {users.filter(u => u.role !== 'admin' && u.status !== 'deleted' && u.code?.toUpperCase().startsWith('P')).length}
             </span>
           </button>
         </div>
@@ -1478,6 +1528,76 @@ export default function UserManager() {
               </form>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isDeletedModalOpen && (
+          <div className="fixed inset-0 z-[450] flex items-center justify-center p-4 md:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDeletedModalOpen(false)}
+              className="absolute inset-0 bg-brand-text/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl md:rounded-[40px] p-6 md:p-10 shadow-2xl border border-brand-cream text-right flex flex-col z-10 max-h-[85vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-8 flex-row-reverse">
+                <div className="flex items-center gap-3 flex-row-reverse">
+                  <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
+                    <UserMinus className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-black text-brand-text">قائمة الطلاب المحذوفين</h3>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsDeletedModalOpen(false)} 
+                  className="p-2 hover:bg-brand-cream rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-brand-beige" />
+                </button>
+              </div>
+
+              {deletedUsers.length === 0 ? (
+                <div className="py-12 text-center text-brand-beige font-black text-sm">
+                  لا يوجد طلاب محذوفين حالياً.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {deletedUsers.map((user) => (
+                    <div key={user.uid} className="flex flex-col sm:flex-row items-center justify-between p-4 bg-brand-cream/30 rounded-2xl border border-brand-beige/5 gap-4">
+                      <div className="text-right w-full sm:w-auto">
+                        <p className="font-black text-brand-text text-sm">{user.fullName}</p>
+                        <p className="text-[10px] text-brand-beige font-bold mt-1">كود: {user.code} | مجموعة: {user.code?.toUpperCase().startsWith('H') ? 'أونلاين' : 'الورشة'}</p>
+                        {user.deletedAt && (
+                          <p className="text-[9px] text-rose-500 font-bold mt-0.5">تاريخ الحذف: {formatDate(user.deletedAt)}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button
+                          onClick={() => handleRestoreUser(user)}
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all cursor-pointer"
+                        >
+                          استرجاع
+                        </button>
+                        <button
+                          onClick={() => handleHardDeleteUser(user)}
+                          className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-black transition-all cursor-pointer"
+                        >
+                          حذف نهائي
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
