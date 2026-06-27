@@ -393,6 +393,18 @@ export default function Home() {
                      >
                       تسجيل حساب جديد الآن
                      </motion.button>
+                     
+                     <div className="mt-6 pt-4 border-t border-brand-beige/10 flex justify-center">
+                       <motion.button 
+                         whileHover={{ scale: 1.05 }}
+                         whileTap={{ scale: 0.95 }}
+                         onClick={() => navigate("/about")}
+                         className="flex items-center gap-2 text-brand-text/70 font-black text-sm hover:text-brand-red transition-colors group"
+                       >
+                         <BookOpen className="w-4 h-4 text-brand-beige group-hover:text-brand-red transition-colors" />
+                         عن المنصة والحكاية ومافيها
+                       </motion.button>
+                     </div>
                   </div>
                 </div>
               </div>

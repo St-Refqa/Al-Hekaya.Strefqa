@@ -20,6 +20,7 @@ interface AppNotification {
   isRead: boolean;
   targetId?: string;
   readBy?: string[];
+  logoType?: "default" | "user" | string;
 }
 
 const getNotifStyles = (type: string) => {

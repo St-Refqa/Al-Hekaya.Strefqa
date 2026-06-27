@@ -135,38 +135,7 @@ export function AntiCheatGuard() {
         }
       `}</style>
 
-      {/* Elegant, high-security Shield overlay if focus is lost (e.g. screenshot trigger, tab switch) */}
-      {isBlurred && (
-        <div 
-          className="fixed inset-0 z-[999999] bg-brand-cream/90 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none"
-          dir="rtl"
-        >
-          <div className="bg-white p-8 md:p-12 rounded-[40px] border border-brand-beige/20 shadow-2xl max-w-md w-full animate-tada flex flex-col items-center">
-            <div className="w-20 h-20 bg-brand-red/10 rounded-full flex items-center justify-center mb-6 text-brand-red">
-              <ShieldAlert className="w-10 h-10 animate-pulse" />
-            </div>
-
-            <h2 className="text-2xl font-black text-brand-text mb-4">
-              حماية نزاهة الأسئلة نشطة 🛡️
-            </h2>
-            
-            <p className="text-brand-text/70 text-sm leading-relaxed mb-6 font-medium">
-              تم كشف تصوير الشاشة أو مغادرة نافذة الاختبار. يُرجى حماية سرية الأسئلة والتركيز بالكامل داخل هذه الصفحة لإتخاذ النتيجة الصحيحة بنجاح.
-            </p>
-
-            <button
-              onClick={() => {
-                setIsBlurred(false);
-                window.focus();
-              }}
-              className="w-full bg-brand-red hover:bg-brand-red/90 text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-brand-red/20 transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2"
-            >
-              <EyeOff className="w-5 h-5" />
-              <span>العودة للمتابعة الآن</span>
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Elegant, high-security Shield overlay removed to prevent file-picker issues */}
     </>
   );
 }

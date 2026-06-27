@@ -156,7 +156,8 @@ export default function PublicAssessment() {
 
     try {
       await runTransaction(db, async (transaction) => {
-        const participantRef = doc(db, "participants", participantPhone);
+        const safeParticipantId = participantPhone.replace(/\//g, "-");
+        const participantRef = doc(db, "participants", safeParticipantId);
         const userRef = targetUserId ? doc(db, "users", targetUserId) : null;
         
         const participantSnap = await transaction.get(participantRef);

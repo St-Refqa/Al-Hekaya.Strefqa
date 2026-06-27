@@ -11,6 +11,7 @@ import LoginLogs from './pages/admin/LoginLogs';
 import StudentDetail from './pages/admin/StudentDetail';
 import PublicAssessment from './pages/public/PublicAssessment';
 import Home from './pages/public/Home';
+import About from './pages/public/About';
 import UnifiedLogin from './pages/public/UnifiedLogin';
 import Register from './pages/public/Register';
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -188,6 +189,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         {/* Public Routes */}
         <Route path="/" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Home /></motion.div>} />
+        <Route path="/about" element={<motion.div {...pageTransition} className="w-full min-h-screen"><About /></motion.div>} />
         <Route path="/login" element={<motion.div {...pageTransition} className="w-full min-h-screen"><UnifiedLogin /></motion.div>} />
         <Route path="/register" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Register /></motion.div>} />
         <Route path="/assessment/:id" element={<motion.div {...pageTransition} className="w-full min-h-screen"><PublicAssessment /></motion.div>} />

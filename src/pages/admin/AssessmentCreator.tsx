@@ -107,10 +107,7 @@ export default function AssessmentCreator() {
       return;
     }
 
-    if (!manualQuestion.category?.trim()) {
-      setManualError("يرجى تحديد تصنيف السؤال أو هويته (مثلاً: طلاب الورشة، طلاب اونلاين).");
-      return;
-    }
+    // category validation removed
 
     const diff = manualQuestion.difficulty;
     const defaultPoints = diff === "easy" ? 2 : diff === "medium" ? 4 : 6;
@@ -154,7 +151,7 @@ export default function AssessmentCreator() {
       correctAnswer: finalCorrect,
       difficulty: diff,
       points: defaultPoints,
-      category: manualQuestion.category.trim(),
+      category: manualQuestion.category?.trim() || "عام",
       reference: manualQuestion.reference?.trim() || "",
       explanation: manualQuestion.explanation?.trim() || "",
       isLocked: true,
@@ -1140,35 +1137,7 @@ export default function AssessmentCreator() {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {/* Category of question */}
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-black uppercase tracking-widest text-brand-beige">تصنيف أو هوية درس السؤال</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={manualQuestion.category || ''}
-                        onChange={e => setManualQuestion({ ...manualQuestion, category: e.target.value })}
-                        className="flex-1 px-4 py-3 bg-white border border-brand-beige/10 rounded-xl focus:ring-2 focus:ring-brand-red/10 outline-none font-bold text-brand-text text-right text-xs"
-                        placeholder="مثال: طلاب الورشة، طلاب اونلاين، طقوس..."
-                      />
-                      <select
-                        onChange={e => {
-                          if (e.target.value) {
-                            setManualQuestion({ ...manualQuestion, category: e.target.value });
-                          }
-                        }}
-                        value={['طلاب اونلاين', 'طلاب الورشة', 'طقوس', 'عقيدة', 'شخصيات'].includes(manualQuestion.category) ? manualQuestion.category : ''}
-                        className="px-2 py-3 bg-white border border-brand-beige/10 rounded-xl outline-none font-bold text-brand-text text-right text-xs max-w-[120px]"
-                      >
-                        <option value="">سريع</option>
-                        <option value="طلاب اونلاين">طلاب اونلاين</option>
-                        <option value="طلاب الورشة">طلاب الورشة</option>
-                        <option value="طقوس">طقوس</option>
-                        <option value="عقيدة">عقيدة</option>
-                        <option value="شخصيات">شخصيات</option>
-                      </select>
-                    </div>
-                  </div>
+                  {/* Category of question removed to simplify the form */}
 
                   {/* Bible / study info Reference */}
                   <div className="space-y-2">

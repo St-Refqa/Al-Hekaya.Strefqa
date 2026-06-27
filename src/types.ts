@@ -12,7 +12,8 @@ export interface User {
   password?: string;
   registrationDate: string;
   isActive: boolean;
-  status: 'active' | 'disabled';
+  status: 'active' | 'disabled' | 'deleted';
+  deletedAt?: string;
   lastLoginAt?: string;
   loginCount?: number;
   streak: number;
