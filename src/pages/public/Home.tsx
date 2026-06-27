@@ -126,15 +126,10 @@ const timeline = [
 export default function Home() {
   const navigate = useNavigate();
   const { login, user, isAuthenticated, isAdmin } = useAuth();
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoggingIn && isAuthenticated && user) {
+    if (isAuthenticated && user) {
       const userRole = (user.role || "").toLowerCase();
       if (
         isAdmin ||
@@ -145,27 +140,7 @@ export default function Home() {
         navigate("/student");
       }
     }
-  }, [user, isAuthenticated, isAdmin, navigate, isLoggingIn]);
-
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!identifier || !password) {
-      setLoginError("من فضلك ادخل البيانات كاملة");
-      return;
-    }
-    setLoginError("");
-    setIsLoggingIn(true);
-    try {
-      const result = await login(identifier, password);
-      if (!result.success) {
-        setLoginError(result.error || "بيانات الدخول غير صحيحة");
-      }
-    } catch {
-      setLoginError("حدث خطأ غير متوقع");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
+  }, [user, isAuthenticated, isAdmin, navigate]);
 
   if (isAuthenticated && user) {
     return (
@@ -312,7 +287,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.04, y: -3 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => setShowLogin(true)}
+              onClick={() => navigate("/login")}
               className="w-full sm:w-auto px-8 py-4 bg-white text-brand-text font-black text-base rounded-2xl shadow-lg border border-brand-beige/20 hover:border-brand-red/20 hover:shadow-brand-red/5 transition-all flex items-center justify-center gap-3"
             >
               <LogIn className="w-5 h-5 text-brand-red" />
@@ -626,7 +601,7 @@ export default function Home() {
               <motion.button
                 whileHover={{ scale: 1.05, y: -3 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => setShowLogin(true)}
+                onClick={() => { window.scrollTo(0,0); navigate("/login"); }}
                 className="w-full sm:w-auto px-10 py-5 bg-white text-brand-text font-black text-base rounded-2xl shadow-lg border border-brand-beige/20 hover:border-brand-red/20 transition-all flex items-center justify-center gap-3"
               >
                 <LogIn className="w-6 h-6 text-brand-red" />
@@ -659,129 +634,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* ═══════════════════════════════ LOGIN MODAL ═══════════════════════════════ */}
-      <AnimatePresence>
-        {showLogin && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowLogin(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              transition={{ type: "spring", bounce: 0.35 }}
-              className="fixed inset-x-4 top-1/2 -translate-y-1/2 sm:inset-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-[420px] z-[110] bg-white rounded-[36px] shadow-2xl border border-brand-beige/10 overflow-hidden"
-            >
-              <div className="p-8 sm:p-10 relative">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-red/5 rounded-full -translate-y-16 translate-x-16 blur-2xl pointer-events-none" />
-                <div className="relative z-10 space-y-6">
-                  {/* Header */}
-                  <div className="text-center">
-                    <div className="w-14 h-14 bg-brand-cream rounded-2xl flex items-center justify-center mx-auto mb-4 text-brand-red border border-brand-red/10">
-                      <LogIn className="w-7 h-7" />
-                    </div>
-                    <h2 className="text-xl font-black text-brand-text">تسجيل الدخول</h2>
-                    <p className="text-brand-beige font-bold text-xs mt-1">ادخل بياناتك عشان تتابع رحلتك</p>
-                  </div>
-
-                  {/* Form */}
-                  <form onSubmit={handleLoginSubmit} className="space-y-4">
-                    <div className="space-y-1 text-right">
-                      <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-1">كود الطالب أو الاسم</label>
-                      <div className="relative">
-                        <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige" />
-                        <input
-                          type="text"
-                          value={identifier}
-                          onChange={(e) => setIdentifier(e.target.value)}
-                          className="w-full bg-brand-cream/40 border-2 border-brand-cream focus:border-brand-red rounded-xl py-3.5 pr-11 pl-4 outline-none transition-all font-bold text-brand-text text-sm"
-                          placeholder="مثال: Kirolos أو G001"
-                          autoFocus
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1 text-right">
-                      <label className="text-[10px] font-black text-brand-beige uppercase tracking-[0.2em] mr-1">كلمة المرور</label>
-                      <div className="relative">
-                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige" />
-                        <input
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-brand-cream/40 border-2 border-brand-cream focus:border-brand-red rounded-xl py-3.5 pr-11 pl-4 outline-none transition-all font-bold text-brand-text text-sm"
-                          placeholder="••••••••"
-                        />
-                      </div>
-                    </div>
-
-                    <AnimatePresence>
-                      {loginError && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          className="bg-rose-50 text-brand-red p-3 rounded-xl text-xs font-bold border border-brand-red/10 flex items-center gap-2"
-                        >
-                          <div className="w-1.5 h-1.5 bg-brand-red rounded-full animate-ping shrink-0" />
-                          {loginError}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      disabled={isLoggingIn}
-                      className="w-full py-4 bg-brand-red text-white font-black rounded-xl shadow-lg shadow-brand-red/25 hover:shadow-brand-red/40 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
-                    >
-                      {isLoggingIn ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <><span>دخول لحسابي</span><ChevronLeft className="w-4 h-4" /></>
-                      )}
-                    </motion.button>
-                  </form>
-
-                  <div className="text-center pt-6 border-t border-brand-beige/10">
-                     <p className="text-brand-beige font-bold text-[10px] uppercase tracking-widest mb-2">ليس لديك حساب؟</p>
-                     <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        if (typeof (window as any).setShowLogin === 'function') (window as any).setShowLogin(false);
-                        navigate("/register");
-                      }}
-                      className="text-brand-red font-black text-sm bg-brand-red/5 px-6 py-3 rounded-full hover:bg-brand-red/10 transition-colors"
-                     >
-                      تسجيل حساب جديد الآن
-                     </motion.button>
-                     
-                     <div className="mt-6 pt-4 border-t border-brand-beige/10 flex justify-center">
-                       <motion.button 
-                         whileHover={{ scale: 1.05 }}
-                         whileTap={{ scale: 0.95 }}
-                         onClick={() => { window.scrollTo(0, 0); navigate("/about"); }}
-                         className="flex items-center gap-2 text-brand-text/70 font-black text-sm hover:text-brand-red transition-colors group"
-                       >
-                         <BookOpen className="w-4 h-4 text-brand-beige group-hover:text-brand-red transition-colors" />
-                         عن المنصة والحكاية ومافيها
-                       </motion.button>
-                     </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
