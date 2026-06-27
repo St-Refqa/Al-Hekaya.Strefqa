@@ -188,48 +188,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#FDFCFB] overflow-x-hidden" dir="rtl">
 
-      {/* ═══════════════════════════════ NAVBAR ═══════════════════════════════ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white/85 backdrop-blur-xl border border-white/70 rounded-2xl px-5 py-2.5 shadow-lg shadow-black/5 flex items-center justify-between">
-            {/* Logo & Name */}
-            <div className="flex items-center gap-2.5">
-              <SmartImage
-                src="/assets/logo-beige.png"
-                alt=""
-                className="w-7 h-7 object-contain"
-                fallback={<Church className="w-7 h-7 text-brand-red" />}
-              />
-              <SmartImage
-                src="/assets/logo-red.png"
-                alt=""
-                className="w-7 h-7 object-contain"
-                fallback={<div />}
-              />
-              <span className="font-black text-brand-text text-sm hidden sm:block tracking-tight">الحكاية ومافيها</span>
-            </div>
-
-            {/* Nav Actions */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => { setShowLogin(true); }}
-                className="px-4 py-2 text-brand-text font-black text-xs rounded-xl hover:bg-brand-cream transition-colors hidden sm:flex items-center gap-1.5"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                دخول
-              </button>
-              <button
-                onClick={() => navigate("/register")}
-                className="px-4 py-2 bg-brand-red text-white font-black text-xs rounded-xl shadow-sm shadow-brand-red/20 hover:bg-red-700 transition-all flex items-center gap-1.5"
-              >
-                <GraduationCap className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">تسجيل مجاني</span>
-                <span className="sm:hidden">انضم</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* ═══════════════════════════════ NAVBAR REMOVED ═══════════════════════════════ */}
 
       {/* ═══════════════════════════════ HERO ═══════════════════════════════ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-28 pb-16 overflow-hidden">
