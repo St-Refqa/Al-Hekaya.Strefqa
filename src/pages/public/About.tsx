@@ -277,7 +277,7 @@ export default function About() {
           </div>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => { window.scrollTo(0, 0); navigate("/login"); }}
             className="mt-8 px-10 py-5 bg-brand-red text-white hover:bg-brand-red/90 rounded-3xl font-black shadow-lg shadow-brand-red/20 active:scale-95 transition-all text-base cursor-pointer"
           >
             سجل دخول وابدأ رحلتك الآن

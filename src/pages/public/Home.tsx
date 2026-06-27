@@ -768,7 +768,7 @@ export default function Home() {
                        <motion.button 
                          whileHover={{ scale: 1.05 }}
                          whileTap={{ scale: 0.95 }}
-                         onClick={() => navigate("/about")}
+                         onClick={() => { window.scrollTo(0, 0); navigate("/about"); }}
                          className="flex items-center gap-2 text-brand-text/70 font-black text-sm hover:text-brand-red transition-colors group"
                        >
                          <BookOpen className="w-4 h-4 text-brand-beige group-hover:text-brand-red transition-colors" />
