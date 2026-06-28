@@ -285,7 +285,7 @@ export default function PublicAssessment() {
       import("../../lib/confetti").then(m => m.triggerSuccessConfetti());
     } catch (err) {
       console.error("Finalization failed", err);
-      setError("حصل مشكلة في حفظ النتيجة. برجاء تصوير الشاشة والتواصل مع المسؤول.");
+      setError(`حصل مشكلة في حفظ النتيجة. برجاء تصوير الشاشة والتواصل مع المسؤول. (السبب: ${err?.message || err?.toString() || 'Unknown error'})`);
     } finally {
       setIsEvaluating(false);
       setIsAutoSubmitting(false);
