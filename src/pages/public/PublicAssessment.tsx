@@ -85,12 +85,19 @@ export default function PublicAssessment() {
 
   // Assessment State
   const allQuestions = React.useMemo(() => {
-    if (!assessment) return [];
+    if (!assessment || !assessment.questions) return [];
+    
+    // If questions is an array (flat structure)
+    if (Array.isArray(assessment.questions)) {
+      return assessment.questions.filter(Boolean);
+    }
+    
+    // If questions is an object (grouped by difficulty)
     return [
-      ...(assessment.questions?.easy || []),
-      ...(assessment.questions?.medium || []),
-      ...(assessment.questions?.hard || [])
-    ].filter(Boolean); // Filter out any undefined just in case
+      ...(assessment.questions.easy || []),
+      ...(assessment.questions.medium || []),
+      ...(assessment.questions.hard || [])
+    ].filter(Boolean);
   }, [assessment]);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -129,7 +136,8 @@ export default function PublicAssessment() {
     const ansTotalTime = assessment!.answerDuration * 60 - (answeringTimeLeft || 0);
     setTotalAnsweringTime(ansTotalTime);
 
-    const baseScore = finalAnswers.reduce((acc, curr) => acc + curr.score, 0);
+    const baseScore = finalAnswers.reduce((acc, curr) => acc + Number(curr.score || 0), 0);
+    const examMaxScore = allQuestions.reduce((acc, curr) => acc + Number(curr.points || 2), 0);
 
     // Unanswered count
     const unansweredCount = allQuestions.length - finalAnswers.length;
@@ -198,7 +206,7 @@ export default function PublicAssessment() {
           const uData = userSnap.data() as User;
           const newTotalExams = (uData.totalExams || 0) + 1;
           const newTotalPoints = (uData.totalPoints || 0) + baseScore;
-          const currentPercentage = calculatePercentage(baseScore, (finalAnswers.reduce((a,c) => a+c.maxPoints, 0)));
+          const currentPercentage = calculatePercentage(baseScore, examMaxScore);
           const newAverageScore = uData.averageScore 
             ? (uData.averageScore * (newTotalExams - 1) + currentPercentage) / newTotalExams
             : currentPercentage;
@@ -210,7 +218,7 @@ export default function PublicAssessment() {
             streak: streakCount,
             totalExams: newTotalExams,
             totalPoints: newTotalPoints,
-            cumulativePoints: (uData.cumulativePoints || uData.totalPoints || 0) + baseScore,
+            cumulativePoints: Number(uData.cumulativePoints || uData.totalPoints || 0) + baseScore,
             averageScore: newAverageScore,
             xp: newXP
           };
@@ -273,7 +281,7 @@ export default function PublicAssessment() {
         answeringTimeSeconds: ansTotalTime,
         answers: finalAnswers,
         baseScore,
-        maxScore: finalAnswers.reduce((a,c) => a+c.maxPoints, 0),
+        maxScore: examMaxScore,
         bonusPoints: 0,
         finalScore: baseScore,
         streakCount,
@@ -577,16 +585,23 @@ export default function PublicAssessment() {
   };
 
   useEffect(() => {
-    // Force voices to load
+    // Force voices to load safely (some webviews don't support speechSynthesis)
     const loadVoices = () => {
-      window.speechSynthesis.getVoices();
+      if (window.speechSynthesis) {
+        window.speechSynthesis.getVoices();
+      }
     };
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    
+    if (window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
     
     return () => {
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.onvoiceschanged = null;
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.onvoiceschanged = null;
+      }
     };
   }, []);
 

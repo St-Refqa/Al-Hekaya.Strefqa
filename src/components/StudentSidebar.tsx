@@ -65,8 +65,8 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
     menuItems.push({ icon: Globe, label: 'العودة لبوابة الخدمة ↩️', path: '/admin' });
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 

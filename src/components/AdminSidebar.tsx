@@ -96,8 +96,8 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
     }
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
