@@ -22,6 +22,9 @@ import {
   User,
 } from "../../types";
 import { evaluateShortAnswer, getAIHint } from "../../lib/gemini";
+import { useOfflineSync } from "../../hooks/useOfflineSync";
+import { processSubmissionTransaction } from "../../lib/submissionHelper";
+
 import { motion, AnimatePresence } from "motion/react";
 import {
   CheckCircle2,
@@ -290,7 +293,7 @@ export default function PublicAssessment() {
       setIsEvaluating(false);
       setIsAutoSubmitting(false);
     }
-  }, [assessment, answeringTimeLeft, authUser, participantPhone, participantName, id, totalReadingTime]);
+  }, [assessment, answeringTimeLeft, authUser, participantPhone, participantName, id, totalReadingTime, savePendingSubmission]);
 
   const autoSubmit = useCallback(async (answers: UserAnswer[]) => {
     if (isAutoSubmitting) return;
