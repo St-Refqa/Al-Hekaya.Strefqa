@@ -301,7 +301,7 @@ export default function PublicAssessment() {
       setIsEvaluating(false);
       setIsAutoSubmitting(false);
     }
-  }, [assessment, answeringTimeLeft, authUser, participantPhone, participantName, id, totalReadingTime, savePendingSubmission]);
+  }, [assessment, answeringTimeLeft, authUser, participantPhone, participantName, id, totalReadingTime]);
 
   const autoSubmit = useCallback(async (answers: UserAnswer[]) => {
     if (isAutoSubmitting) return;
