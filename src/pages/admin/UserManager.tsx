@@ -423,8 +423,7 @@ export default function UserManager() {
     try {
       // Soft Delete: update status to 'deleted'
       await updateDoc(doc(db, "users", user.uid), {
-        status: 'deleted',
-        deletedAt: new Date().toISOString()
+        status: 'deleted'
       });
 
       setNotification({ type: 'success', text: `تم حذف الطالب ${user.fullName} بنجاح. يمكنك استرجاعه من قائمة المحذوفات.` });
@@ -441,8 +440,7 @@ export default function UserManager() {
   const handleRestoreUser = async (user: User) => {
     try {
       await updateDoc(doc(db, "users", user.uid), {
-        status: 'active',
-        deletedAt: null
+        status: 'active'
       });
       setNotification({ type: 'success', text: `تم استرجاع الطالب ${user.fullName} بنجاح` });
       setTimeout(() => setNotification(null), 3000);
