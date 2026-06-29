@@ -209,19 +209,19 @@ export default function PublicAssessment() {
           const uData = userSnap.data() as User;
           const newTotalExams = (uData.totalExams || 0) + 1;
           const newTotalPoints = (uData.totalPoints || 0) + baseScore;
-          const currentPercentage = calculatePercentage(baseScore, examMaxScore);
+          const currentPercentage = Math.round(calculatePercentage(baseScore, examMaxScore));
           const newAverageScore = uData.averageScore 
-            ? (uData.averageScore * (newTotalExams - 1) + currentPercentage) / newTotalExams
+            ? Math.round((uData.averageScore * (newTotalExams - 1) + currentPercentage) / newTotalExams)
             : currentPercentage;
           
-          const xpGained = (baseScore * 5) + (streakCount * 5);
-          const newXP = (uData.xp || 0) + xpGained;
+          const xpGained = Math.round((baseScore * 5) + (streakCount * 5));
+          const newXP = Math.round((uData.xp || 0) + xpGained);
 
           const updatedUser: Partial<User> = {
             streak: streakCount,
             totalExams: newTotalExams,
-            totalPoints: newTotalPoints,
-            cumulativePoints: Number(uData.cumulativePoints || uData.totalPoints || 0) + baseScore,
+            totalPoints: Math.round(newTotalPoints),
+            cumulativePoints: Math.round(Number(uData.cumulativePoints || uData.totalPoints || 0) + baseScore),
             averageScore: newAverageScore,
             xp: newXP
           };
