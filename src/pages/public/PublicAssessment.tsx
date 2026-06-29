@@ -71,6 +71,9 @@ export default function PublicAssessment() {
 
   // Participant Info
   const [participantName, setParticipantName] = useState("");
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [isOfflineSaved, setIsOfflineSaved] = useState(false);
+  const { savePendingSubmission } = useOfflineSync();
   const [participantPhone, setParticipantPhone] = useState("");
 
   useEffect(() => {
@@ -301,7 +304,7 @@ export default function PublicAssessment() {
       setIsEvaluating(false);
       setIsAutoSubmitting(false);
     }
-  }, [assessment, answeringTimeLeft, authUser, participantPhone, participantName, id, totalReadingTime]);
+  }, [assessment, answeringTimeLeft, authUser, participantPhone, participantName, id, totalReadingTime, savePendingSubmission]);
 
   const autoSubmit = useCallback(async (answers: UserAnswer[]) => {
     if (isAutoSubmitting) return;
@@ -1414,6 +1417,11 @@ export default function PublicAssessment() {
             className="max-w-4xl mx-auto px-6 py-20"
           >
             <div className="bg-white p-16 rounded-[48px] shadow-2xl space-y-16 border border-brand-beige/20">
+              {isOfflineSaved && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-center gap-3 text-amber-800 text-sm font-bold text-center animate-pulse">
+                  <span>⚠️</span> النت ضعيف أو قطع! تم حفظ نتيجتك على الجهاز وهتترفع تلقائياً أول ما النت يرجع، متقلقش!
+                </div>
+              )}
               <div className="text-center space-y-6">
                 <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-[32px] flex items-center justify-center mx-auto shadow-sm">
                   <CheckCircle2 className="w-10 h-10" />
