@@ -74,6 +74,7 @@ export default function Leaderboard() {
       id: string; 
       totalScore: number; 
       maxPossibleScore: number; 
+      actualScoreSum: number;
       count: number;
       avgAccuracy: number;
       streak: number;
@@ -88,6 +89,7 @@ export default function Leaderboard() {
         id: uid,
         totalScore: u.cumulativePoints ?? u.totalPoints ?? 0,
         maxPossibleScore: 0,
+        actualScoreSum: 0,
         count: 0,
         avgAccuracy: 0,
         streak: u.streak || 0,
@@ -101,6 +103,7 @@ export default function Leaderboard() {
       const pId = s.participantId || s.participantPhoneOrId;
       if (participants[pId]) {
         participants[pId].maxPossibleScore += (s.maxScore || 1);
+        participants[pId].actualScoreSum += (s.finalScore || 0);
         participants[pId].count += 1;
         participants[pId].streak = Math.max(participants[pId].streak, s.streakCount || 0);
       } else {
@@ -110,6 +113,7 @@ export default function Leaderboard() {
           id: pId,
           totalScore: s.finalScore,
           maxPossibleScore: s.maxScore || 1,
+          actualScoreSum: s.finalScore || 0,
           count: 1,
           avgAccuracy: 0,
           streak: s.streakCount || 0,
@@ -122,7 +126,7 @@ export default function Leaderboard() {
     return Object.values(participants)
       .map(p => ({
         ...p,
-        avgAccuracy: p.maxPossibleScore > 0 ? (p.totalScore / p.maxPossibleScore) : 0,
+        avgAccuracy: p.maxPossibleScore > 0 ? Math.min(p.actualScoreSum / p.maxPossibleScore, 1) : 0,
         photoUrl: userMap[p.id]?.photoUrl || p.photoUrl
       }))
       .filter(p => !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.id.toLowerCase().includes(searchTerm.toLowerCase()))

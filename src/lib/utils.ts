@@ -45,7 +45,7 @@ export function toLocalDatetimeString(dateInput: Date | string): string {
 
 export function calculatePercentage(score: number, max: number): number {
   if (!max || max === 0 || isNaN(score) || isNaN(max)) return 0;
-  return Math.round((score / max) * 100);
+  return Math.min(100, Math.max(0, Math.round((score / max) * 100)));
 }
 
 export async function compressImage(base64Str: string, maxWidth = 400, maxHeight = 400, quality = 0.7): Promise<string> {
