@@ -580,7 +580,12 @@ const StudentDetail: React.FC = () => {
                     </div>
                     <div className="w-full">
                       <p className="text-4xl font-black text-brand-text mb-2">
-                        {Math.max(0, submissions.reduce((acc, sub) => acc + (sub.score || 0), 0) + attendanceLogs.reduce((acc, log) => acc + (log.points || 0), 0) - purchases.reduce((acc, pur) => acc + (pur.price || 0), 0))}
+                        {Math.max(0, 
+                          submissions.reduce((acc, sub) => acc + (sub.finalScore ?? sub.score ?? sub.baseScore ?? 0), 0) + 
+                          attendanceLogs.reduce((acc, log) => acc + (log.points || 0), 0) + 
+                          pointLogs.reduce((acc, log) => log.type === "add" ? acc + (log.amount || 0) : acc - (log.amount || 0), 0) - 
+                          purchases.reduce((acc, pur) => acc + (pur.price || 0), 0)
+                        )}
                       </p>
                       <p className="font-bold text-brand-beige mb-6">
                         إجمالي النقاط الحالي
@@ -597,7 +602,14 @@ const StudentDetail: React.FC = () => {
                           
                           <div className="text-center bg-emerald-50 px-3 py-2 rounded-2xl flex-1 border border-emerald-100/50 min-w-[70px]">
                              <p className="text-[9px] text-emerald-600/70 font-black uppercase mb-1">الاختبارات</p>
-                             <p className="font-black text-emerald-600 text-base">{submissions.reduce((acc, sub) => acc + (sub.score || 0), 0)}</p>
+                             <p className="font-black text-emerald-600 text-base">{submissions.reduce((acc, sub) => acc + (sub.finalScore ?? sub.score ?? sub.baseScore ?? 0), 0)}</p>
+                          </div>
+
+                          <span className="text-brand-beige font-black text-lg">+</span>
+
+                          <div className="text-center bg-blue-50 px-3 py-2 rounded-2xl flex-1 border border-blue-100/50 min-w-[70px]">
+                             <p className="text-[9px] text-blue-600/70 font-black uppercase mb-1">إضافي</p>
+                             <p className="font-black text-blue-600 text-base">{pointLogs.reduce((acc, log) => log.type === "add" ? acc + (log.amount || 0) : acc - (log.amount || 0), 0)}</p>
                           </div>
 
                           <span className="text-brand-beige font-black text-lg">-</span>
