@@ -787,7 +787,13 @@ export default function PublicAssessment() {
         explanation,
       };
 
-      const newAnswers = [...selectedAnswers, answer];
+      const newAnswers = [...selectedAnswers];
+      const existingIdx = newAnswers.findIndex(a => a.questionId === currentQuestion.id);
+      if (existingIdx >= 0) {
+        newAnswers[existingIdx] = answer;
+      } else {
+        newAnswers.push(answer);
+      }
       setSelectedAnswers(newAnswers);
       setAnswerStatus("idle");
       setLastFeedback(null);
