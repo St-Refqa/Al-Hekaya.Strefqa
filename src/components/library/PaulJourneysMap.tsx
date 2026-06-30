@@ -16,15 +16,15 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
   const getLabelPositionClasses = (pos?: string) => {
     switch (pos) {
-      case 'top': return 'bottom-full mb-1.5 left-1/2 -translate-x-1/2';
-      case 'bottom': return 'top-full mt-1.5 left-1/2 -translate-x-1/2';
-      case 'left': return 'right-full mr-1.5 top-1/2 -translate-y-1/2';
-      case 'right': return 'left-full ml-1.5 top-1/2 -translate-y-1/2';
-      case 'top-right': return 'bottom-full mb-1 left-full ml-1';
-      case 'bottom-right': return 'top-full mt-1 left-full ml-1';
-      case 'bottom-left': return 'top-full mt-1 right-full mr-1';
-      case 'top-left': return 'bottom-full mb-1 right-full mr-1';
-      default: return 'bottom-full mb-1.5 left-1/2 -translate-x-1/2'; // default top
+      case 'top': return 'bottom-full mb-3 left-1/2 -translate-x-1/2';
+      case 'bottom': return 'top-full mt-3 left-1/2 -translate-x-1/2';
+      case 'left': return 'right-full mr-3 top-1/2 -translate-y-1/2';
+      case 'right': return 'left-full ml-3 top-1/2 -translate-y-1/2';
+      case 'top-right': return 'bottom-full mb-2 left-full ml-2';
+      case 'bottom-right': return 'top-full mt-2 left-full ml-2';
+      case 'bottom-left': return 'top-full mt-2 right-full mr-2';
+      case 'top-left': return 'bottom-full mb-2 right-full mr-2';
+      default: return 'bottom-full mb-3 left-1/2 -translate-x-1/2'; // default top
     }
   };
 
@@ -146,13 +146,41 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 {index + 1}
               </div>
               <span className={cn(
-                "absolute px-2.5 py-1 bg-[#fdf5e6] border-2 border-[#8b5a2b] text-[#5c3a21] text-[10px] md:text-xs font-black rounded-md shadow-md whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50 pointer-events-none",
+                "absolute px-2.5 py-1 bg-[#fdf5e6]/95 border-2 border-[#8b5a2b] text-[#5c3a21] text-[10px] md:text-xs font-black rounded-md shadow-md whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50 pointer-events-none",
                 getLabelPositionClasses((loc as any).labelPosition)
               )}>
                 {loc.name}
               </span>
             </motion.button>
           ))}
+
+          {/* Map Legend (Sidebar) */}
+          <div dir="rtl" className="absolute top-2 right-2 bottom-2 md:top-4 md:right-4 md:bottom-4 w-32 md:w-64 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-xl shadow-xl overflow-y-auto pointer-events-auto hide-scrollbar z-40 font-cairo">
+            <div className="sticky top-0 bg-[#fdf5e6] border-b-2 border-[#d4b483] p-2 md:p-3 text-center">
+              <h3 className="font-black text-[#5c3a21] text-[10px] md:text-base">مفتاح الخريطة</h3>
+              <p className="text-[8px] md:text-xs text-[#8b5a2b] font-bold">{activeJourney.title}</p>
+            </div>
+            <div className="p-2 md:p-3 flex flex-col gap-1.5 md:gap-2">
+              {activeJourney.locations.map((loc, index) => (
+                <button
+                  key={`legend-${loc.id}`}
+                  onClick={() => setSelectedLocation(loc)}
+                  className="flex items-center gap-1.5 md:gap-2 hover:bg-[#e8d5b5]/50 p-1 md:p-2 rounded-lg transition-colors text-right"
+                >
+                  <div 
+                    className="flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full text-white text-[8px] md:text-[10px] font-bold shadow-md"
+                    style={{ backgroundColor: activeJourney.color }}
+                  >
+                    {index + 1}
+                  </div>
+                  <span className="text-[9px] md:text-sm font-bold text-[#5c3a21] line-clamp-1">
+                    {loc.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
 
           {/* Info Popup */}
           <AnimatePresence>
