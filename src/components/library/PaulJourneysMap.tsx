@@ -27,9 +27,9 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black font-cairo"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black font-cairo overflow-hidden"
     >
-      <div className="relative w-screen h-screen bg-[#fdf5e6] flex flex-col">
+      <div className="relative bg-[#fdf5e6] flex flex-col flex-shrink-0 w-screen h-screen portrait:w-[100vh] portrait:h-[100vw] portrait:-rotate-90 origin-center overflow-hidden">
         {/* Header - Vintage Style */}
         <div className="relative z-10 bg-[#e8d5b5] border-b-2 border-[#d4b483] px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
@@ -131,7 +131,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               >
                 {index + 1}
               </div>
-              <span className="absolute bottom-full mb-1 px-2 py-0.5 bg-[#fdf5e6]/90 border border-[#d4b483] text-[#5c3a21] text-xs font-black rounded shadow-sm whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50">
+              <span className="absolute bottom-full mb-1.5 px-2.5 py-1 bg-[#fdf5e6] border-2 border-[#8b5a2b] text-[#5c3a21] text-[10px] md:text-xs font-black rounded-md shadow-md whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50 pointer-events-none">
                 {loc.name}
               </span>
             </motion.button>
@@ -149,7 +149,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 <div className="absolute inset-0 bg-[#3a2512]/40 backdrop-blur-sm pointer-events-auto" onClick={() => setSelectedLocation(null)} />
                 
                 <div 
-                  className="bg-[#f4ead5] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border-2 border-[#d4b483] relative pointer-events-auto"
+                  className="bg-[#f4ead5] w-[95%] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border-2 border-[#d4b483] relative pointer-events-auto hide-scrollbar"
                   onClick={e => e.stopPropagation()}
                 >
                   <div className="bg-[#e8d5b5] border-b border-[#d4b483] p-4 flex justify-between items-start">
