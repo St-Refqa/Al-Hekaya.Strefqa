@@ -131,7 +131,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               >
                 {index + 1}
               </div>
-              <span className="absolute top-full mt-1 px-2 py-0.5 bg-[#fdf5e6]/90 border border-[#d4b483] text-[#5c3a21] text-xs font-black rounded shadow-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="absolute top-full mt-1 px-2 py-0.5 bg-[#fdf5e6]/90 border border-[#d4b483] text-[#5c3a21] text-xs font-black rounded shadow-sm whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50">
                 {loc.name}
               </span>
             </motion.button>
