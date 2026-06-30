@@ -891,10 +891,10 @@ export default function ResultsDashboard() {
                         {formatDate(s.date)}
                       </p>
                       <p className="text-[10px] text-brand-beige mt-0.5 uppercase font-bold">
-                        {new Date(s.date).toLocaleTimeString("ar-EG", {
+                        {s.date && !isNaN(new Date(s.date).getTime()) ? new Date(s.date).toLocaleTimeString("ar-EG", {
                           hour: "2-digit",
                           minute: "2-digit",
-                        })}
+                        }) : ""}
                       </p>
                     </td>
                     <td className="px-4 sm:px-8 py-3.5 sm:py-5 text-right flex items-center justify-end gap-2">

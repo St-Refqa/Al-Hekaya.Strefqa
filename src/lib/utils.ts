@@ -18,7 +18,10 @@ export function normalizeArabicName(name: string): string {
 }
 
 export function formatDate(date: Date | string) {
-  return new Date(date).toLocaleDateString("ar-EG", {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("ar-EG", {
     month: "long",
     day: "numeric",
     year: "numeric",

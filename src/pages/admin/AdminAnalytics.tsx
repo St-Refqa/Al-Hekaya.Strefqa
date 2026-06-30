@@ -105,8 +105,12 @@ export default function AdminAnalytics() {
     return last7Days.map(date => {
       const count = submissions.filter(s => {
         if (!s.date) return false;
-        const sDate = typeof s.date === 'string' ? s.date : 
-                    (s.date as any).toDate ? (s.date as any).toDate().toISOString() : '';
+        let sDate = '';
+        if (typeof s.date === 'string') {
+          sDate = s.date;
+        } else if ((s.date as any).toDate) {
+          sDate = (s.date as any).toDate().toISOString();
+        }
         return sDate.startsWith(date);
       }).length;
       return {
