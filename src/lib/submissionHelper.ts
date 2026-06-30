@@ -2,11 +2,10 @@ import { db } from "./firebase";
 import { doc, collection, addDoc } from "firebase/firestore";
 import { runTransaction } from "./firebase";
 import { User, Submission } from "../types";
-import { calculateStreak } from "../utils/streak";
 import { calculatePercentage } from "./utils";
-import { checkNewBadges } from "./badges";
-import { calculateLevel } from "./levels";
-import { notificationService } from "../services/notificationService";
+import { checkNewBadges, calculateLevel } from "./gamification";
+import { notificationService } from "./notificationService";
+import { parseISO, differenceInDays } from "date-fns";
 
 export interface ProcessSubmissionPayload {
   submission: Submission;
@@ -26,23 +25,36 @@ export async function processSubmissionTransaction(payload: ProcessSubmissionPay
     const userSnap = userRef ? await transaction.get(userRef) : null;
     const participantSnap = await transaction.get(participantRef);
 
-    const today = new Date().toISOString().split('T')[0];
-    const streakCount = calculateStreak(participantSnap?.exists() ? (participantSnap.data() as any).lastCompletedDate : null);
-    submission.streakCount = streakCount; // Ensure it matches
+    const todayStr = new Date().toISOString().split('T')[0];
+    const today = parseISO(todayStr);
+    
+    let streakCount = 1;
+    if (participantSnap?.exists()) {
+      const pData = participantSnap.data() as any;
+      const lastDate = pData.lastCompletedDate ? parseISO(pData.lastCompletedDate) : null;
+      const isConsecutive = lastDate && (differenceInDays(today, lastDate) === 1);
+      const isSameDay = lastDate && differenceInDays(today, lastDate) === 0;
+      
+      streakCount = pData.streakCount || 0;
+      if (isConsecutive) streakCount += 1;
+      else if (!isSameDay) streakCount = 1;
+    }
+
+    submission.streakCount = streakCount;
 
     if (participantSnap?.exists()) {
       await transaction.update(participantRef, {
         name: submission.participantName,
         phoneOrId: participantPhone,
         streakCount,
-        lastCompletedDate: today,
-      }, { merge: true });
+        lastCompletedDate: todayStr,
+      });
     } else {
       await transaction.set(participantRef, {
         name: submission.participantName,
         phoneOrId: participantPhone,
         streakCount: 1,
-        lastCompletedDate: today,
+        lastCompletedDate: todayStr,
       });
     }
 
