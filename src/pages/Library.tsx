@@ -3,7 +3,7 @@ import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverT
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn, formatDate } from '../lib/utils';
 import { 
   BookOpen, FileText, FileSpreadsheet, FileIcon, LinkIcon, 
