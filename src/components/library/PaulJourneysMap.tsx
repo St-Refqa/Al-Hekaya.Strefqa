@@ -27,9 +27,9 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8 font-cairo"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black font-cairo"
     >
-      <div className="relative w-full max-w-6xl h-[85vh] bg-[#fdf5e6] rounded-3xl overflow-hidden shadow-2xl border-[4px] border-[#d4b483] flex flex-col">
+      <div className="relative w-screen h-screen bg-[#fdf5e6] flex flex-col">
         {/* Header - Vintage Style */}
         <div className="relative z-10 bg-[#e8d5b5] border-b-2 border-[#d4b483] px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
@@ -93,8 +93,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               d={generatePath()}
               fill="none"
               stroke={activeJourney.color}
-              strokeWidth="0.4"
-              strokeDasharray="1,1"
+              strokeWidth="3"
+              strokeDasharray="8,8"
               vectorEffect="non-scaling-stroke"
               className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
             />
