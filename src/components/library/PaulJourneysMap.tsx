@@ -140,13 +140,23 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   </div>
                   <button 
                     onClick={() => setSelectedLocation(null)}
-                    className="p-1 hover:bg-[#d4b483] rounded-full transition-colors text-[#5c3a21]"
+                    className="p-1 hover:bg-[#d4b483] rounded-full transition-colors text-[#5c3a21] relative z-10"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
                 
-                <div className="p-5 space-y-4">
+                {selectedLocation.image && (
+                  <div className="w-full h-40 overflow-hidden border-b-2 border-[#d4b483]">
+                    <img 
+                      src={selectedLocation.image} 
+                      alt={selectedLocation.name} 
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </div>
+                )}
+                
+                <div className="p-5 space-y-4 max-h-[40vh] overflow-y-auto custom-scrollbar">
                   {selectedLocation.companions.length > 0 && (
                     <div>
                       <div className="flex items-center gap-1.5 text-[#8b5a2b] font-black text-sm mb-2 uppercase">
