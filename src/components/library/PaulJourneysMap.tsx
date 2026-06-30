@@ -18,7 +18,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const generatePath = () => {
     if (activeJourney.locations.length === 0) return '';
     return activeJourney.locations.map((loc, index) => {
-      return `${index === 0 ? 'M' : 'L'} ${loc.x}% ${loc.y}%`;
+      return `${index === 0 ? 'M' : 'L'} ${loc.x} ${loc.y}`;
     }).join(' ');
   };
 
@@ -84,7 +84,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           <div className="absolute inset-0 bg-[#e8d5b5] mix-blend-color-burn opacity-30 pointer-events-none" />
 
           {/* SVG Overlay for Paths */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md">
             <motion.path
               key={activeJourney.id}
               initial={{ pathLength: 0, opacity: 0 }}
@@ -93,8 +93,9 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               d={generatePath()}
               fill="none"
               stroke={activeJourney.color}
-              strokeWidth="3"
-              strokeDasharray="6,6"
+              strokeWidth="0.4"
+              strokeDasharray="1,1"
+              vectorEffect="non-scaling-stroke"
               className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
             />
           </svg>
