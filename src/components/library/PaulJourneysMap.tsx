@@ -155,7 +155,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           ))}
 
           {/* Map Legend (Sidebar) */}
-          <div dir="rtl" className="absolute top-2 right-2 bottom-2 md:top-4 md:right-4 md:bottom-4 w-32 md:w-64 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-xl shadow-xl overflow-y-auto pointer-events-auto hide-scrollbar z-40 font-cairo">
+          <div dir="rtl" className="absolute top-2 left-2 bottom-2 md:top-4 md:left-4 md:bottom-4 w-32 md:w-64 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-xl shadow-xl overflow-y-auto pointer-events-auto hide-scrollbar z-40 font-cairo">
             <div className="sticky top-0 bg-[#fdf5e6] border-b-2 border-[#d4b483] p-2 md:p-3 text-center">
               <h3 className="font-black text-[#5c3a21] text-[10px] md:text-base">مفتاح الخريطة</h3>
               <p className="text-[8px] md:text-xs text-[#8b5a2b] font-bold">{activeJourney.title}</p>
