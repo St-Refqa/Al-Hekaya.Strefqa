@@ -14,6 +14,20 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
   const activeJourney = journeysData.find(j => j.id === activeJourneyId)!;
 
+  const getLabelPositionClasses = (pos?: string) => {
+    switch (pos) {
+      case 'top': return 'bottom-full mb-1.5 left-1/2 -translate-x-1/2';
+      case 'bottom': return 'top-full mt-1.5 left-1/2 -translate-x-1/2';
+      case 'left': return 'right-full mr-1.5 top-1/2 -translate-y-1/2';
+      case 'right': return 'left-full ml-1.5 top-1/2 -translate-y-1/2';
+      case 'top-right': return 'bottom-full mb-1 left-full ml-1';
+      case 'bottom-right': return 'top-full mt-1 left-full ml-1';
+      case 'bottom-left': return 'top-full mt-1 right-full mr-1';
+      case 'top-left': return 'bottom-full mb-1 right-full mr-1';
+      default: return 'bottom-full mb-1.5 left-1/2 -translate-x-1/2'; // default top
+    }
+  };
+
   // Path generator for SVG
   const generatePath = () => {
     if (activeJourney.locations.length === 0) return '';
@@ -131,7 +145,10 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               >
                 {index + 1}
               </div>
-              <span className="absolute bottom-full mb-1.5 px-2.5 py-1 bg-[#fdf5e6] border-2 border-[#8b5a2b] text-[#5c3a21] text-[10px] md:text-xs font-black rounded-md shadow-md whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50 pointer-events-none">
+              <span className={cn(
+                "absolute px-2.5 py-1 bg-[#fdf5e6] border-2 border-[#8b5a2b] text-[#5c3a21] text-[10px] md:text-xs font-black rounded-md shadow-md whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50 pointer-events-none",
+                getLabelPositionClasses((loc as any).labelPosition)
+              )}>
                 {loc.name}
               </span>
             </motion.button>
