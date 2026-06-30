@@ -202,6 +202,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                     </p>
                   </div>
                 </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
