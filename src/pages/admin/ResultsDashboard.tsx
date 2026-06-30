@@ -263,11 +263,11 @@ export default function ResultsDashboard() {
 
   const filteredSubmissions = useMemo(() => {
     let result = submissions.filter((s) => {
-      const matchesParticipant = s.participantName
+      const matchesParticipant = (s.participantName || "")
         .toLowerCase()
         .includes(participantFilter.toLowerCase()) ||
-        s.participantPhoneOrId.toLowerCase().includes(participantFilter.toLowerCase());
-      const matchesAssessment = s.assessmentTitle
+        (s.participantPhoneOrId || "").toLowerCase().includes(participantFilter.toLowerCase());
+      const matchesAssessment = (s.assessmentTitle || "")
         .toLowerCase()
         .includes(assessmentFilter.toLowerCase());
       
