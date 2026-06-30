@@ -7,8 +7,9 @@ import { motion } from 'motion/react';
 import { cn, formatDate } from '../lib/utils';
 import { 
   BookOpen, FileText, FileSpreadsheet, FileIcon, LinkIcon, 
-  Trash2, Plus, Download, ExternalLink, AlertCircle, Edit 
+  Trash2, Plus, Download, ExternalLink, AlertCircle, Edit, Map as MapIcon
 } from 'lucide-react';
+import PaulJourneysMap from '../components/library/PaulJourneysMap';
 
 interface LibraryItem {
   id: string;
@@ -29,6 +30,7 @@ export default function Library() {
   const [items, setItems] = useState<LibraryItem[]>([]);
   const [activeSection, setActiveSection] = useState<'old_testament' | 'new_testament' | 'other'>('old_testament');
   const [isUploading, setIsUploading] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
   
   // Filters & Modal state
   const [activeAudience, setActiveAudience] = useState<'all' | 'adults' | 'children'>('all');
@@ -299,6 +301,38 @@ export default function Library() {
 
       {/* Grid List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {isAdmin && activeSection === 'new_testament' && activeAudience !== 'children' && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => setIsMapOpen(true)}
+            className="bg-gradient-to-br from-[#e8d5b5] to-[#fdf5e6] p-6 rounded-[24px] border-2 border-[#d4b483] shadow-md hover:shadow-xl transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer"
+          >
+            <div className="flex justify-between items-start text-right">
+              <div className="bg-brand-red text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                نسخة تجريبية 🤫
+              </div>
+              <div className="flex bg-[#8b5a2b] p-3 rounded-2xl mr-auto text-white shadow-inner">
+                <MapIcon className="w-8 h-8" />
+              </div>
+            </div>
+            
+            <div className="text-right mt-4 space-y-1">
+              <h3 className="font-extrabold text-lg line-clamp-2 text-[#5c3a21] group-hover:text-brand-red transition-colors">
+                رحلات بولس الرسول التفاعلية
+              </h3>
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-xs text-[#8b5a2b] font-bold">
+                  خريطة مسارات ونقاط
+                </p>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  كبار 👨‍🦳
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {filteredItems.map(item => (
           <motion.div 
             key={item.id}
@@ -492,6 +526,12 @@ export default function Library() {
           </form>
         </div>
       )}
+      {/* Paul's Journeys Map Modal */}
+      <AnimatePresence>
+        {isMapOpen && (
+          <PaulJourneysMap onClose={() => setIsMapOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
