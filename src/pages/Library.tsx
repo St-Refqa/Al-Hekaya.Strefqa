@@ -319,7 +319,7 @@ export default function Library() {
             
             <div className="text-right mt-4 space-y-1">
               <h3 className="font-extrabold text-lg line-clamp-2 text-[#5c3a21] group-hover:text-brand-red transition-colors">
-                رحلات بولس الرسول التفاعلية
+                رحلات بولس الرسول التبشيرية
               </h3>
               <div className="flex justify-between items-center mt-1">
                 <p className="text-xs text-[#8b5a2b] font-bold">
