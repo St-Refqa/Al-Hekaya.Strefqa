@@ -126,9 +126,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 style={{ backgroundColor: activeJourney.color }}
               />
               <div 
-                className="relative w-4 h-4 rounded-full border-2 border-white shadow-lg transition-transform group-hover:scale-150"
+                className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 border-white shadow-lg transition-transform group-hover:scale-125 font-bold text-white text-[10px]"
                 style={{ backgroundColor: activeJourney.color }}
-              />
+              >
+                {index + 1}
+              </div>
               <span className="absolute top-full mt-1 px-2 py-0.5 bg-[#fdf5e6]/90 border border-[#d4b483] text-[#5c3a21] text-xs font-black rounded shadow-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                 {loc.name}
               </span>
@@ -138,13 +140,19 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           {/* Info Popup */}
           <AnimatePresence>
             {selectedLocation && (
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 md:bottom-auto md:left-auto md:top-8 md:right-8 w-[90%] md:w-80 bg-[#fdf5e6] border-2 border-[#d4b483] rounded-2xl shadow-2xl overflow-hidden z-30"
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="absolute inset-0 flex items-center justify-center p-4 z-50 pointer-events-none"
               >
-                <div className="bg-[#e8d5b5] border-b border-[#d4b483] p-4 flex justify-between items-start">
+                <div className="absolute inset-0 bg-[#3a2512]/40 backdrop-blur-sm pointer-events-auto" onClick={() => setSelectedLocation(null)} />
+                
+                <div 
+                  className="bg-[#f4ead5] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border-2 border-[#d4b483] relative pointer-events-auto"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="bg-[#e8d5b5] border-b border-[#d4b483] p-4 flex justify-between items-start">
                   <div className="flex items-center gap-2 text-[#5c3a21]">
                     <MapPin className="w-5 h-5 text-brand-red" />
                     <h3 className="text-xl font-black">{selectedLocation.name}</h3>
