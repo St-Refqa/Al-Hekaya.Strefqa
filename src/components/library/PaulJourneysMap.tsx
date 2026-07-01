@@ -95,7 +95,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             {/* Inner Map Container */}
             <div 
               className="relative flex-shrink-0 origin-top-left transition-all duration-300 ease-out"
-              style={{ width: `${1200 * zoom}px`, height: `${800 * zoom}px` }}
+              style={{ width: `${1436 * zoom}px`, height: `${855 * zoom}px` }}
             >
               {/* Background Map Image */}
               <div 
