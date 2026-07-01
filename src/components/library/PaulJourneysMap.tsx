@@ -12,7 +12,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const [activeJourneyId, setActiveJourneyId] = useState(journeysData[0].id);
   const [selectedLocation, setSelectedLocation] = useState<JourneyLocation | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [isLegendOpen, setIsLegendOpen] = useState(false);
+  const [isLegendOpen, setIsLegendOpen] = useState(typeof window !== 'undefined' ? window.innerWidth > 768 : false);
 
   const activeJourney = journeysData.find(j => j.id === activeJourneyId)!;
 
@@ -288,8 +288,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   <div className="px-5 pb-6 pt-2 overflow-y-auto custom-scrollbar flex-1">
                     {/* Title */}
                     <div className="flex items-center gap-3 text-[#5c3a21] mb-6 -mt-8 relative z-10">
-                      <div className="w-12 h-12 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-md border-2 border-[#d4b483] flex-shrink-0">
-                        <MapPin className="w-6 h-6 text-brand-red" />
+                      <div className="w-12 h-12 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-md border-2 border-[#d4b483] flex-shrink-0 text-brand-red font-black text-xl">
+                        {activeJourney.locations.findIndex(l => l.id === selectedLocation.id) + 1}
                       </div>
                       <h3 className="text-xl md:text-2xl font-black drop-shadow-sm mt-4">{selectedLocation.name}</h3>
                     </div>

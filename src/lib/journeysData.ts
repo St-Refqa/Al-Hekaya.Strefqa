@@ -106,7 +106,7 @@ export const journeysData: Journey[] = [
       {
         id: 'return-antioch',
         name: 'العودة لأنطاكية',
-        x: 90, y: 70,
+        x: 92, y: 70,
         companions: ['برنابا'],
         events: 'عادوا إلى القاعدة بأنطاكية وأخبروا الكنيسة كيف فتح الله للأمم باب الإيمان.',
         labelPosition: 'bottom-right'
