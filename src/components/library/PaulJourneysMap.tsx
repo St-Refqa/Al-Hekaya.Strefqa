@@ -99,12 +99,12 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             >
               {/* Background Map Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-100 mix-blend-multiply"
-                style={{ backgroundImage: `url(${activeJourney.mapImage || '/assets/paul-map.png'})` }}
+                className="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-multiply"
+                style={{ backgroundImage: `url('/assets/paul-map.png')` }}
               />
               
               {/* Paper Texture Overlay */}
-              <div className="absolute inset-0 bg-[#e8d5b5] mix-blend-color-burn opacity-20 pointer-events-none" />
+              <div className="absolute inset-0 bg-[#e8d5b5] mix-blend-color-burn opacity-30 pointer-events-none" />
 
               {/* SVG Overlay for Paths */}
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md">
@@ -122,6 +122,16 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                 />
               </svg>
+
+              {/* Arabic Region Labels Overlay */}
+              <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-multiply font-cairo">
+                <div className="absolute top-[35%] left-[15%] text-[#5c3a21] font-black text-xl md:text-3xl tracking-widest -rotate-12">إيطاليا</div>
+                <div className="absolute top-[40%] left-[45%] text-[#5c3a21] font-black text-xl md:text-3xl tracking-widest">اليونان</div>
+                <div className="absolute top-[45%] left-[65%] text-[#5c3a21] font-black text-xl md:text-3xl tracking-widest">آسيا الصغرى</div>
+                <div className="absolute top-[65%] left-[88%] text-[#5c3a21] font-black text-xl md:text-3xl tracking-widest -rotate-90">سوريا وفلسطين</div>
+                <div className="absolute top-[80%] left-[75%] text-[#5c3a21] font-black text-xl md:text-3xl tracking-widest">مصر</div>
+                <div className="absolute top-[65%] left-[40%] text-[#2a4365] font-black text-2xl md:text-4xl tracking-[0.5em] opacity-30 italic">البحر المتوسط</div>
+              </div>
 
               {/* Interactive Markers */}
               {activeJourney.locations.map((loc, index) => (
