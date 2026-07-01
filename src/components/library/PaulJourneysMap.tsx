@@ -186,68 +186,90 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           <AnimatePresence>
             {selectedLocation && (
               <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="absolute inset-0 flex items-center justify-center p-4 z-50 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 flex flex-col md:items-center md:justify-center z-50 pointer-events-none"
               >
-                <div className="absolute inset-0 bg-[#3a2512]/40 backdrop-blur-sm pointer-events-auto" onClick={() => setSelectedLocation(null)} />
-                
+                {/* Backdrop */}
                 <div 
-                  className="bg-[#f4ead5] w-[95%] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border-2 border-[#d4b483] relative pointer-events-auto hide-scrollbar"
+                  className="absolute inset-0 bg-[#3a2512]/60 backdrop-blur-sm pointer-events-auto transition-opacity" 
+                  onClick={() => setSelectedLocation(null)} 
+                />
+                
+                {/* Popup Container (Bottom Sheet on Mobile, Centered Modal on Desktop) */}
+                <motion.div 
+                  initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  exit={{ y: "100%", opacity: 0, scale: 0.95 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className="bg-[#fdf5e6] w-full md:w-[90%] md:max-w-lg mt-auto md:mt-0 rounded-t-3xl md:rounded-2xl shadow-2xl border-t-4 md:border-4 border-[#d4b483] relative pointer-events-auto flex flex-col overflow-hidden max-h-[85vh] font-cairo"
                   onClick={e => e.stopPropagation()}
+                  dir="rtl"
                 >
-                  <div className="bg-[#e8d5b5] border-b border-[#d4b483] p-4 flex justify-between items-start">
-                  <div className="flex items-center gap-2 text-[#5c3a21]">
-                    <MapPin className="w-5 h-5 text-brand-red" />
-                    <h3 className="text-xl font-black">{selectedLocation.name}</h3>
-                  </div>
+                  {/* Close Button - Floating */}
                   <button 
                     onClick={() => setSelectedLocation(null)}
-                    className="p-1 hover:bg-[#d4b483] rounded-full transition-colors text-[#5c3a21] relative z-10"
+                    className="absolute top-4 left-4 w-8 h-8 flex items-center justify-center bg-black/40 hover:bg-black/60 text-white backdrop-blur-md rounded-full transition-colors z-20"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
-                </div>
-                
-                {selectedLocation.image && (
-                  <div className="w-full h-40 overflow-hidden border-b-2 border-[#d4b483]">
-                    <img 
-                      src={selectedLocation.image} 
-                      alt={selectedLocation.name} 
-                      className="w-full h-full object-cover object-center"
-                    />
-                  </div>
-                )}
-                
-                <div className="p-5 space-y-4 max-h-[40vh] overflow-y-auto custom-scrollbar">
-                  {selectedLocation.companions.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-1.5 text-[#8b5a2b] font-black text-sm mb-2 uppercase">
-                        <Users className="w-4 h-4" />
-                        الرفقاء
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedLocation.companions.map(comp => (
-                          <span key={comp} className="px-2 py-1 bg-[#f3e3ca] text-[#5c3a21] text-xs font-bold rounded-md border border-[#e8d5b5]">
-                            {comp}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
-                  <div>
-                    <div className="flex items-center gap-1.5 text-[#8b5a2b] font-black text-sm mb-2 uppercase">
-                      <BookOpen className="w-4 h-4" />
-                      الأحداث
+                  {/* Header / Image Area */}
+                  {selectedLocation.image ? (
+                    <div className="relative w-full h-48 md:h-64 bg-[#e8d5b5] flex-shrink-0">
+                      <img 
+                        src={selectedLocation.image} 
+                        alt={selectedLocation.name} 
+                        className="w-full h-full object-contain p-2"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#fdf5e6] to-transparent" />
                     </div>
-                    <p className="text-sm font-bold text-[#5c3a21] leading-relaxed">
-                      {selectedLocation.events}
-                    </p>
+                  ) : (
+                    <div className="w-full h-12 bg-[#e8d5b5] flex-shrink-0" />
+                  )}
+                  
+                  {/* Content Area */}
+                  <div className="px-5 pb-6 pt-2 overflow-y-auto custom-scrollbar flex-1">
+                    {/* Title */}
+                    <div className="flex items-center gap-3 text-[#5c3a21] mb-6 -mt-8 relative z-10">
+                      <div className="w-12 h-12 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-md border-2 border-[#d4b483] flex-shrink-0">
+                        <MapPin className="w-6 h-6 text-brand-red" />
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-black drop-shadow-sm mt-4">{selectedLocation.name}</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Companions */}
+                      {selectedLocation.companions.length > 0 && (
+                        <div className="bg-[#e8d5b5]/30 rounded-xl p-4 border border-[#d4b483]/50">
+                          <div className="flex items-center gap-2 text-[#8b5a2b] font-black text-sm mb-3">
+                            <Users className="w-5 h-5" />
+                            الرفقاء
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedLocation.companions.map(comp => (
+                              <span key={comp} className="px-3 py-1 bg-[#fdf5e6] text-[#5c3a21] text-xs font-bold rounded-lg shadow-sm border border-[#d4b483]">
+                                {comp}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Events */}
+                      <div className="bg-[#e8d5b5]/30 rounded-xl p-4 border border-[#d4b483]/50">
+                        <div className="flex items-center gap-2 text-[#8b5a2b] font-black text-sm mb-3">
+                          <BookOpen className="w-5 h-5" />
+                          الأحداث
+                        </div>
+                        <p className="text-sm md:text-base font-bold text-[#5c3a21] leading-loose">
+                          {selectedLocation.events}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
