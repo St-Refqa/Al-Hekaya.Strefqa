@@ -27,7 +27,7 @@ export const journeysData: Journey[] = [
       {
         id: 'antioch-syria',
         name: 'أنطاكية (سوريا)',
-        x: 90, y: 70,
+        x: 91.65354554934379, y: 56.990959376795495,
         companions: ['برنابا', 'مرقس'],
         events: 'نقطة الانطلاق للرحلة الأولى، حيث فرز الروح القدس شاول وبرنابا للعمل. صاموا وصلوا ووضعوا عليهما الأيادي.',
         image: '/assets/cities/antioch_syria.png',
@@ -36,7 +36,7 @@ export const journeysData: Journey[] = [
       {
         id: 'seleucia',
         name: 'سلوكية',
-        x: 88, y: 45,
+        x: 90.60367289784053, y: 48.06455862910948,
         companions: ['برنابا', 'مرقس'],
         events: 'ميناء أنطاكية، ومنه أبحروا إلى قبرص بتوجيه من الروح القدس.',
         image: '/assets/cities/seleucia.png',
@@ -45,7 +45,7 @@ export const journeysData: Journey[] = [
       {
         id: 'salamis',
         name: 'سلاميس (قبرص)',
-        x: 86, y: 75,
+        x: 83.20210101406535, y: 52.12201457576773,
         companions: ['برنابا', 'مرقس'],
         events: 'أول محطة في قبرص، نادوا بكلمة الله في مجامع اليهود.',
         image: '/assets/cities/salamis_cyprus.png',
@@ -54,7 +54,7 @@ export const journeysData: Journey[] = [
       {
         id: 'paphos',
         name: 'بافوس (قبرص)',
-        x: 82, y: 76,
+        x: 78.95013298744053, y: 56.295397501621636,
         companions: ['برنابا', 'مرقس'],
         events: 'مواجهة عليم الساحر وضربه بالعمى، وإيمان سيرجيوس بولس الوالي. وهنا تغير اسم شاول إلى بولس رسمياً.',
         image: '/assets/cities/paphos_cyprus.png',
@@ -72,7 +72,7 @@ export const journeysData: Journey[] = [
       {
         id: 'antioch-pisidia',
         name: 'أنطاكية بيسيدية',
-        x: 70, y: 31,
+        x: 70.4986884521621, y: 31.602876992481576,
         companions: ['برنابا'],
         events: 'ألقى بولس عظة تاريخية في المجمع، وآمن الكثير من الأمم، لكن اليهود أثاروا اضطهاداً فطردوهما، فنفضا غبار أرجلهما.',
         image: '/assets/cities/antioch_pisidia.png',
@@ -81,7 +81,7 @@ export const journeysData: Journey[] = [
       {
         id: 'iconium',
         name: 'أيقونية',
-        x: 74, y: 34,
+        x: 76.16797680476863, y: 34.61698623477547,
         companions: ['برنابا'],
         events: 'آمن جمهور من اليهود واليونانيين. انقسمت المدينة، وتآمروا لرجمهما فهربا إلى لسترة.',
         image: '/assets/cities/iconium.png',
@@ -90,7 +90,7 @@ export const journeysData: Journey[] = [
       {
         id: 'lystra',
         name: 'لسترة',
-        x: 74, y: 37,
+        x: 74.54068335822222, y: 37.16738756028678,
         companions: ['برنابا'],
         events: 'شفاء مقعد من بطن أمه، فظنهم الناس آلهة (زفس وهرمس). جاء يهود وحرضوا الجموع فرجموا بولس وجروه خارج المدينة ظانين أنه مات، لكنه قام.',
         image: '/assets/cities/lystra.png',
@@ -99,7 +99,7 @@ export const journeysData: Journey[] = [
       {
         id: 'derbe',
         name: 'دربة',
-        x: 76, y: 40,
+        x: 76.90288625108496, y: 40.06557371498861,
         companions: ['برنابا'],
         events: 'بشرا في هذه المدينة وتلمذا كثيرين. ثم عادا في نفس الطريق (لسترة وأيقونية وأنطاكية) لتشديد عزائم الكنائس ورسامة قسوس.',
         image: '/assets/cities/derbe.png',
@@ -108,7 +108,7 @@ export const journeysData: Journey[] = [
       {
         id: 'return-antioch',
         name: 'العودة لأنطاكية',
-        x: 91, y: 44,
+        x: 90.8661445850562, y: 41.45670135693991,
         companions: ['برنابا'],
         events: 'عادوا إلى القاعدة بأنطاكية وأخبروا الكنيسة كيف فتح الله للأمم باب الإيمان.',
         labelPosition: 'bottom-right'
@@ -124,14 +124,14 @@ export const journeysData: Journey[] = [
       {
         id: 'antioch-syria2',
         name: 'أنطاكية (سوريا)',
-        x: 90, y: 70,
+        x: 91.44357242877909, y: 44.470810599233786,
         companions: ['سيلا'],
         events: 'بدء الرحلة بعد مجمع أورشليم. حدث مشاجرة بين بولس وبرنابا بسبب مرقس، فأخذ بولس سيلا وانطلق براً.'
       },
       {
         id: 'syria-cilicia',
         name: 'سوريا وكيليكية',
-        x: 89, y: 41,
+        x: 87.55905207663268, y: 38.90630003142859,
         companions: ['سيلا'],
         events: 'اجتياز بولس وسيلا لشدائد وتثبيت الكنائس التي تأسست سابقاً.',
         labelPosition: 'bottom-right'
@@ -139,7 +139,7 @@ export const journeysData: Journey[] = [
       {
         id: 'derbe-lystra2',
         name: 'دربة ولسترة',
-        x: 75, y: 38,
+        x: 69.816270523817, y: 38.790373052232944,
         companions: ['سيلا', 'تيموثاوس'],
         events: 'انضمام تيموثاوس الشاب ليكون رفيقاً في الرحلة، وقام بولس بختانه مراعاة لليهود في تلك النواحي.',
         labelPosition: 'bottom'
@@ -147,7 +147,7 @@ export const journeysData: Journey[] = [
       {
         id: 'phrygia-galatia',
         name: 'فريجية وغلاطية',
-        x: 65, y: 32,
+        x: 63.359581206922876, y: 31.602876992481576,
         companions: ['سيلا', 'تيموثاوس'],
         events: 'منعهم الروح القدس من التكلم بالكلمة في أسيا، ثم حاولوا الذهاب لبيثينية فلم يدعهم الروح.',
         labelPosition: 'top-left'
@@ -155,7 +155,7 @@ export const journeysData: Journey[] = [
       {
         id: 'troas',
         name: 'ترواس',
-        x: 57, y: 24,
+        x: 57.58530276969411, y: 25.110946699507654,
         companions: ['سيلا', 'تيموثاوس', 'لوقا'],
         events: 'ظهور رؤيا لبولس ليلاً: رجل مكدوني يطلب العون قائلاً "اعبر إلى مكدونية وأعنا". هنا ينضم لوقا البشير للرحلة.',
         image: '/assets/cities/troas.png',
@@ -164,7 +164,7 @@ export const journeysData: Journey[] = [
       {
         id: 'philippi',
         name: 'فيلبي',
-        x: 50, y: 15,
+        x: 48.66141695097516, y: 15.604905218438045,
         companions: ['سيلا', 'تيموثاوس', 'لوقا'],
         events: 'إيمان ليدية بائعة الأرجوان. إخراج روح عرافة من جارية. سجن بولس وسيلا، حدوث زلزلة في منتصف الليل، وإيمان سجان فيلبي وأهل بيته.',
         image: '/assets/cities/philippi.png'
@@ -172,7 +172,7 @@ export const journeysData: Journey[] = [
       {
         id: 'thessalonica',
         name: 'تسالونيكي',
-        x: 45, y: 18,
+        x: 43.674539478033985, y: 20.126071027680663,
         companions: ['سيلا', 'تيموثاوس'],
         events: 'تأسيس الكنيسة. ثورة اليهود وتجمهرهم ضد بيت ياسون.',
         image: '/assets/cities/thessalonica.png',
@@ -181,7 +181,7 @@ export const journeysData: Journey[] = [
       {
         id: 'berea',
         name: 'بيرية',
-        x: 42, y: 21,
+        x: 42.309710670023534, y: 22.560545373996334,
         companions: ['سيلا', 'تيموثاوس'],
         events: 'كانوا أشرف من الذين في تسالونيكي إذ قبلوا الكلمة بفرح وفحصوا الكتب كل يوم.',
         image: '/assets/cities/berea.png',
@@ -190,7 +190,7 @@ export const journeysData: Journey[] = [
       {
         id: 'athens',
         name: 'أثينا',
-        x: 47, y: 39,
+        x: 47.29658814296471, y: 38.442588223042435,
         companions: ['بولس بمفرده'],
         events: 'احتدت روحه فيه إذ رأى المدينة ممتلئة أصناماً. عظة بولس الشهيرة في أريوس باغوس أمام الفلاسفة عن الإله المجهول.',
         image: '/assets/cities/athens.png',
@@ -199,7 +199,7 @@ export const journeysData: Journey[] = [
       {
         id: 'corinth',
         name: 'كورنثوس',
-        x: 45, y: 41,
+        x: 45.19684988863791, y: 39.833715864993735,
         companions: ['سيلا', 'تيموثاوس', 'أكيلا وبريسكلا'],
         events: 'بقي فيها سنة وستة أشهر يعلم، واشتغل بصناعة الخيام مع أكيلا وبريسكلا. هنا كتب رسالتي تسالونيكي الأولى والثانية.',
         image: '/assets/cities/corinth.png',
@@ -208,7 +208,7 @@ export const journeysData: Journey[] = [
       {
         id: 'ephesus2',
         name: 'أفسس',
-        x: 59, y: 38,
+        x: 59.4750679034562, y: 37.86295332706422,
         companions: ['أكيلا وبريسكلا'],
         events: 'زيارة قصيرة جداً، ترك فيها أكيلا وبريسكلا، ووعد بالعودة.',
         labelPosition: 'bottom'
@@ -216,7 +216,7 @@ export const journeysData: Journey[] = [
       {
         id: 'caesarea-jerusalem',
         name: 'قيصرية وأورشليم',
-        x: 90, y: 82,
+        x: 88.87138936667189, y: 72.87300611744517,
         companions: [],
         events: 'النزول في ميناء قيصرية، الصعود لتسليم على الكنيسة في أورشليم، ثم العودة لإنطاكية.',
         labelPosition: 'bottom-left'
@@ -232,14 +232,14 @@ export const journeysData: Journey[] = [
       {
         id: 'antioch-syria3',
         name: 'أنطاكية (سوريا)',
-        x: 90, y: 70,
+        x: 91.44357242877909, y: 44.2389566408425,
         companions: ['تيموثاوس', 'تيطس'],
         events: 'انطلق منها للمرة الثالثة، وابتدأ يطوف بالترتيب في كورة غلاطية وفريجية يشدد جميع التلاميذ.'
       },
       {
         id: 'ephesus3',
         name: 'أفسس',
-        x: 59, y: 38,
+        x: 59.42256933680523, y: 37.74702634786858,
         companions: ['تيموثاوس', 'تيطس', 'أبُلُّوس', 'أراستس'],
         events: 'مكث فيها 3 سنوات. معجزات غير عادية بمناديله، حرق كتب السحر (بـ 50 ألف من الفضة)، وثورة ديمتريوس الصائغ صانع هياكل أرطاميس. كتب هنا رسالة كورنثوس الأولى.',
         image: '/assets/paul-miracle.png'
@@ -247,7 +247,7 @@ export const journeysData: Journey[] = [
       {
         id: 'macedonia3',
         name: 'مكدونية (فيلبي)',
-        x: 58, y: 35,
+        x: 50.708660162990846, y: 15.952688101826764,
         companions: ['تيموثاوس', 'تيطس'],
         events: 'افتقاد الكنائس وتشجيعهم. جمع العطايا لفقراء أورشليم. كتب هنا رسالة كورنثوس الثانية.',
         labelPosition: 'top-left'
@@ -255,7 +255,7 @@ export const journeysData: Journey[] = [
       {
         id: 'corinth3',
         name: 'اليونان (كورنثوس)',
-        x: 53, y: 52,
+        x: 44.881890207790846, y: 39.37000794821116,
         companions: ['تيموثاوس'],
         events: 'قضاء 3 أشهر، وخلالها كتب رسالته الأعظم (رسالة رومية). كان ينوي الإبحار لسوريا ولكن تآمر اليهود جعله يغير طريقه راجعاً عبر مكدونية.',
         labelPosition: 'bottom-left'
@@ -263,14 +263,14 @@ export const journeysData: Journey[] = [
       {
         id: 'troas3',
         name: 'ترواس',
-        x: 52, y: 32,
+        x: 57.3228346068183, y: 25.110946699507654,
         companions: ['لوقا', 'تيموثاوس', 'سوباترس', 'أرسترخس'],
         events: 'حديث بولس الطويل، وسقوط الشاب أفتيخوس من الطابق الثالث ميتاً، وإقامة بولس له.'
       },
       {
         id: 'miletus',
         name: 'ميليتس',
-        x: 59, y: 41,
+        x: 59.99999718052811, y: 42.15226323211376,
         companions: ['لوقا'],
         events: 'استدعى قسوس كنيسة أفسس، وودعهم بكلمات مؤثرة، فبكوا وقبلوه لأنهم لن يروا وجهه بعد.',
         image: '/assets/cities/miletus.png',
@@ -279,14 +279,14 @@ export const journeysData: Journey[] = [
       {
         id: 'tyre',
         name: 'صور',
-        x: 88, y: 67,
+        x: 89.76378041558169, y: 67.19256467884075,
         companions: ['لوقا'],
         events: 'توقف السفينة وتفريغ حمولتها. تحذير المؤمنين لبولس بالروح ألا يصعد لأورشليم.'
       },
       {
         id: 'caesarea3',
         name: 'قيصرية',
-        x: 88, y: 72,
+        x: 89.02887096926536, y: 72.9889369882444,
         companions: ['لوقا'],
         events: 'البقاء في بيت فيلبس المبشر. جاء أغابوس النبي وربط يديه ورجليه بمنطقة بولس متنبئاً بما سيحدث له في أورشليم.',
         labelPosition: 'left'
@@ -294,7 +294,7 @@ export const journeysData: Journey[] = [
       {
         id: 'jerusalem3',
         name: 'أورشليم',
-        x: 88, y: 78,
+        x: 88.55643321016471, y: 79.01715547283217,
         companions: ['لوقا', 'مؤمنون آخرون'],
         events: 'القبض على بولس في الهيكل من قبل اليهود، وتدخل قائد الألف الروماني لإنقاذه. خطاب بولس على الدرج.',
         labelPosition: 'bottom'
@@ -317,14 +317,14 @@ export const journeysData: Journey[] = [
       {
         id: 'caesarea4',
         name: 'قيصرية',
-        x: 88, y: 72,
+        x: 88.81889784870066, y: 72.75707524664594,
         companions: ['لوقا', 'أرسترخس'],
         events: 'السجن لمدة سنتين والمحاكمات. بولس يرفع دعواه إلى قيصر.'
       },
       {
         id: 'tyre',
         name: 'صور',
-        x: 88, y: 67,
+        x: 89.76378041558169, y: 67.19256467884075,
         companions: ['لوقا', 'أرسترخس'],
         events: 'المرور بصور في بداية الرحلة بحراً.',
         labelPosition: 'left'
@@ -332,7 +332,7 @@ export const journeysData: Journey[] = [
       {
         id: 'sidon',
         name: 'صيدا',
-        x: 88, y: 65,
+        x: 90.39369977727581, y: 63.01918564459042,
         companions: ['لوقا', 'أرسترخس'],
         events: 'قائد المئة يوليوس يعامل بولس بالرفق.',
         labelPosition: 'left'
@@ -340,7 +340,7 @@ export const journeysData: Journey[] = [
       {
         id: 'myra',
         name: 'ميرا ليكيا',
-        x: 67, y: 48,
+        x: 68.24146859524183, y: 50.035321167038994,
         companions: ['لوقا', 'أرسترخس'],
         events: 'الانتقال إلى سفينة إسكندرية متجهة لإيطاليا.',
         labelPosition: 'top-left'
@@ -355,7 +355,7 @@ export const journeysData: Journey[] = [
       {
         id: 'fair-havens',
         name: 'لاسائية (الموانئ الجميلة)',
-        x: 53, y: 59,
+        x: 53.858267544481045, y: 58.845798827132946,
         companions: ['لوقا', 'أرسترخس'],
         events: 'تحذير بولس من خطورة السفر ولكنهم لم يستمعوا له، فهبت ريح أوروكليدون العنيفة.',
         image: '/assets/paul-ship.png',
@@ -395,7 +395,7 @@ export const journeysData: Journey[] = [
       {
         id: 'puteoli',
         name: 'بوطيولي',
-        x: 15, y: 16,
+        x: 14.960630656653596, y: 16.300469039413695,
         companions: ['لوقا', 'أرسترخس'],
         events: 'لقاء إخوة مؤمنين والمكوث عندهم 7 أيام.',
         labelPosition: 'top-left'
