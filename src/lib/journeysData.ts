@@ -45,7 +45,7 @@ export const journeysData: Journey[] = [
       {
         id: 'salamis',
         name: 'سلاميس (قبرص)',
-        x: 86, y: 75,
+        x: 84.1469835809464, y: 51.542375788185936,
         companions: ['برنابا', 'مرقس'],
         events: 'أول محطة في قبرص، نادوا بكلمة الله في مجامع اليهود.',
         image: '/assets/cities/salamis_cyprus.png',
@@ -54,7 +54,7 @@ export const journeysData: Journey[] = [
       {
         id: 'paphos',
         name: 'بافوس (قبرص)',
-        x: 82, y: 76,
+        x: 79.37007922856994, y: 56.063543543230345,
         companions: ['برنابا', 'مرقس'],
         events: 'مواجهة عليم الساحر وضربه بالعمى، وإيمان سيرجيوس بولس الوالي. وهنا تغير اسم شاول إلى بولس رسمياً.',
         image: '/assets/cities/paphos_cyprus.png',
@@ -63,7 +63,7 @@ export const journeysData: Journey[] = [
       {
         id: 'perga',
         name: 'برجة بمفيلية',
-        x: 70, y: 40,
+        x: 66.87663978723137, y: 40.99298954855375,
         companions: ['برنابا'],
         events: 'في هذه النقطة فارقهم يوحنا مرقس وعاد إلى أورشليم، وأكمل بولس وبرنابا الطريق الصعب.',
         image: '/assets/cities/perga.png',
@@ -72,7 +72,7 @@ export const journeysData: Journey[] = [
       {
         id: 'antioch-pisidia',
         name: 'أنطاكية بيسيدية',
-        x: 70, y: 31,
+        x: 70.28871533159739, y: 31.950657930068505,
         companions: ['برنابا'],
         events: 'ألقى بولس عظة تاريخية في المجمع، وآمن الكثير من الأمم، لكن اليهود أثاروا اضطهاداً فطردوهما، فنفضا غبار أرجلهما.',
         image: '/assets/cities/antioch_pisidia.png',
@@ -81,7 +81,7 @@ export const journeysData: Journey[] = [
       {
         id: 'iconium',
         name: 'أيقونية',
-        x: 74, y: 34,
+        x: 75.95800368420392, y: 34.73291321397111,
         companions: ['برنابا'],
         events: 'آمن جمهور من اليهود واليونانيين. انقسمت المدينة، وتآمروا لرجمهما فهربا إلى لسترة.',
         image: '/assets/cities/iconium.png',
@@ -90,7 +90,7 @@ export const journeysData: Journey[] = [
       {
         id: 'lystra',
         name: 'لسترة',
-        x: 74, y: 37,
+        x: 74.6456663941647, y: 37.631099368672935,
         companions: ['برنابا'],
         events: 'شفاء مقعد من بطن أمه، فظنهم الناس آلهة (زفس وهرمس). جاء يهود وحرضوا الجموع فرجموا بولس وجروه خارج المدينة ظانين أنه مات، لكنه قام.',
         image: '/assets/cities/lystra.png',
@@ -99,7 +99,7 @@ export const journeysData: Journey[] = [
       {
         id: 'derbe',
         name: 'دربة',
-        x: 76, y: 40,
+        x: 76.85039473311373, y: 40.06557371498861,
         companions: ['برنابا'],
         events: 'بشرا في هذه المدينة وتلمذا كثيرين. ثم عادا في نفس الطريق (لسترة وأيقونية وأنطاكية) لتشديد عزائم الكنائس ورسامة قسوس.',
         image: '/assets/cities/derbe.png',
@@ -108,7 +108,7 @@ export const journeysData: Journey[] = [
       {
         id: 'return-antioch',
         name: 'العودة لأنطاكية',
-        x: 91, y: 44,
+        x: 91.39107386212811, y: 44.2389566408425,
         companions: ['برنابا'],
         events: 'عادوا إلى القاعدة بأنطاكية وأخبروا الكنيسة كيف فتح الله للأمم باب الإيمان.',
         labelPosition: 'bottom-right'
