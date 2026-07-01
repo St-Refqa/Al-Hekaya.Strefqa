@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Users, BookOpen, X, Navigation, ZoomIn, ZoomOut, ChevronRight, ChevronLeft } from 'lucide-react';
 import { journeysData, JourneyLocation } from '../../lib/journeysData';
 import { cn } from '../../lib/utils';
+import { useAuth } from '../../hooks/useAuth';
 
 interface PaulJourneysMapProps {
   onClose: () => void;
@@ -15,6 +16,38 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const [isLegendOpen, setIsLegendOpen] = useState(typeof window !== 'undefined' ? window.innerWidth > 768 : false);
 
   const activeJourney = journeysData.find(j => j.id === activeJourneyId)!;
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedLocations, setEditedLocations] = useState<Record<string, JourneyLocation[]>>({});
+  const [draggingPoint, setDraggingPoint] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!editedLocations[activeJourneyId]) {
+      setEditedLocations(prev => ({ ...prev, [activeJourneyId]: activeJourney.locations }));
+    }
+  }, [activeJourneyId, activeJourney.locations]);
+
+  const currentLocations = isEditMode 
+    ? (editedLocations[activeJourneyId] || activeJourney.locations) 
+    : activeJourney.locations;
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isEditMode || !draggingPoint) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    
+    setEditedLocations(prev => ({
+      ...prev,
+      [activeJourneyId]: prev[activeJourneyId].map(loc => 
+        loc.id === draggingPoint ? { ...loc, x, y } : loc
+      )
+    }));
+  };
+
+  const handlePointerUp = () => setDraggingPoint(null);
+
 
   const getLabelPositionClasses = (pos?: string) => {
     switch (pos) {
@@ -32,8 +65,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
   // Path generator for SVG
   const generatePath = () => {
-    if (activeJourney.locations.length === 0) return '';
-    return activeJourney.locations.map((loc, index) => {
+    if (currentLocations.length === 0) return '';
+    return currentLocations.map((loc, index) => {
       return `${index === 0 ? 'M' : 'L'} ${loc.x} ${loc.y}`;
     }).join(' ');
   };
@@ -46,6 +79,27 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black font-cairo overflow-hidden"
     >
       <div className="relative bg-[#fdf5e6] flex flex-col w-full h-full overflow-hidden">
+        {isAdmin && (
+          <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 flex gap-2">
+            <button 
+              onClick={() => setIsEditMode(!isEditMode)}
+              className="bg-purple-600/90 backdrop-blur text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-purple-700 transition"
+            >
+              {isEditMode ? 'إغلاق التعديل' : 'تعديل الإحداثيات (أدمن)'}
+            </button>
+            {isEditMode && (
+              <button 
+                onClick={() => {
+                  console.log(JSON.stringify(editedLocations, null, 2));
+                  alert("تم طباعة الإحداثيات في الـ Console! تقدر تنسخها وتبعتها للمطور.");
+                }}
+                className="bg-green-600/90 backdrop-blur text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-green-700 transition"
+              >
+                نسخ البيانات
+              </button>
+            )}
+          </div>
+        )}
         {/* Header - Vintage Style */}
         <div className="relative z-10 bg-[#e8d5b5] border-b-2 border-[#d4b483] px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
@@ -91,7 +145,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
         {/* Map Area */}
         <div className="relative flex-1 bg-[#d0e5f2] overflow-hidden">
           {/* Scrollable Container */}
-          <div className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing">
+          <div className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
             {/* Inner Map Container */}
             <div 
               className="relative flex-shrink-0 origin-top-left transition-all duration-300 ease-out"
@@ -99,7 +153,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             >
               {/* Background Map Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-100 mix-blend-multiply"
+                className="absolute inset-0 bg-cover bg-center opacity-100 mix-blend-multiply saturate-150 contrast-110 sepia-[.15] hue-rotate-[-5deg]"
                 style={{ backgroundImage: `url(${activeJourney.mapImage || '/assets/paul-map.png'})` }}
               />
               
@@ -125,17 +179,26 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               </svg>
 
               {/* Interactive Markers */}
-              {activeJourney.locations.map((loc, index) => (
-                <motion.button
+              {currentLocations.map((loc, index) => (
+                <motion.div
                   key={`${activeJourney.id}-${loc.id}`}
-                  initial={{ scale: 0, opacity: 0 }}
+                  initial={isEditMode ? false : { scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.2 + 0.5, type: "spring" }}
-                  onClick={() => setSelectedLocation(loc)}
-                  className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 cursor-pointer"
+                  transition={{ delay: isEditMode ? 0 : index * 0.2 + 0.5, type: "spring" }}
+                  onPointerDown={(e) => {
+                    if (isEditMode) {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setDraggingPoint(loc.id);
+                    } else {
+                      setSelectedLocation(loc);
+                    }
+                  }}
+                  className={`absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
                   <div className="relative w-4 h-4 rounded-full border-2 border-transparent group-hover:border-red-600/80 transition-colors flex items-center justify-center bg-black/0">
+                    {isEditMode && <div className="absolute inset-0 bg-red-500/40 rounded-full scale-150 animate-pulse pointer-events-none" />}
                     <div className="absolute inset-0 rounded-full border-2 border-red-600/20 group-hover:border-red-600/60 animate-ping opacity-0 group-hover:opacity-100" />
                   </div>
 
@@ -145,7 +208,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       {loc.name}
                     </div>
                   </div>
-                </motion.button>
+                </motion.div>
               ))}
             </div>
           </div>
