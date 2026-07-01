@@ -28,7 +28,7 @@ export const journeysData: Journey[] = [
         x: 90, y: 70,
         companions: ['برنابا', 'مرقس'],
         events: 'نقطة الانطلاق للرحلة الأولى، حيث فرز الروح القدس شاول وبرنابا للعمل. صاموا وصلوا ووضعوا عليهما الأيادي.',
-        image: '/assets/paul-preach.png',
+        image: '/assets/cities/antioch_syria.png',
         labelPosition: 'right'
       },
       {
@@ -37,6 +37,7 @@ export const journeysData: Journey[] = [
         x: 88, y: 70,
         companions: ['برنابا', 'مرقس'],
         events: 'ميناء أنطاكية، ومنه أبحروا إلى قبرص بتوجيه من الروح القدس.',
+        image: '/assets/cities/seleucia.png',
         labelPosition: 'bottom'
       },
       {
@@ -45,6 +46,7 @@ export const journeysData: Journey[] = [
         x: 86, y: 75,
         companions: ['برنابا', 'مرقس'],
         events: 'أول محطة في قبرص، نادوا بكلمة الله في مجامع اليهود.',
+        image: '/assets/cities/salamis_cyprus.png',
         labelPosition: 'right'
       },
       {
@@ -53,7 +55,7 @@ export const journeysData: Journey[] = [
         x: 82, y: 76,
         companions: ['برنابا', 'مرقس'],
         events: 'مواجهة عليم الساحر وضربه بالعمى، وإيمان سيرجيوس بولس الوالي. وهنا تغير اسم شاول إلى بولس رسمياً.',
-        image: '/assets/paul-miracle.png',
+        image: '/assets/cities/paphos_cyprus.png',
         labelPosition: 'bottom'
       },
       {
@@ -62,6 +64,7 @@ export const journeysData: Journey[] = [
         x: 74, y: 62,
         companions: ['برنابا'],
         events: 'في هذه النقطة فارقهم يوحنا مرقس وعاد إلى أورشليم، وأكمل بولس وبرنابا الطريق الصعب.',
+        image: '/assets/cities/perga.png',
         labelPosition: 'bottom-left'
       },
       {
@@ -70,7 +73,7 @@ export const journeysData: Journey[] = [
         x: 75, y: 56,
         companions: ['برنابا'],
         events: 'ألقى بولس عظة تاريخية في المجمع، وآمن الكثير من الأمم، لكن اليهود أثاروا اضطهاداً فطردوهما، فنفضا غبار أرجلهما.',
-        image: '/assets/paul-preach.png',
+        image: '/assets/cities/antioch_pisidia.png',
         labelPosition: 'top-left'
       },
       {
@@ -79,6 +82,7 @@ export const journeysData: Journey[] = [
         x: 78, y: 56,
         companions: ['برنابا'],
         events: 'آمن جمهور من اليهود واليونانيين. انقسمت المدينة، وتآمروا لرجمهما فهربا إلى لسترة.',
+        image: '/assets/cities/iconium.png',
         labelPosition: 'top-right'
       },
       {
@@ -87,7 +91,7 @@ export const journeysData: Journey[] = [
         x: 79, y: 58,
         companions: ['برنابا'],
         events: 'شفاء مقعد من بطن أمه، فظنهم الناس آلهة (زفس وهرمس). جاء يهود وحرضوا الجموع فرجموا بولس وجروه خارج المدينة ظانين أنه مات، لكنه قام.',
-        image: '/assets/paul-miracle.png',
+        image: '/assets/cities/lystra.png',
         labelPosition: 'bottom'
       },
       {
@@ -96,6 +100,7 @@ export const journeysData: Journey[] = [
         x: 81, y: 60,
         companions: ['برنابا'],
         events: 'بشرا في هذه المدينة وتلمذا كثيرين. ثم عادا في نفس الطريق (لسترة وأيقونية وأنطاكية) لتشديد عزائم الكنائس ورسامة قسوس.',
+        image: '/assets/cities/derbe.png',
         labelPosition: 'top-right'
       },
       {
@@ -150,6 +155,7 @@ export const journeysData: Journey[] = [
         x: 65, y: 45,
         companions: ['سيلا', 'تيموثاوس', 'لوقا'],
         events: 'ظهور رؤيا لبولس ليلاً: رجل مكدوني يطلب العون قائلاً "اعبر إلى مكدونية وأعنا". هنا ينضم لوقا البشير للرحلة.',
+        image: '/assets/cities/troas.png',
         labelPosition: 'top'
       },
       {
@@ -158,7 +164,7 @@ export const journeysData: Journey[] = [
         x: 58, y: 35,
         companions: ['سيلا', 'تيموثاوس', 'لوقا'],
         events: 'إيمان ليدية بائعة الأرجوان. إخراج روح عرافة من جارية. سجن بولس وسيلا، حدوث زلزلة في منتصف الليل، وإيمان سجان فيلبي وأهل بيته.',
-        image: '/assets/paul-prison.png'
+        image: '/assets/cities/philippi.png'
       },
       {
         id: 'thessalonica',
@@ -166,6 +172,7 @@ export const journeysData: Journey[] = [
         x: 54, y: 38,
         companions: ['سيلا', 'تيموثاوس'],
         events: 'تأسيس الكنيسة. ثورة اليهود وتجمهرهم ضد بيت ياسون.',
+        image: '/assets/cities/thessalonica.png',
         labelPosition: 'top'
       },
       {
@@ -174,6 +181,7 @@ export const journeysData: Journey[] = [
         x: 52, y: 40,
         companions: ['سيلا', 'تيموثاوس'],
         events: 'كانوا أشرف من الذين في تسالونيكي إذ قبلوا الكلمة بفرح وفحصوا الكتب كل يوم.',
+        image: '/assets/cities/berea.png',
         labelPosition: 'left'
       },
       {
@@ -182,7 +190,7 @@ export const journeysData: Journey[] = [
         x: 55, y: 50,
         companions: ['بولس بمفرده'],
         events: 'احتدت روحه فيه إذ رأى المدينة ممتلئة أصناماً. عظة بولس الشهيرة في أريوس باغوس أمام الفلاسفة عن الإله المجهول.',
-        image: '/assets/paul-preach.png',
+        image: '/assets/cities/athens.png',
         labelPosition: 'top-left'
       },
       {
@@ -191,6 +199,7 @@ export const journeysData: Journey[] = [
         x: 53, y: 52,
         companions: ['سيلا', 'تيموثاوس', 'أكيلا وبريسكلا'],
         events: 'بقي فيها سنة وستة أشهر يعلم، واشتغل بصناعة الخيام مع أكيلا وبريسكلا. هنا كتب رسالتي تسالونيكي الأولى والثانية.',
+        image: '/assets/cities/corinth.png',
         labelPosition: 'bottom-left'
       },
       {
@@ -260,6 +269,7 @@ export const journeysData: Journey[] = [
         x: 68, y: 58,
         companions: ['لوقا'],
         events: 'استدعى قسوس كنيسة أفسس، وودعهم بكلمات مؤثرة، فبكوا وقبلوه لأنهم لن يروا وجهه بعد.',
+        image: '/assets/cities/miletus.png',
         labelPosition: 'bottom-right'
       },
       {
