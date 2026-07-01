@@ -90,8 +90,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             {isEditMode && (
               <button 
                 onClick={() => {
-                  console.log(JSON.stringify(editedLocations, null, 2));
-                  alert("تم طباعة الإحداثيات في الـ Console! تقدر تنسخها وتبعتها للمطور.");
+                  const dataString = JSON.stringify(editedLocations, null, 2);
+                  console.log(dataString);
+                  navigator.clipboard.writeText(dataString)
+                    .then(() => alert("تم نسخ الإحداثيات بنجاح! تقدر تعملها Paste دلوقتي في الرسالة."))
+                    .catch(() => alert("حصل مشكلة في النسخ، بس الإحداثيات لسة مطبوعة في الـ Console."));
                 }}
                 className="bg-green-600/90 backdrop-blur text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-green-700 transition"
               >
