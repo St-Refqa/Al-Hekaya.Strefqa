@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Users, BookOpen, X, Navigation } from 'lucide-react';
+import { MapPin, Users, BookOpen, X, Navigation, ZoomIn, ZoomOut, ChevronRight, ChevronLeft } from 'lucide-react';
 import { journeysData, JourneyLocation } from '../../lib/journeysData';
 import { cn } from '../../lib/utils';
 
@@ -11,6 +11,8 @@ interface PaulJourneysMapProps {
 export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const [activeJourneyId, setActiveJourneyId] = useState(journeysData[0].id);
   const [selectedLocation, setSelectedLocation] = useState<JourneyLocation | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
 
   const activeJourney = journeysData.find(j => j.id === activeJourneyId)!;
 
@@ -90,8 +92,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
         <div className="relative flex-1 bg-[#d0e5f2] overflow-hidden">
           {/* Scrollable Container */}
           <div className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing">
-            {/* Inner Map Container (Fixed large size on mobile to allow panning) */}
-            <div className="relative w-[1200px] h-[800px] md:w-full md:h-full flex-shrink-0 origin-top-left">
+            {/* Inner Map Container */}
+            <div 
+              className="relative flex-shrink-0 origin-top-left transition-all duration-300 ease-out"
+              style={{ width: `${1200 * zoom}px`, height: `${800 * zoom}px` }}
+            >
               {/* Background Map Image */}
               <div 
                 className="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-multiply"
@@ -160,31 +165,75 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             </div>
           </div>
 
+          {/* Zoom Controls */}
+          <div className="absolute top-2 right-2 md:top-4 md:right-4 flex flex-col gap-2 z-40">
+            <button 
+              onClick={() => setZoom(prev => Math.min(prev + 0.25, 2.5))}
+              className="w-10 h-10 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-full flex items-center justify-center text-[#8b5a2b] shadow-md hover:bg-[#e8d5b5] transition-colors"
+            >
+              <ZoomIn className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => setZoom(prev => Math.max(prev - 0.25, 0.5))}
+              className="w-10 h-10 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-full flex items-center justify-center text-[#8b5a2b] shadow-md hover:bg-[#e8d5b5] transition-colors"
+            >
+              <ZoomOut className="w-5 h-5" />
+            </button>
+          </div>
+
           {/* Map Legend (Sidebar) */}
-          <div dir="rtl" className="absolute top-2 left-2 bottom-2 md:top-4 md:left-4 md:bottom-4 w-32 md:w-64 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-xl shadow-xl overflow-y-auto pointer-events-auto hide-scrollbar z-40 font-cairo">
-            <div className="sticky top-0 bg-[#fdf5e6] border-b-2 border-[#d4b483] p-2 md:p-3 text-center">
-              <h3 className="font-black text-[#5c3a21] text-[10px] md:text-base">مفتاح الخريطة</h3>
-              <p className="text-[8px] md:text-xs text-[#8b5a2b] font-bold">{activeJourney.title}</p>
-            </div>
-            <div className="p-2 md:p-3 flex flex-col gap-1.5 md:gap-2">
-              {activeJourney.locations.map((loc, index) => (
-                <button
-                  key={`legend-${loc.id}`}
-                  onClick={() => setSelectedLocation(loc)}
-                  className="flex items-center gap-1.5 md:gap-2 hover:bg-[#e8d5b5]/50 p-1 md:p-2 rounded-lg transition-colors text-right"
+          <div 
+            dir="rtl" 
+            className={cn(
+              "absolute top-2 left-2 md:top-4 md:left-4 bg-[#fdf5e6]/90 backdrop-blur-sm border-2 border-[#d4b483] rounded-xl shadow-xl overflow-hidden pointer-events-auto z-40 font-cairo transition-all duration-300 flex flex-col",
+              isLegendOpen ? "w-48 md:w-64 bottom-2 md:bottom-4" : "w-12 h-12"
+            )}
+          >
+            {/* Toggle Button */}
+            <button 
+              onClick={() => setIsLegendOpen(!isLegendOpen)}
+              className={cn(
+                "w-full flex items-center justify-center p-2 bg-[#fdf5e6] text-[#8b5a2b] hover:bg-[#e8d5b5] transition-colors",
+                isLegendOpen ? "border-b-2 border-[#d4b483]" : "h-full"
+              )}
+            >
+              {isLegendOpen ? <ChevronLeft className="w-6 h-6" /> : <ChevronRight className="w-6 h-6" />}
+            </button>
+
+            <AnimatePresence>
+              {isLegendOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex-1 overflow-y-auto hide-scrollbar flex flex-col"
                 >
-                  <div 
-                    className="flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full text-white text-[8px] md:text-[10px] font-bold shadow-md"
-                    style={{ backgroundColor: activeJourney.color }}
-                  >
-                    {index + 1}
+                  <div className="sticky top-0 bg-[#fdf5e6] border-b-2 border-[#d4b483] p-2 md:p-3 text-center">
+                    <h3 className="font-black text-[#5c3a21] text-[10px] md:text-base">مفتاح الخريطة</h3>
+                    <p className="text-[8px] md:text-xs text-[#8b5a2b] font-bold">{activeJourney.title}</p>
                   </div>
-                  <span className="text-[9px] md:text-sm font-bold text-[#5c3a21] line-clamp-1">
-                    {loc.name}
-                  </span>
-                </button>
-              ))}
-            </div>
+                  <div className="p-2 md:p-3 flex flex-col gap-1.5 md:gap-2">
+                    {activeJourney.locations.map((loc, index) => (
+                      <button
+                        key={`legend-${loc.id}`}
+                        onClick={() => setSelectedLocation(loc)}
+                        className="flex items-center gap-1.5 md:gap-2 hover:bg-[#e8d5b5]/50 p-1 md:p-2 rounded-lg transition-colors text-right"
+                      >
+                        <div 
+                          className="flex-shrink-0 flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full text-white text-[8px] md:text-[10px] font-bold shadow-md"
+                          style={{ backgroundColor: activeJourney.color }}
+                        >
+                          {index + 1}
+                        </div>
+                        <span className="text-[9px] md:text-sm font-bold text-[#5c3a21] line-clamp-1">
+                          {loc.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
 
