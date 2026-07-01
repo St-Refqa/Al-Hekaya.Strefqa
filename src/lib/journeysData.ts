@@ -305,21 +305,36 @@ export const journeysData: Journey[] = [
     id: 'journey4',
     title: 'الرحلة إلى روما (أع 27-28)',
     color: '#7c3aed',
-    mapImage: '/assets/maps/journey4.png', // rose-600
+    mapImage: '/assets/maps/journey4.png',
     locations: [
+      {
+        id: 'jerusalem4',
+        name: 'أورشليم',
+        x: 88, y: 78,
+        companions: ['لوقا', 'أرسترخس'],
+        events: 'تم القبض على بولس هنا وبداية رحلة المحاكمات.'
+      },
       {
         id: 'caesarea4',
         name: 'قيصرية',
-        x: 82, y: 66,
+        x: 88, y: 72,
         companions: ['لوقا', 'أرسترخس'],
-        events: 'السجن لمدة سنتين. المحاكمة أمام فيلكس الوالي، ثم فستوس، وأخيراً الملك أغريباس. بولس يرفع دعواه إلى قيصر.'
+        events: 'السجن لمدة سنتين والمحاكمات. بولس يرفع دعواه إلى قيصر.'
+      },
+      {
+        id: 'tyre',
+        name: 'صور',
+        x: 88, y: 67,
+        companions: ['لوقا', 'أرسترخس'],
+        events: 'المرور بصور في بداية الرحلة بحراً.',
+        labelPosition: 'left'
       },
       {
         id: 'sidon',
         name: 'صيدا',
-        x: 88, y: 66,
+        x: 88, y: 65,
         companions: ['لوقا', 'أرسترخس'],
-        events: 'قائد المئة يوليوس يعامل بولس بالرفق ويسمح له بزيارة أصدقائه ليحصل على عنايتهم.',
+        events: 'قائد المئة يوليوس يعامل بولس بالرفق.',
         labelPosition: 'left'
       },
       {
@@ -331,30 +346,51 @@ export const journeysData: Journey[] = [
         labelPosition: 'top-left'
       },
       {
+        id: 'cnidus',
+        name: 'كنيدوس',
+        x: 59, y: 46,
+        companions: ['لوقا', 'أرسترخس'],
+        events: 'ساروا ببطء أياماً كثيرة وبالجهد وصلوا بقرب كنيدوس.'
+      },
+      {
         id: 'fair-havens',
-        name: 'المواني الحسنة (كريت)',
-        x: 58, y: 72,
+        name: 'لاسائية (الموانئ الجميلة)',
+        x: 53, y: 59,
         companions: ['لوقا', 'أرسترخس'],
         events: 'تحذير بولس من خطورة السفر ولكنهم لم يستمعوا له، فهبت ريح أوروكليدون العنيفة.',
         image: '/assets/paul-ship.png',
         labelPosition: 'bottom'
       },
       {
+        id: 'clauda',
+        name: 'كلودا',
+        x: 48, y: 62,
+        companions: ['لوقا', 'أرسترخس'],
+        events: 'جرتهم الريح تحت جزيرة كلودا وبالجهد تمكنوا من القارب.'
+      },
+      {
         id: 'malta',
-        name: 'مالطة',
+        name: 'مالطا',
         x: 14, y: 53,
         companions: ['لوقا', 'أرسترخس'],
-        events: 'انكسار السفينة بعد 14 يوم عاصفة. نجاة جميع الركاب (276 شخصاً). لدغة الأفعى لبولس ولم يتضرر، وشفاء أبو بوبليوس.',
+        events: 'انكسار السفينة. لدغة الأفعى لبولس ولم يتضرر، وشفاء أبو بوبليوس.',
         image: '/assets/paul-miracle.png',
         labelPosition: 'bottom'
       },
       {
         id: 'syracuse',
-        name: 'سرقوسة',
+        name: 'سراكوسا',
         x: 17, y: 44,
         companions: ['لوقا', 'أرسترخس'],
         events: 'المكوث 3 أيام في هذه المدينة الواقعة في جزيرة صقلية.',
         labelPosition: 'left'
+      },
+      {
+        id: 'rhegium',
+        name: 'ريغيون',
+        x: 19, y: 37,
+        companions: ['لوقا', 'أرسترخس'],
+        events: 'الطواف من هناك والوصول إلى ريغيون.'
       },
       {
         id: 'puteoli',
@@ -365,21 +401,12 @@ export const journeysData: Journey[] = [
         labelPosition: 'top-left'
       },
       {
-        id: 'appii-forum',
-        name: 'فورن أبيوس والثلاثة حوانيت',
-        x: 13, y: 13,
-        companions: ['لوقا', 'أرسترخس', 'إخوة من روما'],
-        events: 'مؤمنو روما يخرجون لاستقبال بولس، فلما رآهم شكر الله وتشجع.',
-        labelPosition: 'top'
-      },
-      {
         id: 'rome',
         name: 'روما',
         x: 10, y: 8,
         companions: ['لوقا', 'أرسترخس'],
-        events: 'تحديد إقامة بولس في بيت مستأجر لمدة سنتين تحت حراسة عسكري. كان يقبل جميع الذين يدخلون إليه، مبشراً بملكوت الله بكل مجاهرة.',
-        image: '/assets/paul-prison.png',
-        labelPosition: 'top-left'
+        events: 'تحديد إقامة بولس في بيت مستأجر لمدة سنتين.',
+        labelPosition: 'top-right'
       }
     ]
   }
