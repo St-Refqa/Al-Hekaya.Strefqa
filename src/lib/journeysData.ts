@@ -227,7 +227,7 @@ export const journeysData: Journey[] = [
     id: 'journey3',
     title: 'الرحلة التبشيرية الثالثة (أع 18-21)',
     color: '#2563eb',
-    mapImage: '/assets/maps/journey3.png', // blue-600
+    mapImage: '/assets/maps/clean-map.png', // clean map test
     locations: [
       {
         id: 'antioch-syria3',
