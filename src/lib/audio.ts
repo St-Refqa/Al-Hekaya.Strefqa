@@ -1,4 +1,14 @@
-export const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+let audioContext: AudioContext | null = null;
+
+function getAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  }
+  if (audioContext.state === 'suspended') {
+    audioContext.resume();
+  }
+  return audioContext;
+}
 
 function playTone(
   frequency: number,
@@ -6,25 +16,23 @@ function playTone(
   duration: number,
   vol: number = 0.1
 ) {
-  if (audioContext.state === 'suspended') {
-    audioContext.resume();
-  }
+  const ctx = getAudioContext();
 
-  const oscillator = audioContext.createOscillator();
-  const originGain = audioContext.createGain();
+  const oscillator = ctx.createOscillator();
+  const originGain = ctx.createGain();
 
   oscillator.type = type;
   oscillator.frequency.value = frequency;
 
-  originGain.gain.setValueAtTime(0.00001, audioContext.currentTime);
-  originGain.gain.exponentialRampToValueAtTime(vol, audioContext.currentTime + 0.02);
-  originGain.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration);
+  originGain.gain.setValueAtTime(0.00001, ctx.currentTime);
+  originGain.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.02);
+  originGain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
 
   oscillator.connect(originGain);
-  originGain.connect(audioContext.destination);
+  originGain.connect(ctx.destination);
 
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + duration);
+  oscillator.start(ctx.currentTime);
+  oscillator.stop(ctx.currentTime + duration);
 }
 
 export const playClickSound = () => {

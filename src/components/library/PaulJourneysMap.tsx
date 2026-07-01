@@ -198,7 +198,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
                   <div 
-                    className="relative w-3 h-3 rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-transform group-hover:scale-150"
+                    className="relative w-4 h-4 rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-transform group-hover:scale-150"
                     style={{ backgroundColor: activeJourney.color }}
                   >
                     {isEditMode && <div className="absolute inset-0 bg-white/50 rounded-full scale-150 animate-pulse pointer-events-none" />}
