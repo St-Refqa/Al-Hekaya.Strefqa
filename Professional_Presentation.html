@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنصة التعليمية الذكية - Al-Hekaya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            500: '#14b8a6',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; overflow: hidden; }
+        .slide { display: none; height: 100vh; width: 100vw; padding: 4rem; position: absolute; top: 0; left: 0; }
+        .slide.active { display: flex; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Modern Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+        }
+
+        .nav-btn {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            background: white; border-radius: 50%; width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            cursor: pointer; z-index: 50; transition: all 0.2s;
+            font-size: 24px; color: #14b8a6; border: none;
+        }
+        .nav-btn:hover { background: #f0fdfa; transform: translateY(-50%) scale(1.1); }
+        .nav-prev { right: 2rem; }
+        .nav-next { left: 2rem; }
+        
+        /* Gradient text */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #0f766e, #14b8a6);
+        }
+
+        .feature-icon {
+            font-size: 3rem; margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            position: fixed; bottom: 0; left: 0; height: 6px; background: #14b8a6;
+            transition: width 0.3s ease; z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-800">
+
+    <div id="progress" class="progress-bar" style="width: 0%"></div>
+
+    <button class="nav-btn nav-prev" onclick="prevSlide()">❯</button>
+    <button class="nav-btn nav-next" onclick="nextSlide()">❮</button>
+
+    <!-- Slide 1 -->
+    <div class="slide active">
+        <div class="glass-card items-center text-center">
+            <div class="text-7xl mb-6">🎓</div>
+            <h1 class="text-6xl font-black mb-6 text-gradient">المنصة التعليمية الذكية</h1>
+            <h2 class="text-3xl font-bold text-slate-600 mb-8">الجيل الجديد من إدارة التعليم والخدمة الكنسية</h2>
+            <p class="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                منصة متكاملة مصممة بأحدث التقنيات البرمجية لتوفير بيئة تعليمية تفاعلية، ذكية، ومحفزة تليق بتطلعات أبنائنا.
+            </p>
+        </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="slide">
+        <div class="glass-card">
+            <div class="flex items-center gap-6 mb-12">
+                <div class="text-6xl p-4 bg-emerald-100 rounded-3xl">🧠</div>
+                <h2 class="text-5xl font-black text-slate-800">١. نظام الاختبارات الذكي</h2>
+            </div>
+            <div class="grid grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="text-2xl font-bold mb-4 text-emerald-700">تصحيح بالذكاء الاصطناعي</h3>
+                    <p class="text-slate-600 text-lg leading-relaxed">الـ AI بيقرأ إجابة الطالب المقالية، بيفهم سياقها، وبيديله الدرجة مع تعليق (Feedback) يوضحله الصح والغلط بدون تدخل بشري.</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="feature-icon">💡</div>
+                    <h3 class="text-2xl font-bold mb-4 text-emerald-700">تلميحات ذكية (AI Hints)</h3>
+                    <p class="text-slate-600 text-lg leading-relaxed">الطالب لو عطل في سؤال، يقدر يطلب مساعدة، والنظام هيديله تلميح يقربه للإجابة عشان يشغل دماغه.</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="text-2xl font-bold mb-4 text-emerald-700">حماية ضد الغش</h3>
+                    <p class="text-slate-600 text-lg leading-relaxed">منع كامل للنسخ واللصق، ومنع الخروج من صفحة الامتحان أو فتح شاشات تانية.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="slide">
+        <div class="glass-card">
+            <div class="flex items-center gap-6 mb-12">
+                <div class="text-6xl p-4 bg-purple-100 rounded-3xl">🎮</div>
+                <h2 class="text-5xl font-black text-slate-800">٢. نظام التحفيز (Gamification)</h2>
+            </div>
+            <p class="text-2xl text-purple-600 font-bold mb-8 bg-purple-50 p-6 rounded-2xl border border-purple-100">
+                هل تعلم؟ ربط المذاكرة بالألعاب بيزود نسبة مشاركة المخدومين بنسبة ٧٠٪!
+            </p>
+            <div class="grid grid-cols-2 gap-8 text-lg text-slate-700">
+                <div class="flex items-start gap-4">
+                    <span class="text-3xl">⭐</span>
+                    <div>
+                        <strong class="text-xl text-slate-900 block mb-2">مستويات وخبرة (XP)</strong>
+                        الطالب بيبدأ من مستوى مبتدئ وبيعلى في الرتب مع كل امتحان بيحله.
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-3xl">🎖️</span>
+                    <div>
+                        <strong class="text-xl text-slate-900 block mb-2">أوسمة وتكريمات (Badges)</strong>
+                        أوسمة افتراضية بتظهر في ملفه (مثال: وسام التفوق المستمر، وسام المواظبة).
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-3xl">🏆</span>
+                    <div>
+                        <strong class="text-xl text-slate-900 block mb-2">لوحة الشرف (Leaderboard)</strong>
+                        لوحة بترتب الأوائل لتشجيع التنافس الشريف بين المخدومين.
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <span class="text-3xl">🔥</span>
+                    <div>
+                        <strong class="text-xl text-slate-900 block mb-2">المواظبة اليومية (Streaks)</strong>
+                        عداد يومي بيحفز الطالب يحل أسئلة كل يوم عشان يحافظ على رقمه.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="slide">
+        <div class="glass-card">
+            <div class="flex items-center gap-6 mb-12">
+                <div class="text-6xl p-4 bg-amber-100 rounded-3xl">🎁</div>
+                <h2 class="text-5xl font-black text-slate-800">٣. متجر المكافآت التفاعلي</h2>
+            </div>
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="flex-1 space-y-8 text-lg text-slate-700">
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                        <strong class="text-2xl text-amber-600 block mb-3">العملة الافتراضية 🪙</strong>
+                        كل درجة ومستوى بيحط "نقاط" في رصيد المخدوم بشكل تلقائي.
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                        <strong class="text-2xl text-amber-600 block mb-3">متجر الهدايا 🛍️</strong>
+                        المخدوم بيختار هدايا حقيقية أو رمزية من المتجر ويدفع تمنها من النقط اللي جمعها من تعبه.
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                        <strong class="text-2xl text-amber-600 block mb-3">تحكم كامل للإدارة ⚙️</strong>
+                        تقدر تضيف أو تمسح هدايا، وتحدد سعرها بالنقاط بسهولة من لوحة التحكم.
+                    </div>
+                </div>
+                <div class="flex-1 text-center">
+                    <div class="text-9xl mb-6 bounce">🛒</div>
+                    <p class="text-2xl font-bold text-slate-600">تحويل الجهد المبذول إلى مكافأة ملموسة!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div class="slide">
+        <div class="glass-card">
+            <div class="flex items-center gap-6 mb-12">
+                <div class="text-6xl p-4 bg-red-100 rounded-3xl">📶</div>
+                <h2 class="text-5xl font-black text-slate-800">٤. نظام الطوارئ (Offline Mode)</h2>
+            </div>
+            <div class="bg-red-50 p-8 rounded-3xl border border-red-200 mb-10">
+                <h3 class="text-2xl font-bold text-red-700 mb-2">⚠️ المشكلة المعتادة:</h3>
+                <p class="text-xl text-red-600">"يا أستاذ، أنا حليت الامتحان ولما دوست تسليم، النت فصل وإجاباتي كلها ضاعت!"</p>
+            </div>
+            <div class="grid grid-cols-2 gap-8">
+                <div class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100">
+                    <div class="text-4xl mb-4">💾</div>
+                    <h3 class="text-2xl font-bold text-emerald-800 mb-3">الحل السحري (الحفظ المحلي)</h3>
+                    <p class="text-lg text-emerald-700">المنصة بتكتشف انقطاع الإنترنت لحظياً، وبتحفظ إجابات الطالب بالكامل على جهازه الشخصي بأمان.</p>
+                </div>
+                <div class="bg-blue-50 p-8 rounded-3xl border border-blue-100">
+                    <div class="text-4xl mb-4">☁️</div>
+                    <h3 class="text-2xl font-bold text-blue-800 mb-3">مزامنة تلقائية صامتة</h3>
+                    <p class="text-lg text-blue-700">بمجرد عودة الإنترنت (حتى لو بعد يوم كامل)، تقوم المنصة برفع النتيجة لقاعدة البيانات فوراً دون تدخل الطالب.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6 -->
+    <div class="slide">
+        <div class="glass-card">
+            <div class="flex items-center gap-6 mb-12">
+                <div class="text-6xl p-4 bg-blue-100 rounded-3xl">📊</div>
+                <h2 class="text-5xl font-black text-slate-800">٥. لوحة تحكم متطورة للإدارة</h2>
+            </div>
+            <div class="grid grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm text-center">
+                    <div class="text-5xl mb-4">📈</div>
+                    <h3 class="text-2xl font-bold mb-4 text-blue-700">إحصائيات ذكية</h3>
+                    <p class="text-slate-600 text-lg">رسوم بيانية توضح نسب النجاح، والأسئلة الأصعب، ومستوى الدفعة العام بضغطة زر.</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm text-center">
+                    <div class="text-5xl mb-4">🗂️</div>
+                    <h3 class="text-2xl font-bold mb-4 text-blue-700">بنك الأسئلة</h3>
+                    <p class="text-slate-600 text-lg">أرشفة الأسئلة وتقسيمها لمستويات صعوبة، وتكوين اختبارات جديدة تلقائياً.</p>
+                </div>
+                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm text-center">
+                    <div class="text-5xl mb-4">👥</div>
+                    <h3 class="text-2xl font-bold mb-4 text-blue-700">متابعة دقيقة</h3>
+                    <p class="text-slate-600 text-lg">ملف شخصي لكل مخدوم يوضح حضوره، درجاته، وتطوره على مدار السنة.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7 -->
+    <div class="slide">
+        <div class="glass-card items-center text-center justify-center">
+            <h2 class="text-6xl font-black mb-8 text-gradient">لماذا تختار منصتنا؟</h2>
+            <p class="text-3xl text-slate-600 leading-relaxed max-w-4xl mx-auto mb-12">
+                هذه ليست مجرد "موقع إلكتروني"، بل هي بيئة تعليمية حية تتفوق على العديد من المنصات التجارية المدفوعة.
+            </p>
+            <div class="flex justify-center gap-12 text-2xl font-bold text-slate-800">
+                <div class="flex items-center gap-3"><span class="text-4xl">🤖</span> أحدث تقنيات AI</div>
+                <div class="flex items-center gap-3"><span class="text-4xl">🎯</span> تحفيز علمي</div>
+                <div class="flex items-center gap-3"><span class="text-4xl">🚀</span> سرعة فائقة (PWA)</div>
+            </div>
+            <div class="mt-16 text-4xl font-black text-brand-500">
+                شكراً لوقتكم، ونتطلع لخدمتكم! 🙏
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+
+        function updateSlide() {
+            slides.forEach((s, i) => {
+                s.classList.remove('active');
+                if(i === currentSlide) s.classList.add('active');
+            });
+            progress.style.width = ((currentSlide + 1) / slides.length * 100) + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') nextSlide();
+            if (e.key === 'ArrowRight') prevSlide();
+        });
+        
+        updateSlide();
+    </script>
+</body>
+</html>
