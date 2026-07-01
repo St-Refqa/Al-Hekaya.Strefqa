@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const userCoords = JSON.parse(fs.readFileSync('user_coords.json', 'utf8'));
+const userCoords = JSON.parse(fs.readFileSync('user_coords2.json', 'utf8'));
 let content = fs.readFileSync('src/lib/journeysData.ts', 'utf8');
 
 for (const journeyKey of Object.keys(userCoords)) {

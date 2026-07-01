@@ -197,9 +197,12 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   className={`absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
-                  <div className="relative w-4 h-4 rounded-full border-2 border-transparent group-hover:border-red-600/80 transition-colors flex items-center justify-center bg-black/0">
-                    {isEditMode && <div className="absolute inset-0 bg-red-500/40 rounded-full scale-150 animate-pulse pointer-events-none" />}
-                    <div className="absolute inset-0 rounded-full border-2 border-red-600/20 group-hover:border-red-600/60 animate-ping opacity-0 group-hover:opacity-100" />
+                  <div 
+                    className="relative w-3 h-3 rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-transform group-hover:scale-150"
+                    style={{ backgroundColor: activeJourney.color }}
+                  >
+                    {isEditMode && <div className="absolute inset-0 bg-white/50 rounded-full scale-150 animate-pulse pointer-events-none" />}
+                    <div className="absolute inset-0 rounded-full opacity-50 animate-ping" style={{ backgroundColor: activeJourney.color }} />
                   </div>
 
                   {/* Tooltip on Hover */}
