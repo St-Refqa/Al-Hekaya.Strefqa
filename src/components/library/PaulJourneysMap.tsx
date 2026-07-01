@@ -95,7 +95,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             {/* Inner Map Container */}
             <div 
               className="relative flex-shrink-0 origin-top-left transition-all duration-300 ease-out"
-              style={{ width: `${1436 * zoom}px`, height: `${855 * zoom}px` }}
+              style={{ width: `${1324 * zoom}px`, height: `${800 * zoom}px` }}
             >
               {/* Background Map Image */}
               <div 
@@ -116,10 +116,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   d={generatePath()}
                   fill="none"
                   stroke={activeJourney.color}
-                  strokeWidth="3"
-                  strokeDasharray="8,8"
+                  strokeWidth="4"
+                  strokeDasharray="10,10"
+                  strokeLinecap="round"
                   vectorEffect="non-scaling-stroke"
-                  className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                  className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
                 />
               </svg>
 
@@ -131,25 +132,19 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: index * 0.2 + 0.5, type: "spring" }}
                   onClick={() => setSelectedLocation(loc)}
-                  className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10"
+                  className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 cursor-pointer"
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
-                  <div 
-                    className="absolute inset-0 rounded-full opacity-40 animate-ping"
-                    style={{ backgroundColor: activeJourney.color }}
-                  />
-                  <div 
-                    className="relative flex items-center justify-center w-6 h-6 rounded-full border-2 border-white shadow-lg transition-transform group-hover:scale-125 font-bold text-white text-[10px]"
-                    style={{ backgroundColor: activeJourney.color }}
-                  >
-                    {index + 1}
+                  <div className="relative w-4 h-4 rounded-full border-2 border-transparent group-hover:border-red-600/80 transition-colors flex items-center justify-center bg-black/0">
+                    <div className="absolute inset-0 rounded-full border-2 border-red-600/20 group-hover:border-red-600/60 animate-ping opacity-0 group-hover:opacity-100" />
                   </div>
-                  <span className={cn(
-                    "absolute px-2.5 py-1 bg-[#fdf5e6]/95 border-2 border-[#8b5a2b] text-[#5c3a21] text-[10px] md:text-xs font-black rounded-md shadow-md whitespace-nowrap transition-transform group-hover:scale-110 group-hover:z-50 pointer-events-none",
-                    getLabelPositionClasses((loc as any).labelPosition)
-                  )}>
-                    {loc.name}
-                  </span>
+
+                  {/* Tooltip on Hover */}
+                  <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                    <div className="bg-[#2a4365]/90 text-white px-2 py-1 rounded shadow-lg backdrop-blur-sm border border-white/20 font-cairo text-xs">
+                      {loc.name}
+                    </div>
+                  </div>
                 </motion.button>
               ))}
             </div>
