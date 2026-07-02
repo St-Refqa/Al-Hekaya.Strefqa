@@ -193,6 +193,24 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
               {/* SVG Overlay for Paths */}
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+                <defs>
+                  <mask id={`path-mask-${activeJourney.id}`}>
+                    <motion.path
+                      key={`${activeJourney.id}-mask`}
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 3, ease: "easeInOut" }}
+                      d={generatePath()}
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="10"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </mask>
+                </defs>
+
                 {/* Glow / Outline Track */}
                 <motion.path
                   key={`${activeJourney.id}-outline`}
@@ -209,12 +227,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   className="opacity-70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
                 />
                 
-                {/* Main Dotted Path */}
-                <motion.path
-                  key={`${activeJourney.id}-main`}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 3, ease: "easeInOut" }}
+                {/* Main Dotted Path (Revealed by Mask) */}
+                <path
                   d={generatePath()}
                   fill="none"
                   stroke={activeJourney.color}
@@ -223,6 +237,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   vectorEffect="non-scaling-stroke"
+                  mask={`url(#path-mask-${activeJourney.id})`}
                 />
               </svg>
 
