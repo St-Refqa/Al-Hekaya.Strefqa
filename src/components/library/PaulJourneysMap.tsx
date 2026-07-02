@@ -5,6 +5,37 @@ import { journeysData, JourneyLocation } from '../../lib/journeysData';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
 
+const getImageForLocation = (loc: JourneyLocation) => {
+  if (loc.image) return loc.image;
+  const name = loc.name || loc.id;
+  if (name.includes('أنطاكية (سوريا)') || name.includes('antioch-syria')) return '/assets/cities/antioch_syria.png';
+  if (name.includes('أنطاكية بيسيدية')) return '/assets/cities/antioch_pisidia.png';
+  if (name.includes('أثينا')) return '/assets/cities/athens.png';
+  if (name.includes('بيرية')) return '/assets/cities/berea.png';
+  if (name.includes('كورنثوس')) return '/assets/cities/corinth.png';
+  if (name.includes('دربة')) return '/assets/cities/derbe.png';
+  if (name.includes('أفسس')) return '/assets/cities/ephesus.png';
+  if (name.includes('أيقونية')) return '/assets/cities/iconium.png';
+  if (name.includes('لسترة')) return '/assets/cities/lystra.png';
+  if (name.includes('ميليتس') || name.includes('ميتيليتي')) return '/assets/cities/miletus.png';
+  if (name.includes('بافوس')) return '/assets/cities/paphos_cyprus.png';
+  if (name.includes('برجة')) return '/assets/cities/perga.png';
+  if (name.includes('فيليبي') || name.includes('فيلبي')) return '/assets/cities/philippi.png';
+  if (name.includes('سلاميس')) return '/assets/cities/salamis_cyprus.png';
+  if (name.includes('سلوكية')) return '/assets/cities/seleucia.png';
+  if (name.includes('تسالونيكي')) return '/assets/cities/thessalonica.png';
+  if (name.includes('ترواس')) return '/assets/cities/troas.png';
+  // fallbacks
+  if (name.includes('طرسوس')) return '/assets/cities/antioch_syria.png';
+  if (name.includes('نيابوليس')) return '/assets/cities/philippi.png';
+  if (name.includes('امفيبوليس') || name.includes('ابولونية')) return '/assets/cities/thessalonica.png';
+  if (name.includes('كنخريا')) return '/assets/cities/corinth.png';
+  if (name.includes('رودس') || name.includes('باترا')) return '/assets/cities/paphos_cyprus.png';
+  if (name.includes('قيصرية') || name.includes('عكا') || name.includes('صور') || name.includes('أورشليم')) return '/assets/cities/antioch_syria.png';
+  
+  return '/assets/cities/antioch_syria.png';
+};
+
 interface PaulJourneysMapProps {
   onClose: () => void;
 }
@@ -53,8 +84,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     setSelectedLocation(null);
     setIsLegendOpen(false);
     setIsEditMode(false);
-    setZoom(1.8);
-    setTimeout(() => scrollToLocation(firstLoc, 1.8), 100);
+    setZoom(3.5);
+    setTimeout(() => scrollToLocation(firstLoc, 3.5), 100);
   };
 
   const endPresentation = () => {
@@ -69,21 +100,21 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     setIsTransitioning(true);
     
     // Zoom out to reveal the path
-    setZoom(1.2); 
+    setZoom(1.0); 
 
     setTimeout(() => {
       // Move to next point while zoomed out
       const nextIndex = presentationIndex + 1;
       const nextLoc = activeJourney.locations[nextIndex];
       setPresentationIndex(nextIndex);
-      scrollToLocation(nextLoc, 1.2);
+      scrollToLocation(nextLoc, 1.0);
       
-      // Wait for scrolling to finish, then zoom back in
+      // Wait for scrolling to finish, then zoom back in heavily
       setTimeout(() => {
-        setZoom(1.8);
-        setTimeout(() => setIsTransitioning(false), 400);
-      }, 500); 
-    }, 400);
+        setZoom(3.5);
+        setTimeout(() => setIsTransitioning(false), 2000); 
+      }, 1500); 
+    }, 1500);
   };
 
   const goToPrevSlide = () => {
@@ -91,21 +122,21 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     setIsTransitioning(true);
     
     // Zoom out to reveal the path
-    setZoom(1.2);
+    setZoom(1.0);
 
     setTimeout(() => {
       // Move to previous point while zoomed out
       const prevIndex = presentationIndex - 1;
       const prevLoc = activeJourney.locations[prevIndex];
       setPresentationIndex(prevIndex);
-      scrollToLocation(prevLoc, 1.2);
+      scrollToLocation(prevLoc, 1.0);
       
-      // Wait for scrolling to finish, then zoom back in
+      // Wait for scrolling to finish, then zoom back in heavily
       setTimeout(() => {
-        setZoom(1.8);
-        setTimeout(() => setIsTransitioning(false), 400);
-      }, 500);
-    }, 400);
+        setZoom(3.5);
+        setTimeout(() => setIsTransitioning(false), 2000);
+      }, 1500); 
+    }, 1500);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -330,39 +361,52 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
         {/* Storytelling Card */}
         <AnimatePresence mode="wait">
-          {isPresenting && presentationIndex >= 0 && (
+          {isPresenting && presentationIndex >= 0 && !isTransitioning && (
             <motion.div 
               key={`story-card-${presentationIndex}`}
-              initial={{ x: "120%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "120%", opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute top-24 md:top-28 right-6 md:right-10 max-w-sm w-[90%] md:w-full bg-[#fdf5e6]/95 backdrop-blur-md rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col overflow-hidden z-[60] font-cairo"
+              initial={{ y: "120%", x: "-50%", opacity: 0 }}
+              animate={{ y: 0, x: "-50%", opacity: 1 }}
+              exit={{ y: "120%", x: "-50%", opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 100 }}
+              className="absolute bottom-6 md:bottom-10 left-1/2 max-w-4xl w-[95%] md:w-full bg-[#fdf5e6] rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-4 border-[#d4b483] pointer-events-auto flex flex-col md:flex-row overflow-hidden z-[60] font-cairo"
               dir="rtl"
             >
-              {/* Card Header */}
-              <div className="bg-[#e8d5b5]/50 px-6 py-4 border-b border-[#d4b483]/30 flex items-center gap-4">
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-xl shadow-md flex-shrink-0"
-                  style={{ backgroundColor: activeJourney.color }}
-                >
-                  {presentationIndex + 1}
-                </div>
-                <h3 className="text-2xl font-black text-[#5c3a21] drop-shadow-sm leading-tight">
-                  {currentLocations[presentationIndex].name}
-                </h3>
+              {/* Image Area */}
+              <div className="relative w-full md:w-5/12 h-48 md:h-auto bg-[#e8d5b5] flex-shrink-0 flex items-center justify-center p-4">
+                <img 
+                  src={getImageForLocation(currentLocations[presentationIndex])} 
+                  alt={currentLocations[presentationIndex].name} 
+                  className="w-full h-full object-contain filter drop-shadow-xl"
+                />
+                {/* Fade for mobile */}
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#fdf5e6] to-transparent md:hidden" />
+                {/* Fade for desktop */}
+                <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#fdf5e6] to-transparent" />
               </div>
-              
-              <div className="p-6 space-y-5 max-h-[50vh] overflow-y-auto custom-scrollbar">
+
+              {/* Content Area */}
+              <div className="flex-1 p-6 md:p-10 overflow-y-auto max-h-[50vh] custom-scrollbar flex flex-col justify-center">
+                <div className="flex items-center gap-4 text-[#5c3a21] mb-6 md:mb-8 relative z-10 -mt-6 md:mt-0">
+                  <div 
+                    className="w-14 h-14 md:w-16 md:h-16 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-3xl"
+                    style={{ backgroundColor: activeJourney.color }}
+                  >
+                    {presentationIndex + 1}
+                  </div>
+                  <h3 className="text-3xl md:text-5xl font-black drop-shadow-sm leading-tight">
+                    {currentLocations[presentationIndex].name}
+                  </h3>
+                </div>
+
                 {currentLocations[presentationIndex].companions.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-sm mb-3">
-                      <Users className="w-4 h-4" />
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3">
+                      <Users className="w-5 h-5" />
                       الرفقاء
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 md:gap-3">
                       {currentLocations[presentationIndex].companions.map(comp => (
-                        <span key={comp} className="px-3 py-1 bg-[#fdf5e6] text-[#5c3a21] text-sm font-bold rounded-lg shadow-sm border border-[#d4b483]">
+                        <span key={comp} className="px-4 py-2 bg-[#fdf5e6] text-[#5c3a21] text-sm md:text-base font-bold rounded-lg shadow-sm border border-[#d4b483]">
                           {comp}
                         </span>
                       ))}
@@ -371,15 +415,15 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 )}
                 
                 <div>
-                  <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-sm mb-3">
-                    <BookOpen className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3">
+                    <BookOpen className="w-5 h-5" />
                     الأحداث
                   </div>
                   <motion.p 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-base md:text-lg font-semibold text-[#5c3a21] leading-relaxed"
+                    transition={{ delay: 0.2 }}
+                    className="text-lg md:text-2xl font-semibold text-[#5c3a21] leading-relaxed"
                   >
                     {currentLocations[presentationIndex].events}
                   </motion.p>
@@ -393,7 +437,10 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           <div ref={containerRef} className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
             {/* Inner Map Container */}
             <div 
-              className="relative flex-shrink-0 origin-top-left transition-all duration-300 ease-out"
+              className={cn(
+                "relative flex-shrink-0 origin-top-left transition-all ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+                isPresenting ? "duration-[2500ms]" : "duration-300"
+              )}
               style={{ width: `${1324 * zoom}px`, height: `${800 * zoom}px` }}
             >
               {/* Background Map Image */}
