@@ -447,53 +447,56 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   animate={{ y: 0, opacity: 1, scale: 1 }}
                   exit={{ y: "100%", opacity: 0, scale: 0.95 }}
                   transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="bg-[#fdf5e6] w-full md:w-[90%] md:max-w-lg mt-auto md:mt-0 rounded-t-3xl md:rounded-2xl shadow-2xl border-t-4 md:border-4 border-[#d4b483] relative pointer-events-auto flex flex-col overflow-hidden max-h-[85vh] font-cairo"
+                  className="bg-[#fdf5e6] w-full md:w-[95%] md:max-w-4xl mt-auto md:mt-0 rounded-t-3xl md:rounded-2xl shadow-2xl border-t-4 md:border-4 border-[#d4b483] relative pointer-events-auto flex flex-col md:flex-row overflow-hidden max-h-[85vh] font-cairo"
                   onClick={e => e.stopPropagation()}
                   dir="rtl"
                 >
                   {/* Close Button - Floating */}
                   <button 
                     onClick={() => setSelectedLocation(null)}
-                    className="absolute top-4 left-4 w-8 h-8 flex items-center justify-center bg-black/40 hover:bg-black/60 text-white backdrop-blur-md rounded-full transition-colors z-20"
+                    className="absolute top-4 left-4 w-10 h-10 flex items-center justify-center bg-black/40 hover:bg-black/60 text-white backdrop-blur-md rounded-full transition-colors z-20 shadow-lg"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-6 h-6" />
                   </button>
 
                   {/* Header / Image Area */}
                   {selectedLocation.image ? (
-                    <div className="relative w-full h-48 md:h-64 bg-[#e8d5b5] flex-shrink-0">
+                    <div className="relative w-full md:w-5/12 h-64 md:h-auto bg-[#e8d5b5] flex-shrink-0 flex items-center justify-center p-4">
                       <img 
                         src={selectedLocation.image} 
                         alt={selectedLocation.name} 
-                        className="w-full h-full object-contain p-2"
+                        className="w-full h-full object-contain filter drop-shadow-lg"
                       />
-                      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#fdf5e6] to-transparent" />
+                      {/* Fade for mobile */}
+                      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#fdf5e6] to-transparent md:hidden" />
+                      {/* Fade for desktop (left edge fade out for RTL) */}
+                      <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#fdf5e6] to-transparent" />
                     </div>
                   ) : (
-                    <div className="w-full h-12 bg-[#e8d5b5] flex-shrink-0" />
+                    <div className="w-full md:w-4 h-12 md:h-auto bg-[#e8d5b5] flex-shrink-0" />
                   )}
                   
                   {/* Content Area */}
-                  <div className="px-5 pb-6 pt-2 overflow-y-auto custom-scrollbar flex-1">
+                  <div className="px-6 pb-8 pt-4 md:p-10 overflow-y-auto custom-scrollbar flex-1 flex flex-col justify-center">
                     {/* Title */}
-                    <div className="flex items-center gap-3 text-[#5c3a21] mb-6 -mt-8 relative z-10">
-                      <div className="w-12 h-12 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-md border-2 border-[#d4b483] flex-shrink-0 text-brand-red font-black text-xl">
+                    <div className="flex items-center gap-4 text-[#5c3a21] mb-8 md:mb-10 relative z-10 -mt-8 md:mt-0">
+                      <div className="w-14 h-14 md:w-16 md:h-16 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-brand-red font-black text-2xl md:text-3xl">
                         {activeJourney.locations.findIndex(l => l.id === selectedLocation.id) + 1}
                       </div>
-                      <h3 className="text-xl md:text-2xl font-black drop-shadow-sm mt-4">{selectedLocation.name}</h3>
+                      <h3 className="text-3xl md:text-5xl font-black drop-shadow-sm">{selectedLocation.name}</h3>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6 md:space-y-8">
                       {/* Companions */}
                       {selectedLocation.companions.length > 0 && (
-                        <div className="bg-[#e8d5b5]/30 rounded-xl p-4 border border-[#d4b483]/50">
-                          <div className="flex items-center gap-2 text-[#8b5a2b] font-black text-sm mb-3">
-                            <Users className="w-5 h-5" />
+                        <div className="bg-[#e8d5b5]/30 rounded-2xl p-5 md:p-6 border border-[#d4b483]/50">
+                          <div className="flex items-center gap-2 text-[#8b5a2b] font-black text-base md:text-lg mb-4">
+                            <Users className="w-6 h-6" />
                             الرفقاء
                           </div>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-3">
                             {selectedLocation.companions.map(comp => (
-                              <span key={comp} className="px-3 py-1 bg-[#fdf5e6] text-[#5c3a21] text-xs font-bold rounded-lg shadow-sm border border-[#d4b483]">
+                              <span key={comp} className="px-4 py-1.5 md:py-2 bg-[#fdf5e6] text-[#5c3a21] text-sm md:text-base font-bold rounded-xl shadow-sm border border-[#d4b483]">
                                 {comp}
                               </span>
                             ))}
@@ -502,12 +505,12 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       )}
 
                       {/* Events */}
-                      <div className="bg-[#e8d5b5]/30 rounded-xl p-4 border border-[#d4b483]/50">
-                        <div className="flex items-center gap-2 text-[#8b5a2b] font-black text-sm mb-3">
-                          <BookOpen className="w-5 h-5" />
+                      <div className="bg-[#e8d5b5]/30 rounded-2xl p-5 md:p-6 border border-[#d4b483]/50">
+                        <div className="flex items-center gap-2 text-[#8b5a2b] font-black text-base md:text-lg mb-4">
+                          <BookOpen className="w-6 h-6" />
                           الأحداث
                         </div>
-                        <p className="text-sm md:text-base font-bold text-[#5c3a21] leading-loose">
+                        <p className="text-base md:text-xl font-bold text-[#5c3a21] leading-relaxed md:leading-loose">
                           {selectedLocation.events}
                         </p>
                       </div>
