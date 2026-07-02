@@ -3,6 +3,8 @@ export interface JourneyLocation {
   name: string;
   x: number; // percentage from left
   y: number; // percentage from top
+  cx?: number; // control point x for incoming curve
+  cy?: number; // control point y for incoming curve
   companions: string[];
   events: string;
   image?: string; // Optional image URL for the popup

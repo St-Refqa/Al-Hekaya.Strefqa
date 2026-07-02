@@ -21,7 +21,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedLocations, setEditedLocations] = useState<Record<string, JourneyLocation[]>>({});
   const [draggingPoint, setDraggingPoint] = useState<string | null>(null);
-
+  const [draggingControlPoint, setDraggingControlPoint] = useState<string | null>(null);
   React.useEffect(() => {
     if (!editedLocations[activeJourneyId]) {
       setEditedLocations(prev => ({ ...prev, [activeJourneyId]: activeJourney.locations }));
@@ -33,20 +33,33 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     : activeJourney.locations;
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isEditMode || !draggingPoint) return;
+    if (!isEditMode) return;
+    if (!draggingPoint && !draggingControlPoint) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
     
-    setEditedLocations(prev => ({
-      ...prev,
-      [activeJourneyId]: prev[activeJourneyId].map(loc => 
-        loc.id === draggingPoint ? { ...loc, x, y } : loc
-      )
-    }));
+    if (draggingPoint) {
+      setEditedLocations(prev => ({
+        ...prev,
+        [activeJourneyId]: prev[activeJourneyId].map(loc => 
+          loc.id === draggingPoint ? { ...loc, x, y } : loc
+        )
+      }));
+    } else if (draggingControlPoint) {
+      setEditedLocations(prev => ({
+        ...prev,
+        [activeJourneyId]: prev[activeJourneyId].map(loc => 
+          loc.id === draggingControlPoint ? { ...loc, cx: x, cy: y } : loc
+        )
+      }));
+    }
   };
 
-  const handlePointerUp = () => setDraggingPoint(null);
+  const handlePointerUp = () => {
+    setDraggingPoint(null);
+    setDraggingControlPoint(null);
+  };
 
 
   const getLabelPositionClasses = (pos?: string) => {
@@ -67,7 +80,16 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const generatePath = () => {
     if (currentLocations.length === 0) return '';
     return currentLocations.map((loc, index) => {
-      return `${index === 0 ? 'M' : 'L'} ${loc.x} ${loc.y}`;
+      if (index === 0) return `M ${loc.x} ${loc.y}`;
+      
+      const prevLoc = currentLocations[index - 1];
+      const hasControl = loc.cx !== undefined && loc.cy !== undefined;
+      
+      if (hasControl) {
+        return `Q ${loc.cx} ${loc.cy} ${loc.x} ${loc.y}`;
+      } else {
+        return `L ${loc.x} ${loc.y}`;
+      }
     }).join(' ');
   };
 
@@ -216,6 +238,32 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   </div>
                 </motion.div>
               ))}
+
+              {/* Control Points rendering for Edit Mode */}
+              {isEditMode && currentLocations.map((loc, index) => {
+                if (index === 0) return null;
+                const prevLoc = currentLocations[index - 1];
+                
+                // If control point doesn't exist, calculate the midpoint to show a handle
+                const isDefault = loc.cx === undefined || loc.cy === undefined;
+                const renderCx = isDefault ? (prevLoc.x + loc.x) / 2 : loc.cx;
+                const renderCy = isDefault ? (prevLoc.y + loc.y) / 2 : loc.cy;
+
+                return (
+                  <div
+                    key={`cp-${activeJourney.id}-${loc.id}`}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setDraggingControlPoint(loc.id);
+                    }}
+                    className="absolute w-6 h-6 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-grab active:cursor-grabbing z-30"
+                    style={{ left: `${renderCx}%`, top: `${renderCy}%` }}
+                  >
+                    <div className="w-3 h-3 rounded bg-purple-500 border border-white shadow shadow-purple-900/50 hover:scale-150 transition-transform" />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
