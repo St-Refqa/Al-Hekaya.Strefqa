@@ -15,6 +15,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const [zoom, setZoom] = useState(1);
   const [isLegendOpen, setIsLegendOpen] = useState(typeof window !== 'undefined' ? window.innerWidth > 768 : false);
 
+  const [isPresenting, setIsPresenting] = useState(false);
+  const [presentationIndex, setPresentationIndex] = useState(-1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
   const activeJourney = journeysData.find(j => j.id === activeJourneyId)!;
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -32,6 +37,54 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const currentLocations = isEditMode 
     ? (editedLocations[activeJourneyId] || activeJourney.locations) 
     : activeJourney.locations;
+
+  const scrollToLocation = (loc: JourneyLocation) => {
+    if (!containerRef.current) return;
+    const container = containerRef.current;
+    const targetX = (loc.x / 100) * (1324 * 1.8) - container.clientWidth / 2;
+    const targetY = (loc.y / 100) * (800 * 1.8) - container.clientHeight / 2;
+    container.scrollTo({ left: Math.max(0, targetX), top: Math.max(0, targetY), behavior: 'smooth' });
+  };
+
+  const startPresentation = () => {
+    setIsPresenting(true);
+    setPresentationIndex(0);
+    const firstLoc = activeJourney.locations[0];
+    setSelectedLocation(firstLoc);
+    setIsLegendOpen(false);
+    setIsEditMode(false);
+    setZoom(1.8);
+    setTimeout(() => scrollToLocation(firstLoc), 100);
+  };
+
+  const endPresentation = () => {
+    setIsPresenting(false);
+    setPresentationIndex(-1);
+    setSelectedLocation(null);
+    setZoom(1);
+  };
+
+  const goToNextSlide = () => {
+    if (presentationIndex >= activeJourney.locations.length - 1 || isTransitioning) return;
+    setIsTransitioning(true);
+    const nextIndex = presentationIndex + 1;
+    const nextLoc = activeJourney.locations[nextIndex];
+    setPresentationIndex(nextIndex);
+    setSelectedLocation(nextLoc);
+    scrollToLocation(nextLoc);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const goToPrevSlide = () => {
+    if (presentationIndex <= 0 || isTransitioning) return;
+    setIsTransitioning(true);
+    const prevIndex = presentationIndex - 1;
+    const prevLoc = activeJourney.locations[prevIndex];
+    setPresentationIndex(prevIndex);
+    setSelectedLocation(prevLoc);
+    scrollToLocation(prevLoc);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isEditMode) return;
@@ -168,18 +221,68 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             ))}
           </div>
 
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 md:static w-10 h-10 rounded-full bg-[#fdf5e6] border border-[#d4b483] text-[#8b5a2b] hover:bg-brand-red hover:text-white hover:border-brand-red flex items-center justify-center transition-all z-20"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="absolute top-4 right-4 md:static flex items-center gap-2 z-20">
+            {!isPresenting && (
+              <button 
+                onClick={startPresentation}
+                className="px-4 h-10 rounded-full bg-[#8b5a2b] text-[#fdf5e6] font-bold text-sm hover:bg-[#5c3a21] transition-all shadow-md flex items-center gap-2"
+              >
+                <Play className="w-4 h-4" />
+                بدء الرحلة
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              className="w-10 h-10 rounded-full bg-[#fdf5e6] border border-[#d4b483] text-[#8b5a2b] hover:bg-brand-red hover:text-white hover:border-brand-red flex items-center justify-center transition-all shadow-sm"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Map Area */}
+        {/* Presentation Controls */}
+        <AnimatePresence>
+          {isPresenting && (
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-[#fdf5e6]/95 backdrop-blur-md border-2 border-[#d4b483] rounded-2xl shadow-2xl p-3 flex items-center gap-4 font-cairo"
+            >
+              <button 
+                onClick={endPresentation}
+                className="w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center hover:bg-red-700 transition shadow-md"
+                title="إنهاء العرض"
+              >
+                <StopCircle className="w-5 h-5" />
+              </button>
+              
+              <div className="flex items-center gap-2" dir="ltr">
+                <button 
+                  onClick={goToPrevSlide}
+                  disabled={presentationIndex <= 0 || isTransitioning}
+                  className="w-10 h-10 rounded-full bg-[#e8d5b5] text-[#5c3a21] flex items-center justify-center hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div className="text-[#5c3a21] font-black text-sm w-16 text-center">
+                  {presentationIndex + 1} / {activeJourney.locations.length}
+                </div>
+                <button 
+                  onClick={goToNextSlide}
+                  disabled={presentationIndex >= activeJourney.locations.length - 1 || isTransitioning}
+                  className="w-10 h-10 rounded-full bg-[#8b5a2b] text-[#fdf5e6] flex items-center justify-center hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="relative flex-1 bg-[#d0e5f2] overflow-hidden">
           {/* Scrollable Container */}
-          <div className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
+          <div ref={containerRef} className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
             {/* Inner Map Container */}
             <div 
               className="relative flex-shrink-0 origin-top-left transition-all duration-300 ease-out"
@@ -193,20 +296,36 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
               {/* SVG Overlay for Paths */}
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md">
-                <motion.path
-                  key={activeJourney.id}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 3, ease: "easeInOut" }}
-                  d={generatePath()}
-                  fill="none"
-                  stroke={activeJourney.color}
-                  strokeWidth="2.5"
-                  strokeDasharray="5,5"
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                  className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
-                />
+                <defs>
+                  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill={activeJourney.color} />
+                  </marker>
+                </defs>
+                {currentLocations.map((loc, index) => {
+                  if (index === 0) return null;
+                  if (isPresenting && index > presentationIndex && presentationIndex !== -1) return null;
+                  const prevLoc = currentLocations[index - 1];
+                  const hasControl = loc.cx !== undefined && loc.cy !== undefined;
+                  const d = hasControl 
+                    ? `M ${prevLoc.x} ${prevLoc.y} Q ${loc.cx} ${loc.cy} ${loc.x} ${loc.y}`
+                    : `M ${prevLoc.x} ${prevLoc.y} L ${loc.x} ${loc.y}`;
+                  return (
+                    <motion.path
+                      key={`segment-${activeJourney.id}-${index}`}
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ duration: 1.5, ease: "easeOut", delay: isPresenting ? 0 : index * 0.2 }}
+                      d={d}
+                      fill="none"
+                      stroke={activeJourney.color}
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      markerEnd="url(#arrow)"
+                      vectorEffect="non-scaling-stroke"
+                      className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
+                    />
+                  );
+                })}
               </svg>
 
               {/* Interactive Markers */}
