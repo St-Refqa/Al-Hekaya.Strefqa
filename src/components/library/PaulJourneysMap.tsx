@@ -225,15 +225,15 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       setSelectedLocation(loc);
                     }
                   }}
-                  onDoubleClick={(e) => {
-                    if (isEditMode) {
+                  onContextMenu={(e) => {
+                    if (isEditMode && loc.hideLabel) {
                       e.stopPropagation();
                       e.preventDefault();
-                      const hide = window.confirm(loc.hideLabel ? "إظهار اسم البلد؟" : "إخفاء اسم البلد؟");
-                      if (hide) {
+                      const show = window.confirm("إظهار اسم البلد؟");
+                      if (show) {
                         setEditedLocations(prev => ({
                           ...prev,
-                          [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, hideLabel: !loc.hideLabel } : l)
+                          [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, hideLabel: false } : l)
                         }));
                       }
                     }
@@ -297,12 +297,19 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       if (isEditMode) {
                         e.stopPropagation();
                         e.preventDefault();
-                        const newName = prompt("تعديل اسم المدينة:", loc.name);
-                        if (newName) {
-                          setEditedLocations(prev => ({
-                            ...prev,
-                            [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, name: newName } : l)
-                          }));
+                        const newName = prompt("تعديل اسم المدينة (امسح الكلام خالص لو عايز تخفي الاسم):", loc.name);
+                        if (newName !== null) {
+                          if (newName.trim() === '') {
+                            setEditedLocations(prev => ({
+                              ...prev,
+                              [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, hideLabel: true } : l)
+                            }));
+                          } else {
+                            setEditedLocations(prev => ({
+                              ...prev,
+                              [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, name: newName, hideLabel: false } : l)
+                            }));
+                          }
                         }
                       }
                     }}
