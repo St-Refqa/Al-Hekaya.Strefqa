@@ -79,8 +79,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     if (offsetMode === 'top') {
       yOffset = container.clientHeight / 4;
     } else if (offsetMode === 'right-third') {
-      // Point centered in the right section (since sidebar is ~45%)
-      xOffset = container.clientWidth * (3 / 4);
+      // Point centered in the far right quarter (sidebar takes ~75%)
+      xOffset = container.clientWidth * 0.875;
     }
     
     const targetX = (loc.x / 100) * (1324 * targetZoom) - xOffset;
@@ -319,7 +319,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
         </div>
 
         {/* Map Area */}
-        {/* Storytelling Card with Integrated Controls */}
+        {/* Storytelling Card with Horizontal Layout */}
         <AnimatePresence mode="wait">
           {isPresenting && presentationIndex >= 0 && (
             <motion.div 
@@ -328,32 +328,33 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 100 }}
-              className="absolute top-0 bottom-0 left-0 w-full md:w-[45%] max-w-[600px] bg-[#fdf5e6]/95 backdrop-blur-md shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col z-[60] font-cairo"
+              className="absolute top-0 bottom-0 left-0 w-full md:w-[75%] max-w-7xl bg-[#fdf5e6]/95 backdrop-blur-md shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col md:flex-row-reverse z-[60] font-cairo overflow-hidden"
               dir="rtl"
             >
-              {/* Image Area - Top Section */}
-              <div className="relative w-full h-[35%] md:h-[45%] flex-shrink-0 flex items-center justify-center pt-8 px-8 pb-4">
-                <img 
-                  src={getImageForLocation(currentLocations[presentationIndex])} 
-                  alt={currentLocations[presentationIndex].name} 
-                  className="w-full h-full object-contain filter drop-shadow-2xl rounded-lg"
-                />
-              </div>
-
               {/* Close Button */}
               <button 
                 onClick={endPresentation}
-                className="absolute top-6 left-6 w-10 h-10 rounded-full bg-red-100/80 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0 z-10 shadow-sm"
+                className="absolute top-6 left-6 w-10 h-10 md:w-12 md:h-12 rounded-full bg-red-100/90 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0 z-20 shadow-md"
                 title="إنهاء العرض"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
 
-              {/* Content Area - Bottom Section */}
-              <div className="flex-1 px-8 md:px-12 pb-8 overflow-y-auto custom-scrollbar flex flex-col">
+              {/* Image Area - Left side of sidebar (Image) */}
+              {/* Note: due to flex-row-reverse in RTL, this 1st element goes to the LEFT */}
+              <div className="relative w-full md:w-[55%] h-[40%] md:h-full bg-[#e8d5b5] flex items-center justify-center p-8 md:p-12 border-b md:border-b-0 md:border-r border-[#d4b483]/30">
+                <img 
+                  src={getImageForLocation(currentLocations[presentationIndex])} 
+                  alt={currentLocations[presentationIndex].name} 
+                  className="w-full h-full object-contain filter drop-shadow-2xl rounded-2xl"
+                />
+              </div>
+
+              {/* Content Area - Right side of sidebar (Text) */}
+              <div className="w-full md:w-[45%] h-[60%] md:h-full px-6 py-8 md:px-12 md:py-12 overflow-y-auto custom-scrollbar flex flex-col">
                 
                 {/* Title */}
-                <div className="flex flex-col items-center text-center gap-4 text-[#5c3a21] mb-8">
+                <div className="flex flex-col items-center text-center gap-4 text-[#5c3a21] mb-8 mt-2 md:mt-0">
                   <div 
                     className="w-16 h-16 md:w-20 md:h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-4xl"
                     style={{ backgroundColor: activeJourney.color }}
@@ -392,7 +393,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="text-xl md:text-2xl font-semibold text-[#5c3a21] leading-relaxed max-w-sm md:max-w-md"
+                    className="text-xl md:text-2xl font-semibold text-[#5c3a21] leading-relaxed max-w-sm"
                   >
                     {currentLocations[presentationIndex].events}
                   </motion.p>
@@ -408,7 +409,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                     <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
                     السابق
                   </button>
-                  <div className="text-[#8b5a2b] font-black text-base md:text-lg">
+                  <div className="text-[#8b5a2b] font-black text-base md:text-lg mx-2">
                     {presentationIndex + 1} / {activeJourney.locations.length}
                   </div>
                   <button 
@@ -422,6 +423,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 </div>
 
               </div>
+
             </motion.div>
           )}
         </AnimatePresence>
