@@ -5,10 +5,14 @@ export interface JourneyLocation {
   y: number; // percentage from top
   cx?: number; // control point x for incoming curve
   cy?: number; // control point y for incoming curve
+  labelX?: number; // Free-form X position for the label
+  labelY?: number; // Free-form Y position for the label
+  labelRotation?: number; // Label rotation in degrees
+  hideLabel?: boolean; // Whether the label is hidden
   companions: string[];
   events: string;
   image?: string; // Optional image URL for the popup
-  labelPosition?: 'top' | 'bottom' | 'left' | 'right' | 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+  labelPosition?: 'top' | 'bottom' | 'left' | 'right' | 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'; // legacy
 }
 
 export interface Journey {

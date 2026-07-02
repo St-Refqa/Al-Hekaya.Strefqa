@@ -22,6 +22,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const [editedLocations, setEditedLocations] = useState<Record<string, JourneyLocation[]>>({});
   const [draggingPoint, setDraggingPoint] = useState<string | null>(null);
   const [draggingControlPoint, setDraggingControlPoint] = useState<string | null>(null);
+  const [draggingLabel, setDraggingLabel] = useState<string | null>(null);
   React.useEffect(() => {
     if (!editedLocations[activeJourneyId]) {
       setEditedLocations(prev => ({ ...prev, [activeJourneyId]: activeJourney.locations }));
@@ -34,7 +35,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isEditMode) return;
-    if (!draggingPoint && !draggingControlPoint) return;
+    if (!draggingPoint && !draggingControlPoint && !draggingLabel) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
@@ -53,12 +54,20 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           loc.id === draggingControlPoint ? { ...loc, cx: x, cy: y } : loc
         )
       }));
+    } else if (draggingLabel) {
+      setEditedLocations(prev => ({
+        ...prev,
+        [activeJourneyId]: prev[activeJourneyId].map(loc => 
+          loc.id === draggingLabel ? { ...loc, labelX: x, labelY: y } : loc
+        )
+      }));
     }
   };
 
   const handlePointerUp = () => {
     setDraggingPoint(null);
     setDraggingControlPoint(null);
+    setDraggingLabel(null);
   };
 
 
@@ -216,6 +225,19 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       setSelectedLocation(loc);
                     }
                   }}
+                  onDoubleClick={(e) => {
+                    if (isEditMode) {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      const hide = window.confirm(loc.hideLabel ? "إظهار اسم البلد؟" : "إخفاء اسم البلد؟");
+                      if (hide) {
+                        setEditedLocations(prev => ({
+                          ...prev,
+                          [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, hideLabel: !loc.hideLabel } : l)
+                        }));
+                      }
+                    }
+                  }}
                   className={`absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
@@ -227,20 +249,47 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                     <div className="absolute inset-0 rounded-full opacity-50 animate-ping" style={{ backgroundColor: activeJourney.color }} />
                   </div>
 
-                  {/* Permanent Label */}
-                  <div 
-                    className={`absolute ${getLabelPositionClasses(loc.labelPosition)} whitespace-nowrap z-20 ${isEditMode ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
+                  {/* Tooltip on Hover */}
+                  {(!loc.hideLabel) && (
+                    <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                      <div className="bg-[#2a4365]/90 text-white px-2 py-1 rounded shadow-lg backdrop-blur-sm border border-white/20 font-cairo text-xs">
+                        {loc.name}
+                      </div>
+                    </div>
+                  )}
+
+                </motion.div>
+              ))}
+
+              {/* Free-form Permanent Labels */}
+              {currentLocations.map((loc) => {
+                if (loc.hideLabel) return null;
+                
+                // If labelX/Y aren't set, we fall back to the point's x/y with an offset
+                const renderX = loc.labelX !== undefined ? loc.labelX : loc.x;
+                const renderY = loc.labelY !== undefined ? loc.labelY : (loc.y - 4); // slightly above by default
+                
+                return (
+                  <div
+                    key={`label-${activeJourney.id}-${loc.id}`}
                     onPointerDown={(e) => {
                       if (isEditMode) {
                         e.stopPropagation();
                         e.preventDefault();
-                        // Cycle label position
-                        const positions = ['top', 'top-right', 'right', 'bottom-right', 'bottom', 'bottom-left', 'left', 'top-left'];
-                        const currentIdx = positions.indexOf(loc.labelPosition || 'top');
-                        const nextPos = positions[(currentIdx + 1) % positions.length];
+                        setDraggingLabel(loc.id);
+                      }
+                    }}
+                    onContextMenu={(e) => {
+                      if (isEditMode) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        // Cycle rotation by 15 degrees on right click
+                        const currentRot = loc.labelRotation || 0;
                         setEditedLocations(prev => ({
                           ...prev,
-                          [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, labelPosition: nextPos as any } : l)
+                          [activeJourneyId]: prev[activeJourneyId].map(l => 
+                            l.id === loc.id ? { ...l, labelRotation: (currentRot + 15) % 360 } : l
+                          )
                         }));
                       }
                     }}
@@ -257,14 +306,19 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                         }
                       }
                     }}
+                    className={`absolute whitespace-nowrap z-20 ${isEditMode ? 'cursor-grab active:cursor-grabbing pointer-events-auto' : 'pointer-events-none'}`}
+                    style={{ 
+                      left: `${renderX}%`, 
+                      top: `${renderY}%`,
+                      transform: `translate(-50%, -50%) rotate(${loc.labelRotation || 0}deg)`
+                    }}
                   >
-                    <div className="bg-[#fdf5e6]/80 text-[#5c3a21] px-2 py-1 rounded shadow-sm backdrop-blur-sm border border-[#d4b483]/50 font-cairo text-xs font-bold transition-colors hover:bg-[#e8d5b5]">
+                    <div className="bg-[#fdf5e6]/80 text-[#5c3a21] px-2 py-1 rounded shadow-sm backdrop-blur-sm border border-[#d4b483]/50 font-cairo text-xs font-bold transition-colors hover:bg-[#e8d5b5] select-none">
                       {loc.name}
                     </div>
                   </div>
-                </motion.div>
-              ))}
-
+                );
+              })}
               {/* Control Points rendering for Edit Mode */}
               {isEditMode && currentLocations.map((loc, index) => {
                 if (index === 0) return null;
