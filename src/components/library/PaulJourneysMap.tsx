@@ -199,12 +199,24 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   const dataString = JSON.stringify(editedLocations, null, 2);
                   console.log(dataString);
                   navigator.clipboard.writeText(dataString)
-                    .then(() => alert("تم نسخ الإحداثيات بنجاح! تقدر تعملها Paste دلوقتي في الرسالة."))
-                    .catch(() => alert("حصل مشكلة في النسخ، بس الإحداثيات لسة مطبوعة في الـ Console."));
+                    .then(() => console.log("Copied to clipboard"))
+                    .catch(() => console.error("Clipboard failed"));
+                  
+                  const blob = new Blob([dataString], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'map-coordinates.json';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  
+                  alert("تم تحميل الإحداثيات في ملف (map-coordinates.json) لأن الرسالة هنا لا تكفي للنص الطويل جداً! اذهب للذكاء الاصطناعي وقل له: لقد حملت الملف، اقرأه من مجلد التحميلات.");
                 }}
                 className="bg-green-600/90 backdrop-blur text-white px-4 py-2 rounded-full font-bold shadow-lg hover:bg-green-700 transition"
               >
-                نسخ البيانات
+                تحميل البيانات (Download)
               </button>
             )}
           </div>
