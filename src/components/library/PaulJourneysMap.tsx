@@ -178,12 +178,9 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             >
               {/* Background Map Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-100 mix-blend-multiply saturate-150 contrast-110 sepia-[.15] hue-rotate-[-5deg]"
+                className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${activeJourney.mapImage || '/assets/paul-map.png'})` }}
               />
-              
-              {/* Paper Texture Overlay */}
-              <div className="absolute inset-0 bg-[#e8d5b5] mix-blend-color-burn opacity-20 pointer-events-none" />
 
               {/* SVG Overlay for Paths */}
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md">
