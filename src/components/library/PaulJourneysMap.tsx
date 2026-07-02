@@ -187,6 +187,19 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             )}
           </div>
         )}
+        {/* Progress Bar (Visible only in presentation mode) */}
+        {isPresenting && (
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-black/10 z-[70]">
+            <motion.div 
+              className="h-full"
+              style={{ backgroundColor: activeJourney.color }}
+              initial={{ width: 0 }}
+              animate={{ width: `${((presentationIndex + 1) / activeJourney.locations.length) * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+          </div>
+        )}
+
         {/* Header - Vintage Style */}
         <div className="relative z-10 bg-[#e8d5b5] border-b-2 border-[#d4b483] px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md">
           <div className="flex items-center gap-3 mb-4 md:mb-0">
@@ -280,6 +293,67 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Storytelling Card */}
+        <AnimatePresence mode="wait">
+          {isPresenting && presentationIndex >= 0 && (
+            <motion.div 
+              key={`story-card-${presentationIndex}`}
+              initial={{ x: "120%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "120%", opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="absolute top-24 md:top-28 right-6 md:right-10 max-w-sm w-[90%] md:w-full bg-[#fdf5e6]/95 backdrop-blur-md rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col overflow-hidden z-[60] font-cairo"
+              dir="rtl"
+            >
+              {/* Card Header */}
+              <div className="bg-[#e8d5b5]/50 px-6 py-4 border-b border-[#d4b483]/30 flex items-center gap-4">
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-xl shadow-md flex-shrink-0"
+                  style={{ backgroundColor: activeJourney.color }}
+                >
+                  {presentationIndex + 1}
+                </div>
+                <h3 className="text-2xl font-black text-[#5c3a21] drop-shadow-sm leading-tight">
+                  {currentLocations[presentationIndex].name}
+                </h3>
+              </div>
+              
+              <div className="p-6 space-y-5 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                {currentLocations[presentationIndex].companions.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-sm mb-3">
+                      <Users className="w-4 h-4" />
+                      الرفقاء
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {currentLocations[presentationIndex].companions.map(comp => (
+                        <span key={comp} className="px-3 py-1 bg-[#fdf5e6] text-[#5c3a21] text-sm font-bold rounded-lg shadow-sm border border-[#d4b483]">
+                          {comp}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div>
+                  <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-sm mb-3">
+                    <BookOpen className="w-4 h-4" />
+                    الأحداث
+                  </div>
+                  <motion.p 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-base md:text-lg font-semibold text-[#5c3a21] leading-relaxed"
+                  >
+                    {currentLocations[presentationIndex].events}
+                  </motion.p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="relative flex-1 bg-[#d0e5f2] overflow-hidden">
           {/* Scrollable Container */}
           <div ref={containerRef} className="w-full h-full overflow-auto touch-pan-x touch-pan-y hide-scrollbar cursor-grab active:cursor-grabbing" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerLeave={handlePointerUp}>
@@ -290,8 +364,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
             >
               {/* Background Map Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${activeJourney.mapImage || '/assets/paul-map.png'})` }}
+                className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
+                style={{ 
+                  backgroundImage: `url(${activeJourney.mapImage || '/assets/paul-map.png'})`,
+                  opacity: isPresenting ? 0.75 : 1
+                }}
               />
 
               {/* SVG Overlay for Paths */}
@@ -394,11 +471,17 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
                   <div 
-                    className="relative w-4 h-4 rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-transform group-hover:scale-150"
+                    className={cn(
+                      "relative w-4 h-4 rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-150",
+                      isPresenting && presentationIndex === index && "scale-[2] ring-4 ring-white/50 z-20"
+                    )}
                     style={{ backgroundColor: activeJourney.color }}
                   >
                     {isEditMode && <div className="absolute inset-0 bg-white/50 rounded-full scale-150 animate-pulse pointer-events-none" />}
                     <div className="absolute inset-0 rounded-full opacity-50 animate-ping" style={{ backgroundColor: activeJourney.color }} />
+                    {isPresenting && presentationIndex === index && (
+                      <div className="absolute -inset-4 rounded-full opacity-40 animate-pulse pointer-events-none" style={{ backgroundColor: activeJourney.color }} />
+                    )}
                   </div>
 
                   {/* Tooltip on Hover */}
