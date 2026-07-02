@@ -504,13 +504,13 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       }
                     }
                   }}
-                  className={`absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
+                  className={`absolute w-10 h-10 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group z-10 ${isEditMode ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
                   style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
                 >
                   <div 
                     className={cn(
-                      "relative w-4 h-4 rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-150",
-                      isPresenting && presentationIndex === index && "scale-[2] ring-4 ring-white/50 z-20"
+                      "relative w-5 h-5 md:w-6 md:h-6 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-125",
+                      isPresenting && presentationIndex === index && "scale-[1.8] ring-4 ring-white/50 z-20"
                     )}
                     style={{ backgroundColor: activeJourney.color }}
                   >
