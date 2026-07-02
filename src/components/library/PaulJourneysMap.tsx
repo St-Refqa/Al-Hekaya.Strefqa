@@ -230,9 +230,38 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                     <div className="absolute inset-0 rounded-full opacity-50 animate-ping" style={{ backgroundColor: activeJourney.color }} />
                   </div>
 
-                  {/* Tooltip on Hover */}
-                  <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
-                    <div className="bg-[#2a4365]/90 text-white px-2 py-1 rounded shadow-lg backdrop-blur-sm border border-white/20 font-cairo text-xs">
+                  {/* Permanent Label */}
+                  <div 
+                    className={`absolute ${getLabelPositionClasses(loc.labelPosition)} whitespace-nowrap z-20 ${isEditMode ? 'cursor-pointer pointer-events-auto' : 'pointer-events-none'}`}
+                    onPointerDown={(e) => {
+                      if (isEditMode) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        // Cycle label position
+                        const positions = ['top', 'top-right', 'right', 'bottom-right', 'bottom', 'bottom-left', 'left', 'top-left'];
+                        const currentIdx = positions.indexOf(loc.labelPosition || 'top');
+                        const nextPos = positions[(currentIdx + 1) % positions.length];
+                        setEditedLocations(prev => ({
+                          ...prev,
+                          [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, labelPosition: nextPos as any } : l)
+                        }));
+                      }
+                    }}
+                    onDoubleClick={(e) => {
+                      if (isEditMode) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const newName = prompt("تعديل اسم المدينة:", loc.name);
+                        if (newName) {
+                          setEditedLocations(prev => ({
+                            ...prev,
+                            [activeJourneyId]: prev[activeJourneyId].map(l => l.id === loc.id ? { ...l, name: newName } : l)
+                          }));
+                        }
+                      }
+                    }}
+                  >
+                    <div className="bg-[#fdf5e6]/80 text-[#5c3a21] px-2 py-1 rounded shadow-sm backdrop-blur-sm border border-[#d4b483]/50 font-cairo text-xs font-bold transition-colors hover:bg-[#e8d5b5]">
                       {loc.name}
                     </div>
                   </div>

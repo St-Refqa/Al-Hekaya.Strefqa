@@ -108,6 +108,22 @@ export const journeysData: Journey[] = [
         labelPosition: 'top-right'
       },
       {
+        id: 'attalia',
+        name: 'أتالية',
+        x: 65, y: 45,
+        companions: ['برنابا'],
+        events: 'نزلا إلى أتالية وتكلما بالكلمة هناك.',
+        labelPosition: 'bottom'
+      },
+      {
+        id: 'return-seleucia',
+        name: 'العودة لسلوكية',
+        x: 88, y: 47,
+        companions: ['برنابا'],
+        events: 'أبحرا من أتالية عائدين إلى سلوكية.',
+        labelPosition: 'bottom'
+      },
+      {
         id: 'return-antioch',
         name: 'العودة لأنطاكية',
         x: 91.39107386212811, y: 44.2389566408425,
