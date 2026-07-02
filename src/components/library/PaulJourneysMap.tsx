@@ -79,8 +79,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     if (offsetMode === 'top') {
       yOffset = container.clientHeight / 4;
     } else if (offsetMode === 'right-third') {
-      // Point centered in the right third of the screen
-      xOffset = container.clientWidth * (5 / 6);
+      // Point centered in the right section (since sidebar is ~45%)
+      xOffset = container.clientWidth * (3 / 4);
     }
     
     const targetX = (loc.x / 100) * (1324 * targetZoom) - xOffset;
@@ -328,53 +328,53 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 100 }}
-              className="absolute top-0 bottom-0 left-0 w-full md:w-2/3 max-w-4xl bg-[#fdf5e6]/95 backdrop-blur-md shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col z-[60] font-cairo"
+              className="absolute top-0 bottom-0 left-0 w-full md:w-[45%] max-w-[600px] bg-[#fdf5e6]/95 backdrop-blur-md shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col z-[60] font-cairo"
               dir="rtl"
             >
               {/* Image Area - Top Section */}
-              <div className="relative w-full h-[35%] md:h-[45%] bg-[#e8d5b5] flex-shrink-0 flex items-center justify-center p-4 md:p-8">
+              <div className="relative w-full h-[35%] md:h-[45%] flex-shrink-0 flex items-center justify-center pt-8 px-8 pb-4">
                 <img 
                   src={getImageForLocation(currentLocations[presentationIndex])} 
                   alt={currentLocations[presentationIndex].name} 
-                  className="w-full h-full object-contain filter drop-shadow-2xl"
+                  className="w-full h-full object-contain filter drop-shadow-2xl rounded-lg"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#fdf5e6] to-transparent" />
               </div>
 
+              {/* Close Button */}
+              <button 
+                onClick={endPresentation}
+                className="absolute top-6 left-6 w-10 h-10 rounded-full bg-red-100/80 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0 z-10 shadow-sm"
+                title="إنهاء العرض"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
               {/* Content Area - Bottom Section */}
-              <div className="flex-1 p-6 md:p-12 overflow-y-auto custom-scrollbar flex flex-col">
+              <div className="flex-1 px-8 md:px-12 pb-8 overflow-y-auto custom-scrollbar flex flex-col">
                 
-                {/* Header Row (Title & Close Button) */}
-                <div className="flex justify-between items-start mb-8">
-                  <div className="flex items-center gap-4 text-[#5c3a21]">
-                    <div 
-                      className="w-14 h-14 md:w-20 md:h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-4xl"
-                      style={{ backgroundColor: activeJourney.color }}
-                    >
-                      {presentationIndex + 1}
-                    </div>
-                    <h3 className="text-3xl md:text-6xl font-black drop-shadow-sm leading-tight pt-1">
-                      {currentLocations[presentationIndex].name}
-                    </h3>
-                  </div>
-                  <button 
-                    onClick={endPresentation}
-                    className="w-12 h-12 rounded-full bg-red-100/50 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0"
-                    title="إنهاء العرض"
+                {/* Title */}
+                <div className="flex flex-col items-center text-center gap-4 text-[#5c3a21] mb-8">
+                  <div 
+                    className="w-16 h-16 md:w-20 md:h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-4xl"
+                    style={{ backgroundColor: activeJourney.color }}
                   >
-                    <X className="w-7 h-7" />
-                  </button>
+                    {presentationIndex + 1}
+                  </div>
+                  <h3 className="text-3xl md:text-5xl font-black drop-shadow-sm leading-tight">
+                    {currentLocations[presentationIndex].name}
+                  </h3>
                 </div>
 
+                {/* Companions */}
                 {currentLocations[presentationIndex].companions.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-lg md:text-xl mb-4">
-                      <Users className="w-6 h-6" />
+                  <div className="mb-8 flex flex-col items-center">
+                    <div className="flex items-center justify-center gap-2 text-[#8b5a2b] font-bold text-lg mb-4">
+                      <Users className="w-5 h-5" />
                       الرفقاء
                     </div>
-                    <div className="flex flex-wrap gap-2 md:gap-4">
+                    <div className="flex flex-wrap justify-center gap-3">
                       {currentLocations[presentationIndex].companions.map(comp => (
-                        <span key={comp} className="px-5 py-2 bg-[#fdf5e6] text-[#5c3a21] text-base md:text-lg font-bold rounded-xl shadow-sm border border-[#d4b483]">
+                        <span key={comp} className="px-4 py-1.5 bg-[#fdf5e6] text-[#5c3a21] text-base md:text-lg font-bold rounded-xl shadow-sm border border-[#d4b483]">
                           {comp}
                         </span>
                       ))}
@@ -382,16 +382,17 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   </div>
                 )}
                 
-                <div className="mb-10">
-                  <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-lg md:text-xl mb-4">
-                    <BookOpen className="w-6 h-6" />
+                {/* Events */}
+                <div className="mb-10 flex flex-col items-center text-center">
+                  <div className="flex items-center justify-center gap-2 text-[#8b5a2b] font-bold text-lg mb-4">
+                    <BookOpen className="w-5 h-5" />
                     الأحداث
                   </div>
                   <motion.p 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="text-xl md:text-3xl font-semibold text-[#5c3a21] leading-relaxed"
+                    className="text-xl md:text-2xl font-semibold text-[#5c3a21] leading-relaxed max-w-sm md:max-w-md"
                   >
                     {currentLocations[presentationIndex].events}
                   </motion.p>
@@ -402,21 +403,21 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   <button 
                     onClick={goToPrevSlide}
                     disabled={presentationIndex <= 0 || isTransitioning}
-                    className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-3 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-base md:text-xl"
+                    className="px-4 py-2 md:px-5 md:py-2.5 rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-2 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-sm md:text-base"
                   >
-                    <ArrowLeft className="w-6 h-6" />
+                    <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
                     السابق
                   </button>
-                  <div className="text-[#8b5a2b] font-black text-lg md:text-2xl">
+                  <div className="text-[#8b5a2b] font-black text-base md:text-lg">
                     {presentationIndex + 1} / {activeJourney.locations.length}
                   </div>
                   <button 
                     onClick={goToNextSlide}
                     disabled={presentationIndex >= activeJourney.locations.length - 1 || isTransitioning}
-                    className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-3 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-base md:text-xl"
+                    className="px-4 py-2 md:px-5 md:py-2.5 rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-2 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-sm md:text-base"
                   >
                     التالي
-                    <ArrowRight className="w-6 h-6" />
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                   </button>
                 </div>
 
