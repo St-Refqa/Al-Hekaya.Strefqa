@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Users, BookOpen, X, Navigation, ZoomIn, ZoomOut, ChevronRight, ChevronLeft } from 'lucide-react';
+import { MapPin, Users, BookOpen, X, Navigation, ZoomIn, ZoomOut, ChevronRight, ChevronLeft, Play, StopCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { journeysData, JourneyLocation } from '../../lib/journeysData';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
