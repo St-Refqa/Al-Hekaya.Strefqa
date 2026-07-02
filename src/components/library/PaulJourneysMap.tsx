@@ -192,20 +192,37 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               />
 
               {/* SVG Overlay for Paths */}
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-md">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+                {/* Glow / Outline Track */}
                 <motion.path
-                  key={activeJourney.id}
+                  key={`${activeJourney.id}-outline`}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 3, ease: "easeInOut" }}
+                  d={generatePath()}
+                  fill="none"
+                  stroke="#ffffff"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                  className="opacity-70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
+                />
+                
+                {/* Main Dotted Path */}
+                <motion.path
+                  key={`${activeJourney.id}-main`}
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
                   transition={{ duration: 3, ease: "easeInOut" }}
                   d={generatePath()}
                   fill="none"
                   stroke={activeJourney.color}
-                  strokeWidth="2.5"
-                  strokeDasharray="5,5"
+                  strokeWidth="3"
+                  strokeDasharray="0.1, 9"
                   strokeLinecap="round"
+                  strokeLinejoin="round"
                   vectorEffect="non-scaling-stroke"
-                  className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
                 />
               </svg>
 
