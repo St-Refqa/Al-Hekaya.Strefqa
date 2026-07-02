@@ -509,7 +509,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 >
                   <div 
                     className={cn(
-                      "relative w-5 h-5 md:w-6 md:h-6 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-125",
+                      "relative w-[18px] h-[18px] md:w-[20px] md:h-[20px] rounded-full border-[1.5px] border-white shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-125",
                       isPresenting && presentationIndex === index && "scale-[1.8] ring-4 ring-white/50 z-20"
                     )}
                     style={{ backgroundColor: activeJourney.color }}
