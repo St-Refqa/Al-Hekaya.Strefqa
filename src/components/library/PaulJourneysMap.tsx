@@ -69,11 +69,12 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     ? (editedLocations[activeJourneyId] || activeJourney.locations) 
     : activeJourney.locations;
 
-  const scrollToLocation = (loc: JourneyLocation, targetZoom: number = 1.8) => {
+  const scrollToLocation = (loc: JourneyLocation, targetZoom: number = 1.8, offsetMode: 'center' | 'top' = 'center') => {
     if (!containerRef.current) return;
     const container = containerRef.current;
     const targetX = (loc.x / 100) * (1324 * targetZoom) - container.clientWidth / 2;
-    const targetY = (loc.y / 100) * (800 * targetZoom) - container.clientHeight / 2;
+    const yOffset = offsetMode === 'top' ? container.clientHeight / 4 : container.clientHeight / 2;
+    const targetY = (loc.y / 100) * (800 * targetZoom) - yOffset;
     container.scrollTo({ left: Math.max(0, targetX), top: Math.max(0, targetY), behavior: 'smooth' });
   };
 
@@ -85,7 +86,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     setIsLegendOpen(false);
     setIsEditMode(false);
     setZoom(3.5);
-    setTimeout(() => scrollToLocation(firstLoc, 3.5), 100);
+    setTimeout(() => scrollToLocation(firstLoc, 3.5, 'top'), 100);
   };
 
   const endPresentation = () => {
@@ -107,11 +108,12 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
       const nextIndex = presentationIndex + 1;
       const nextLoc = activeJourney.locations[nextIndex];
       setPresentationIndex(nextIndex);
-      scrollToLocation(nextLoc, 1.0);
+      scrollToLocation(nextLoc, 1.0, 'center');
       
       // Wait for scrolling to finish, then zoom back in heavily
       setTimeout(() => {
         setZoom(3.5);
+        scrollToLocation(nextLoc, 3.5, 'top');
         setTimeout(() => setIsTransitioning(false), 2000); 
       }, 1500); 
     }, 1500);
@@ -129,11 +131,12 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
       const prevIndex = presentationIndex - 1;
       const prevLoc = activeJourney.locations[prevIndex];
       setPresentationIndex(prevIndex);
-      scrollToLocation(prevLoc, 1.0);
+      scrollToLocation(prevLoc, 1.0, 'center');
       
       // Wait for scrolling to finish, then zoom back in heavily
       setTimeout(() => {
         setZoom(3.5);
+        scrollToLocation(prevLoc, 3.5, 'top');
         setTimeout(() => setIsTransitioning(false), 2000);
       }, 1500); 
     }, 1500);
@@ -319,47 +322,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
         </div>
 
         {/* Map Area */}
-        {/* Presentation Controls */}
-        <AnimatePresence>
-          {isPresenting && (
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-[#fdf5e6]/95 backdrop-blur-md border-2 border-[#d4b483] rounded-2xl shadow-2xl p-3 flex items-center gap-4 font-cairo"
-            >
-              <button 
-                onClick={endPresentation}
-                className="w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center hover:bg-red-700 transition shadow-md"
-                title="إنهاء العرض"
-              >
-                <StopCircle className="w-5 h-5" />
-              </button>
-              
-              <div className="flex items-center gap-2" dir="ltr">
-                <button 
-                  onClick={goToPrevSlide}
-                  disabled={presentationIndex <= 0 || isTransitioning}
-                  className="w-10 h-10 rounded-full bg-[#e8d5b5] text-[#5c3a21] flex items-center justify-center hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <div className="text-[#5c3a21] font-black text-sm w-16 text-center">
-                  {presentationIndex + 1} / {activeJourney.locations.length}
-                </div>
-                <button 
-                  onClick={goToNextSlide}
-                  disabled={presentationIndex >= activeJourney.locations.length - 1 || isTransitioning}
-                  className="w-10 h-10 rounded-full bg-[#8b5a2b] text-[#fdf5e6] flex items-center justify-center hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Storytelling Card */}
+        {/* Storytelling Card with Integrated Controls */}
         <AnimatePresence mode="wait">
           {isPresenting && presentationIndex >= 0 && !isTransitioning && (
             <motion.div 
@@ -385,17 +348,28 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
               </div>
 
               {/* Content Area */}
-              <div className="flex-1 p-6 md:p-10 overflow-y-auto max-h-[50vh] custom-scrollbar flex flex-col justify-center">
-                <div className="flex items-center gap-4 text-[#5c3a21] mb-6 md:mb-8 relative z-10 -mt-6 md:mt-0">
-                  <div 
-                    className="w-14 h-14 md:w-16 md:h-16 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-3xl"
-                    style={{ backgroundColor: activeJourney.color }}
-                  >
-                    {presentationIndex + 1}
+              <div className="flex-1 p-6 md:p-8 overflow-y-auto max-h-[50vh] custom-scrollbar flex flex-col">
+                
+                {/* Header Row (Title & Close Button) */}
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-4 text-[#5c3a21]">
+                    <div 
+                      className="w-12 h-12 md:w-16 md:h-16 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-xl md:text-3xl"
+                      style={{ backgroundColor: activeJourney.color }}
+                    >
+                      {presentationIndex + 1}
+                    </div>
+                    <h3 className="text-2xl md:text-5xl font-black drop-shadow-sm leading-tight pt-1">
+                      {currentLocations[presentationIndex].name}
+                    </h3>
                   </div>
-                  <h3 className="text-3xl md:text-5xl font-black drop-shadow-sm leading-tight">
-                    {currentLocations[presentationIndex].name}
-                  </h3>
+                  <button 
+                    onClick={endPresentation}
+                    className="w-10 h-10 rounded-full bg-red-100/50 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0"
+                    title="إنهاء العرض"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
 
                 {currentLocations[presentationIndex].companions.length > 0 && (
@@ -414,7 +388,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   </div>
                 )}
                 
-                <div>
+                <div className="mb-8">
                   <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3">
                     <BookOpen className="w-5 h-5" />
                     الأحداث
@@ -428,6 +402,30 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                     {currentLocations[presentationIndex].events}
                   </motion.p>
                 </div>
+
+                {/* Footer Controls */}
+                <div className="mt-auto pt-4 border-t border-[#d4b483]/30 flex justify-between items-center" dir="ltr">
+                  <button 
+                    onClick={goToPrevSlide}
+                    disabled={presentationIndex <= 0 || isTransitioning}
+                    className="px-4 md:px-6 py-2 md:py-3 rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-2 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-sm md:text-base"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                    السابق
+                  </button>
+                  <div className="text-[#8b5a2b] font-black text-sm md:text-base">
+                    {presentationIndex + 1} / {activeJourney.locations.length}
+                  </div>
+                  <button 
+                    onClick={goToNextSlide}
+                    disabled={presentationIndex >= activeJourney.locations.length - 1 || isTransitioning}
+                    className="px-4 md:px-6 py-2 md:py-3 rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-2 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-sm md:text-base"
+                  >
+                    التالي
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
+
               </div>
             </motion.div>
           )}
