@@ -309,21 +309,54 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   const d = hasControl 
                     ? `M ${prevLoc.x} ${prevLoc.y} Q ${loc.cx} ${loc.cy} ${loc.x} ${loc.y}`
                     : `M ${prevLoc.x} ${prevLoc.y} L ${loc.x} ${loc.y}`;
+                  
+                  // Calculate midpoint for the arrow
+                  const midX = hasControl ? (0.25 * prevLoc.x + 0.5 * loc.cx + 0.25 * loc.x) : (prevLoc.x + loc.x) / 2;
+                  const midY = hasControl ? (0.25 * prevLoc.y + 0.5 * loc.cy + 0.25 * loc.y) : (prevLoc.y + loc.y) / 2;
+                  
+                  // Note: for a quadratic bezier curve, the tangent at t=0.5 is exactly parallel to the chord from P0 to P2!
+                  // So we can use the simple angle calculation for both lines and curves.
+                  // However, because the viewBox stretches non-uniformly (width != height), angles in viewBox space 
+                  // don't perfectly match visual angles on screen unless we account for the aspect ratio.
+                  // To fix this accurately, we compute the angle using the actual pixel dimensions:
+                  const actualDx = (loc.x - prevLoc.x) * 13.24; // 1324 / 100
+                  const actualDy = (loc.y - prevLoc.y) * 8.00;  // 800 / 100
+                  const visualAngle = Math.atan2(actualDy, actualDx) * (180 / Math.PI);
+
+                  const delay = isPresenting ? 0 : index * 0.2;
+
                   return (
-                    <motion.path
-                      key={`segment-${activeJourney.id}-${index}`}
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 1.5, ease: "easeOut", delay: isPresenting ? 0 : index * 0.2 }}
-                      d={d}
-                      fill="none"
-                      stroke={activeJourney.color}
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      markerEnd="url(#arrow)"
-                      vectorEffect="non-scaling-stroke"
-                      className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
-                    />
+                    <g key={`segment-${activeJourney.id}-${index}`}>
+                      <motion.path
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 1.5, ease: "easeOut", delay }}
+                        d={d}
+                        fill="none"
+                        stroke={activeJourney.color}
+                        strokeWidth="2.5"
+                        strokeDasharray="5,5"
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                        className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
+                      />
+                      <motion.g
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: delay + 0.75 }}
+                        style={{ originX: 0, originY: 0 }}
+                      >
+                        {/* We render the polygon inside a non-scaling <g> or scale it manually to prevent aspect ratio distortion */}
+                        <svg x={`${midX}%`} y={`${midY}%`} width="20" height="20" overflow="visible">
+                          <polygon 
+                            points="-8,-6 8,0 -8,6" 
+                            fill={activeJourney.color} 
+                            transform={`rotate(${visualAngle})`}
+                            className="drop-shadow-md"
+                          />
+                        </svg>
+                      </motion.g>
+                    </g>
                   );
                 })}
               </svg>
