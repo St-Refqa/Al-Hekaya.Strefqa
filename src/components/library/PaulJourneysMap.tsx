@@ -69,11 +69,21 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     ? (editedLocations[activeJourneyId] || activeJourney.locations) 
     : activeJourney.locations;
 
-  const scrollToLocation = (loc: JourneyLocation, targetZoom: number = 1.8, offsetMode: 'center' | 'top' = 'center') => {
+  const scrollToLocation = (loc: JourneyLocation, targetZoom: number = 1.8, offsetMode: 'center' | 'top' | 'right-third' = 'center') => {
     if (!containerRef.current) return;
     const container = containerRef.current;
-    const targetX = (loc.x / 100) * (1324 * targetZoom) - container.clientWidth / 2;
-    const yOffset = offsetMode === 'top' ? container.clientHeight / 4 : container.clientHeight / 2;
+    
+    let xOffset = container.clientWidth / 2;
+    let yOffset = container.clientHeight / 2;
+    
+    if (offsetMode === 'top') {
+      yOffset = container.clientHeight / 4;
+    } else if (offsetMode === 'right-third') {
+      // Point centered in the right third of the screen
+      xOffset = container.clientWidth * (5 / 6);
+    }
+    
+    const targetX = (loc.x / 100) * (1324 * targetZoom) - xOffset;
     const targetY = (loc.y / 100) * (800 * targetZoom) - yOffset;
     container.scrollTo({ left: Math.max(0, targetX), top: Math.max(0, targetY), behavior: 'smooth' });
   };
@@ -86,7 +96,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     setIsLegendOpen(false);
     setIsEditMode(false);
     setZoom(3.5);
-    setTimeout(() => scrollToLocation(firstLoc, 3.5, 'top'), 100);
+    setTimeout(() => scrollToLocation(firstLoc, 3.5, 'right-third'), 100);
   };
 
   const endPresentation = () => {
@@ -99,47 +109,34 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const goToNextSlide = () => {
     if (presentationIndex >= activeJourney.locations.length - 1 || isTransitioning) return;
     setIsTransitioning(true);
+    const nextIndex = presentationIndex + 1;
+    const nextLoc = activeJourney.locations[nextIndex];
+    setPresentationIndex(nextIndex);
     
-    // Zoom out to reveal the path
-    setZoom(1.0); 
-
-    setTimeout(() => {
-      // Move to next point while zoomed out
-      const nextIndex = presentationIndex + 1;
-      const nextLoc = activeJourney.locations[nextIndex];
-      setPresentationIndex(nextIndex);
-      scrollToLocation(nextLoc, 1.0, 'center');
-      
-      // Wait for scrolling to finish, then zoom back in heavily
-      setTimeout(() => {
-        setZoom(3.5);
-        scrollToLocation(nextLoc, 3.5, 'top');
-        setTimeout(() => setIsTransitioning(false), 2000); 
-      }, 1500); 
-    }, 1500);
+    if (nextIndex === activeJourney.locations.length - 1) {
+      // Zoom out on the very last slide
+      setZoom(1.0);
+      setTimeout(() => scrollToLocation(nextLoc, 1.0, 'center'), 100);
+      setTimeout(() => setIsTransitioning(false), 2000); 
+    } else {
+      // Maintain zoom and just pan
+      setZoom(3.5);
+      scrollToLocation(nextLoc, 3.5, 'right-third');
+      setTimeout(() => setIsTransitioning(false), 1500); 
+    }
   };
 
   const goToPrevSlide = () => {
     if (presentationIndex <= 0 || isTransitioning) return;
     setIsTransitioning(true);
+    const prevIndex = presentationIndex - 1;
+    const prevLoc = activeJourney.locations[prevIndex];
+    setPresentationIndex(prevIndex);
     
-    // Zoom out to reveal the path
-    setZoom(1.0);
-
-    setTimeout(() => {
-      // Move to previous point while zoomed out
-      const prevIndex = presentationIndex - 1;
-      const prevLoc = activeJourney.locations[prevIndex];
-      setPresentationIndex(prevIndex);
-      scrollToLocation(prevLoc, 1.0, 'center');
-      
-      // Wait for scrolling to finish, then zoom back in heavily
-      setTimeout(() => {
-        setZoom(3.5);
-        scrollToLocation(prevLoc, 3.5, 'top');
-        setTimeout(() => setIsTransitioning(false), 2000);
-      }, 1500); 
-    }, 1500);
+    // Maintain zoom and just pan (since we zoomed in at start, and prev cannot be the last slide)
+    setZoom(3.5);
+    scrollToLocation(prevLoc, 3.5, 'right-third');
+    setTimeout(() => setIsTransitioning(false), 1500); 
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -324,63 +321,60 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
         {/* Map Area */}
         {/* Storytelling Card with Integrated Controls */}
         <AnimatePresence mode="wait">
-          {isPresenting && presentationIndex >= 0 && !isTransitioning && (
+          {isPresenting && presentationIndex >= 0 && (
             <motion.div 
               key={`story-card-${presentationIndex}`}
-              initial={{ y: "120%", x: "-50%", opacity: 0 }}
-              animate={{ y: 0, x: "-50%", opacity: 1 }}
-              exit={{ y: "120%", x: "-50%", opacity: 0 }}
+              initial={{ x: "-100%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "-100%", opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 100 }}
-              className="absolute bottom-6 md:bottom-10 left-1/2 max-w-4xl w-[95%] md:w-full bg-[#fdf5e6] rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-4 border-[#d4b483] pointer-events-auto flex flex-col md:flex-row overflow-hidden z-[60] font-cairo"
+              className="absolute top-0 bottom-0 left-0 w-full md:w-2/3 max-w-4xl bg-[#fdf5e6]/95 backdrop-blur-md shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col z-[60] font-cairo"
               dir="rtl"
             >
-              {/* Image Area */}
-              <div className="relative w-full md:w-5/12 h-48 md:h-auto bg-[#e8d5b5] flex-shrink-0 flex items-center justify-center p-4">
+              {/* Image Area - Top Section */}
+              <div className="relative w-full h-[35%] md:h-[45%] bg-[#e8d5b5] flex-shrink-0 flex items-center justify-center p-4 md:p-8">
                 <img 
                   src={getImageForLocation(currentLocations[presentationIndex])} 
                   alt={currentLocations[presentationIndex].name} 
-                  className="w-full h-full object-contain filter drop-shadow-xl"
+                  className="w-full h-full object-contain filter drop-shadow-2xl"
                 />
-                {/* Fade for mobile */}
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#fdf5e6] to-transparent md:hidden" />
-                {/* Fade for desktop */}
-                <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#fdf5e6] to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#fdf5e6] to-transparent" />
               </div>
 
-              {/* Content Area */}
-              <div className="flex-1 p-6 md:p-8 overflow-y-auto max-h-[50vh] custom-scrollbar flex flex-col">
+              {/* Content Area - Bottom Section */}
+              <div className="flex-1 p-6 md:p-12 overflow-y-auto custom-scrollbar flex flex-col">
                 
                 {/* Header Row (Title & Close Button) */}
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex justify-between items-start mb-8">
                   <div className="flex items-center gap-4 text-[#5c3a21]">
                     <div 
-                      className="w-12 h-12 md:w-16 md:h-16 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-xl md:text-3xl"
+                      className="w-14 h-14 md:w-20 md:h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-4xl"
                       style={{ backgroundColor: activeJourney.color }}
                     >
                       {presentationIndex + 1}
                     </div>
-                    <h3 className="text-2xl md:text-5xl font-black drop-shadow-sm leading-tight pt-1">
+                    <h3 className="text-3xl md:text-6xl font-black drop-shadow-sm leading-tight pt-1">
                       {currentLocations[presentationIndex].name}
                     </h3>
                   </div>
                   <button 
                     onClick={endPresentation}
-                    className="w-10 h-10 rounded-full bg-red-100/50 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0"
+                    className="w-12 h-12 rounded-full bg-red-100/50 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0"
                     title="إنهاء العرض"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-7 h-7" />
                   </button>
                 </div>
 
                 {currentLocations[presentationIndex].companions.length > 0 && (
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3">
-                      <Users className="w-5 h-5" />
+                  <div className="mb-8">
+                    <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-lg md:text-xl mb-4">
+                      <Users className="w-6 h-6" />
                       الرفقاء
                     </div>
-                    <div className="flex flex-wrap gap-2 md:gap-3">
+                    <div className="flex flex-wrap gap-2 md:gap-4">
                       {currentLocations[presentationIndex].companions.map(comp => (
-                        <span key={comp} className="px-4 py-2 bg-[#fdf5e6] text-[#5c3a21] text-sm md:text-base font-bold rounded-lg shadow-sm border border-[#d4b483]">
+                        <span key={comp} className="px-5 py-2 bg-[#fdf5e6] text-[#5c3a21] text-base md:text-lg font-bold rounded-xl shadow-sm border border-[#d4b483]">
                           {comp}
                         </span>
                       ))}
@@ -388,41 +382,41 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   </div>
                 )}
                 
-                <div className="mb-8">
-                  <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3">
-                    <BookOpen className="w-5 h-5" />
+                <div className="mb-10">
+                  <div className="flex items-center gap-2 text-[#8b5a2b] font-bold text-lg md:text-xl mb-4">
+                    <BookOpen className="w-6 h-6" />
                     الأحداث
                   </div>
                   <motion.p 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="text-lg md:text-2xl font-semibold text-[#5c3a21] leading-relaxed"
+                    className="text-xl md:text-3xl font-semibold text-[#5c3a21] leading-relaxed"
                   >
                     {currentLocations[presentationIndex].events}
                   </motion.p>
                 </div>
 
                 {/* Footer Controls */}
-                <div className="mt-auto pt-4 border-t border-[#d4b483]/30 flex justify-between items-center" dir="ltr">
+                <div className="mt-auto pt-6 border-t border-[#d4b483]/30 flex justify-between items-center" dir="ltr">
                   <button 
                     onClick={goToPrevSlide}
                     disabled={presentationIndex <= 0 || isTransitioning}
-                    className="px-4 md:px-6 py-2 md:py-3 rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-2 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-sm md:text-base"
+                    className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-3 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-base md:text-xl"
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ArrowLeft className="w-6 h-6" />
                     السابق
                   </button>
-                  <div className="text-[#8b5a2b] font-black text-sm md:text-base">
+                  <div className="text-[#8b5a2b] font-black text-lg md:text-2xl">
                     {presentationIndex + 1} / {activeJourney.locations.length}
                   </div>
                   <button 
                     onClick={goToNextSlide}
                     disabled={presentationIndex >= activeJourney.locations.length - 1 || isTransitioning}
-                    className="px-4 md:px-6 py-2 md:py-3 rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-2 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-sm md:text-base"
+                    className="px-6 md:px-8 py-3 md:py-4 rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-3 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-base md:text-xl"
                   >
                     التالي
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-6 h-6" />
                   </button>
                 </div>
 
