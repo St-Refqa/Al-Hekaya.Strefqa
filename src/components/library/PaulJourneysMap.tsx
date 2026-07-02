@@ -38,11 +38,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     ? (editedLocations[activeJourneyId] || activeJourney.locations) 
     : activeJourney.locations;
 
-  const scrollToLocation = (loc: JourneyLocation) => {
+  const scrollToLocation = (loc: JourneyLocation, targetZoom: number = 1.8) => {
     if (!containerRef.current) return;
     const container = containerRef.current;
-    const targetX = (loc.x / 100) * (1324 * 1.8) - container.clientWidth / 2;
-    const targetY = (loc.y / 100) * (800 * 1.8) - container.clientHeight / 2;
+    const targetX = (loc.x / 100) * (1324 * targetZoom) - container.clientWidth / 2;
+    const targetY = (loc.y / 100) * (800 * targetZoom) - container.clientHeight / 2;
     container.scrollTo({ left: Math.max(0, targetX), top: Math.max(0, targetY), behavior: 'smooth' });
   };
 
@@ -50,11 +50,11 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     setIsPresenting(true);
     setPresentationIndex(0);
     const firstLoc = activeJourney.locations[0];
-    setSelectedLocation(firstLoc);
+    setSelectedLocation(null);
     setIsLegendOpen(false);
     setIsEditMode(false);
     setZoom(1.8);
-    setTimeout(() => scrollToLocation(firstLoc), 100);
+    setTimeout(() => scrollToLocation(firstLoc, 1.8), 100);
   };
 
   const endPresentation = () => {
@@ -67,23 +67,45 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
   const goToNextSlide = () => {
     if (presentationIndex >= activeJourney.locations.length - 1 || isTransitioning) return;
     setIsTransitioning(true);
-    const nextIndex = presentationIndex + 1;
-    const nextLoc = activeJourney.locations[nextIndex];
-    setPresentationIndex(nextIndex);
-    setSelectedLocation(nextLoc);
-    scrollToLocation(nextLoc);
-    setTimeout(() => setIsTransitioning(false), 300);
+    
+    // Zoom out to reveal the path
+    setZoom(1.2); 
+
+    setTimeout(() => {
+      // Move to next point while zoomed out
+      const nextIndex = presentationIndex + 1;
+      const nextLoc = activeJourney.locations[nextIndex];
+      setPresentationIndex(nextIndex);
+      scrollToLocation(nextLoc, 1.2);
+      
+      // Wait for scrolling to finish, then zoom back in
+      setTimeout(() => {
+        setZoom(1.8);
+        setTimeout(() => setIsTransitioning(false), 400);
+      }, 500); 
+    }, 400);
   };
 
   const goToPrevSlide = () => {
     if (presentationIndex <= 0 || isTransitioning) return;
     setIsTransitioning(true);
-    const prevIndex = presentationIndex - 1;
-    const prevLoc = activeJourney.locations[prevIndex];
-    setPresentationIndex(prevIndex);
-    setSelectedLocation(prevLoc);
-    scrollToLocation(prevLoc);
-    setTimeout(() => setIsTransitioning(false), 300);
+    
+    // Zoom out to reveal the path
+    setZoom(1.2);
+
+    setTimeout(() => {
+      // Move to previous point while zoomed out
+      const prevIndex = presentationIndex - 1;
+      const prevLoc = activeJourney.locations[prevIndex];
+      setPresentationIndex(prevIndex);
+      scrollToLocation(prevLoc, 1.2);
+      
+      // Wait for scrolling to finish, then zoom back in
+      setTimeout(() => {
+        setZoom(1.8);
+        setTimeout(() => setIsTransitioning(false), 400);
+      }, 500);
+    }, 400);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -465,7 +487,7 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       e.stopPropagation();
                       e.preventDefault();
                       setDraggingPoint(loc.id);
-                    } else {
+                    } else if (!isPresenting) {
                       setSelectedLocation(loc);
                     }
                   }}
