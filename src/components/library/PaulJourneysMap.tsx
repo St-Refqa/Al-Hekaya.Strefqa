@@ -428,12 +428,9 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 const delay = isPresenting ? 0 : index * 0.2;
 
                 return (
-                  <motion.div
+                  <div
                     key={`arrow-${activeJourney.id}-${index}`}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: delay + 0.75 }}
-                    className="absolute w-5 h-5 pointer-events-none drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] z-10"
+                    className="absolute z-10 pointer-events-none"
                     style={{ 
                       left: `${midX}%`, 
                       top: `${midY}%`,
@@ -441,10 +438,18 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                       transformOrigin: 'center center'
                     }}
                   >
-                    <svg viewBox="0 0 24 24" fill={activeJourney.color} className="w-full h-full">
-                      <polygon points="4,4 20,12 4,20" />
-                    </svg>
-                  </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: delay + 0.75 }}
+                      className="w-5 h-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]"
+                    >
+                      <svg viewBox="0 0 24 24" fill={activeJourney.color} className="w-full h-full">
+                        {/* Adjust polygon center to be perfectly centered in the 24x24 viewBox (center is 12,12) */}
+                        <polygon points="4,4 20,12 4,20" />
+                      </svg>
+                    </motion.div>
+                  </div>
                 );
               })}
 
