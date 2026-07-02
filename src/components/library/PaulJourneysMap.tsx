@@ -201,8 +201,8 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                   d={generatePath()}
                   fill="none"
                   stroke={activeJourney.color}
-                  strokeWidth="4"
-                  strokeDasharray="10,10"
+                  strokeWidth="2.5"
+                  strokeDasharray="5,5"
                   strokeLinecap="round"
                   vectorEffect="non-scaling-stroke"
                   className="drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]"
