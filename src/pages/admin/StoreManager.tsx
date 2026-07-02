@@ -85,19 +85,49 @@ export default function StoreManager() {
         return;
       }
 
-      // Check size (approx 400KB to stay safe within Firestore's 1MB limit for the whole doc)
-      if (file.size > 400 * 1024) {
-        setNotification({ type: 'error', text: "حجم الصورة كبير جداً (الأقصى 400KB)" });
-        return;
-      }
-
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setFormData(prev => ({
-          ...prev,
-          images: [...prev.images.filter(img => img.trim() !== ""), base64String]
-        }));
+        const img = new Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_SIZE = 800; // max width/height to keep size small
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height = Math.floor(height * (MAX_SIZE / width));
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width = Math.floor(width * (MAX_SIZE / height));
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Compress to JPEG format with 0.7 quality to ensure small base64 string
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            
+            // Check size after compression just in case, though it will almost certainly be under 400KB
+            const sizeInBytes = Math.round((compressedBase64.length * 3) / 4);
+            if (sizeInBytes > 600 * 1024) {
+               setNotification({ type: 'error', text: "الصورة معقدة جداً وحجمها يظل كبيراً، يرجى اختيار صورة أبسط" });
+               return;
+            }
+
+            setFormData(prev => ({
+              ...prev,
+              images: [...prev.images.filter(img => img.trim() !== ""), compressedBase64]
+            }));
+          }
+        };
       };
       reader.readAsDataURL(file);
     });
