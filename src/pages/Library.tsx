@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDocs, updateDoc, setDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +34,7 @@ export default function Library() {
   const [isUploading, setIsUploading] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [mapViews, setMapViews] = useState(0);
   
   // Filters & Modal state
   const [activeAudience, setActiveAudience] = useState<'all' | 'adults' | 'children'>('all');
@@ -102,7 +103,17 @@ export default function Library() {
       });
       setItems(itemsData);
     });
-    return () => unsubscribe();
+
+    const unsubMap = onSnapshot(doc(db, 'library', 'stats_map_paul'), (docSnap) => {
+      if (docSnap.exists()) {
+        setMapViews(docSnap.data().views || 0);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubMap();
+    };
   }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -321,11 +332,25 @@ export default function Library() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={() => setIsMapOpen(true)}
+            onClick={async () => {
+              setIsMapOpen(true);
+              try {
+                await setDoc(doc(db, 'library', 'stats_map_paul'), {
+                  views: increment(1)
+                }, { merge: true });
+              } catch(err) { console.error(err); }
+            }}
             className="bg-gradient-to-br from-[#e8d5b5] to-[#fdf5e6] p-6 rounded-[24px] border-2 border-[#d4b483] shadow-md hover:shadow-xl transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer"
           >
             <div className="flex justify-between items-start text-right">
-              <div className="bg-[#8b5a2b] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm h-fit">
+              {isLibraryManager && (
+                <div className="flex gap-2 relative z-20" onClick={e => e.stopPropagation()}>
+                  <div className="flex gap-1 items-center bg-[#8b5a2b]/10 px-3 py-2 rounded-lg text-xs text-[#8b5a2b] font-black shadow-sm border border-[#8b5a2b]/20">
+                    <span>{mapViews} زيارة</span>
+                  </div>
+                </div>
+              )}
+              <div className={cn("bg-[#8b5a2b] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm h-fit", !isLibraryManager && "ml-auto")}>
                 خريطة تفاعلية 🗺️
               </div>
               <div className="flex bg-[#8b5a2b] p-3 rounded-2xl mr-auto text-white shadow-inner relative z-20">
