@@ -22,6 +22,7 @@ interface LibraryItem {
   createdAt: any;
   uploaderId?: string;
   audience?: 'adults' | 'children';
+  views?: number;
 }
 
 export default function Library() {
@@ -179,6 +180,19 @@ export default function Library() {
     }
   };
 
+  const handleItemClick = async (e: React.MouseEvent, item: LibraryItem) => {
+    e.stopPropagation();
+    window.open(item.contentUrl, '_blank');
+    
+    try {
+      await updateDoc(doc(db, 'library', item.id), {
+        views: (item.views || 0) + 1
+      });
+    } catch (err) {
+      console.error('Failed to increment views', err);
+    }
+  };
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'pdf': return <FileText className="w-8 h-8 text-red-500" />;
@@ -311,8 +325,8 @@ export default function Library() {
             className="bg-gradient-to-br from-[#e8d5b5] to-[#fdf5e6] p-6 rounded-[24px] border-2 border-[#d4b483] shadow-md hover:shadow-xl transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer"
           >
             <div className="flex justify-between items-start text-right">
-              <div className="bg-brand-red text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-sm h-fit">
-                نسخة تجريبية 🤫
+              <div className="bg-[#8b5a2b] text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm h-fit">
+                خريطة تفاعلية 🗺️
               </div>
               <div className="flex bg-[#8b5a2b] p-3 rounded-2xl mr-auto text-white shadow-inner relative z-20">
                 <MapIcon className="w-8 h-8" />
@@ -350,12 +364,15 @@ export default function Library() {
             key={item.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={() => window.open(item.contentUrl, '_blank')}
+            onClick={(e) => handleItemClick(e, item)}
             className="bg-white p-6 rounded-[24px] border border-brand-beige/20 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer hover:border-brand-red/30"
           >
             <div className="flex justify-between items-start text-right">
               {isLibraryManager && (
                 <div className="flex gap-2 relative z-20" onClick={e => e.stopPropagation()}>
+                  <div className="flex gap-1 items-center bg-gray-100 px-3 py-2 rounded-lg text-xs text-gray-600 font-bold mr-auto">
+                    <span>{item.views || 0} زيارة</span>
+                  </div>
                   <button 
                     onClick={() => handleEdit(item)}
                     className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
