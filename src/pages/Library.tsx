@@ -191,17 +191,14 @@ export default function Library() {
     }
   };
 
-  const handleItemClick = async (e: React.MouseEvent, item: LibraryItem) => {
+  const handleItemClick = (e: React.MouseEvent, item: LibraryItem) => {
     e.stopPropagation();
-    window.open(item.contentUrl, '_blank');
     
-    try {
-      await updateDoc(doc(db, 'library', item.id), {
-        views: increment(1)
-      });
-    } catch (err) {
-      console.error('Failed to increment views', err);
-    }
+    setDoc(doc(db, 'library', item.id), {
+      views: increment(1)
+    }, { merge: true }).catch(console.error);
+
+    window.open(item.contentUrl, '_blank');
   };
 
   const getIcon = (type: string) => {
