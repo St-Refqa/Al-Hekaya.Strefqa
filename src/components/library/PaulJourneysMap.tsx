@@ -79,8 +79,13 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
     if (offsetMode === 'top') {
       yOffset = container.clientHeight / 4;
     } else if (offsetMode === 'right-third') {
-      // Point centered in the far right quarter (sidebar takes ~75%)
-      xOffset = container.clientWidth * 0.875;
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        // Mobile: drawer is bottom 65%. Center map in top 35%.
+        yOffset = container.clientHeight * 0.175;
+      } else {
+        // Desktop: sidebar is left 75%. Center map in right 25%.
+        xOffset = container.clientWidth * 0.875;
+      }
     }
     
     const targetX = (loc.x / 100) * (1324 * targetZoom) - xOffset;
@@ -324,58 +329,58 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
           {isPresenting && presentationIndex >= 0 && (
             <motion.div 
               key={`story-card-${presentationIndex}`}
-              initial={{ x: "-100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
+              initial={{ y: "100%", md: { y: 0, x: "-100%" }, opacity: 0 }}
+              animate={{ y: 0, x: 0, opacity: 1 }}
+              exit={{ y: "100%", md: { y: 0, x: "-100%" }, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 100 }}
-              className="absolute top-0 bottom-0 left-0 w-full md:w-[75%] max-w-7xl bg-[#fdf5e6]/95 backdrop-blur-md shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-r-4 border-[#d4b483] pointer-events-auto flex flex-col md:flex-row-reverse z-[60] font-cairo overflow-hidden"
+              className="absolute bottom-0 left-0 w-full h-[65%] md:top-0 md:h-full md:w-[75%] max-w-7xl bg-[#fdf5e6]/95 backdrop-blur-md shadow-[0_-10px_40px_rgba(0,0,0,0.3)] md:shadow-[30px_0_60px_rgba(0,0,0,0.5)] border-t-4 md:border-t-0 md:border-r-4 border-[#d4b483] pointer-events-auto flex flex-col md:flex-row-reverse z-[60] font-cairo overflow-hidden rounded-t-[2rem] md:rounded-t-none"
               dir="rtl"
             >
               {/* Close Button */}
               <button 
                 onClick={endPresentation}
-                className="absolute top-6 left-6 w-10 h-10 md:w-12 md:h-12 rounded-full bg-red-100/90 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0 z-20 shadow-md"
+                className="absolute top-4 left-4 md:top-6 md:left-6 w-8 h-8 md:w-12 md:h-12 rounded-full bg-red-100/90 text-red-600 flex items-center justify-center hover:bg-red-200 transition shrink-0 z-20 shadow-md"
                 title="إنهاء العرض"
               >
-                <X className="w-5 h-5 md:w-6 md:h-6" />
+                <X className="w-4 h-4 md:w-6 md:h-6" />
               </button>
 
               {/* Image Area - Left side of sidebar (Image) */}
-              {/* Note: due to flex-row-reverse in RTL, this 1st element goes to the LEFT */}
-              <div className="relative w-full md:w-[55%] h-[40%] md:h-full bg-[#e8d5b5] flex items-center justify-center p-8 md:p-12 border-b md:border-b-0 md:border-r border-[#d4b483]/30">
+              {/* Note: due to flex-row-reverse in RTL, this 1st element goes to the LEFT on desktop */}
+              <div className="relative w-full md:w-[55%] h-[35%] md:h-full bg-[#e8d5b5] flex items-center justify-center p-4 md:p-12 border-b md:border-b-0 md:border-r border-[#d4b483]/30 shrink-0">
                 <img 
                   src={getImageForLocation(currentLocations[presentationIndex])} 
                   alt={currentLocations[presentationIndex].name} 
-                  className="w-full h-full object-contain filter drop-shadow-2xl rounded-2xl"
+                  className="w-full h-full object-contain filter drop-shadow-lg md:drop-shadow-2xl rounded-xl md:rounded-2xl"
                 />
               </div>
 
               {/* Content Area - Right side of sidebar (Text) */}
-              <div className="w-full md:w-[45%] h-[60%] md:h-full px-6 py-8 md:px-12 md:py-12 overflow-y-auto custom-scrollbar flex flex-col">
+              <div className="w-full md:w-[45%] flex-1 md:h-full px-5 py-6 md:px-12 md:py-12 overflow-y-auto custom-scrollbar flex flex-col">
                 
                 {/* Title */}
-                <div className="flex flex-col items-center text-center gap-4 text-[#5c3a21] mb-8 mt-2 md:mt-0">
+                <div className="flex flex-col items-center text-center gap-2 md:gap-4 text-[#5c3a21] mb-6 md:mb-8 mt-1 md:mt-0">
                   <div 
-                    className="w-16 h-16 md:w-20 md:h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-2xl md:text-4xl"
+                    className="w-12 h-12 md:w-20 md:h-20 bg-[#fdf5e6] rounded-full flex items-center justify-center shadow-md md:shadow-lg border-2 border-[#d4b483] flex-shrink-0 text-white font-black text-xl md:text-4xl"
                     style={{ backgroundColor: activeJourney.color }}
                   >
                     {presentationIndex + 1}
                   </div>
-                  <h3 className="text-3xl md:text-5xl font-black drop-shadow-sm leading-tight">
+                  <h3 className="text-2xl md:text-5xl font-black drop-shadow-sm leading-tight">
                     {currentLocations[presentationIndex].name}
                   </h3>
                 </div>
 
                 {/* Companions */}
                 {currentLocations[presentationIndex].companions.length > 0 && (
-                  <div className="mb-8 flex flex-col items-center">
-                    <div className="flex items-center justify-center gap-2 text-[#8b5a2b] font-bold text-lg mb-4">
-                      <Users className="w-5 h-5" />
+                  <div className="mb-6 md:mb-8 flex flex-col items-center">
+                    <div className="flex items-center justify-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3 md:mb-4">
+                      <Users className="w-4 h-4 md:w-5 md:h-5" />
                       الرفقاء
                     </div>
-                    <div className="flex flex-wrap justify-center gap-3">
+                    <div className="flex flex-wrap justify-center gap-2 md:gap-3">
                       {currentLocations[presentationIndex].companions.map(comp => (
-                        <span key={comp} className="px-4 py-1.5 bg-[#fdf5e6] text-[#5c3a21] text-base md:text-lg font-bold rounded-xl shadow-sm border border-[#d4b483]">
+                        <span key={comp} className="px-3 py-1 md:px-4 md:py-1.5 bg-[#fdf5e6] text-[#5c3a21] text-sm md:text-lg font-bold rounded-lg md:rounded-xl shadow-sm border border-[#d4b483]">
                           {comp}
                         </span>
                       ))}
@@ -384,41 +389,41 @@ export default function PaulJourneysMap({ onClose }: PaulJourneysMapProps) {
                 )}
                 
                 {/* Events */}
-                <div className="mb-10 flex flex-col items-center text-center">
-                  <div className="flex items-center justify-center gap-2 text-[#8b5a2b] font-bold text-lg mb-4">
-                    <BookOpen className="w-5 h-5" />
+                <div className="mb-8 md:mb-10 flex flex-col items-center text-center">
+                  <div className="flex items-center justify-center gap-2 text-[#8b5a2b] font-bold text-base md:text-lg mb-3 md:mb-4">
+                    <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
                     الأحداث
                   </div>
                   <motion.p 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="text-xl md:text-2xl font-semibold text-[#5c3a21] leading-relaxed max-w-sm"
+                    className="text-lg md:text-2xl font-semibold text-[#5c3a21] leading-relaxed max-w-sm"
                   >
                     {currentLocations[presentationIndex].events}
                   </motion.p>
                 </div>
 
                 {/* Footer Controls */}
-                <div className="mt-auto pt-6 border-t border-[#d4b483]/30 flex justify-between items-center" dir="ltr">
+                <div className="mt-auto pt-4 md:pt-6 border-t border-[#d4b483]/30 flex justify-between items-center" dir="ltr">
                   <button 
                     onClick={goToPrevSlide}
                     disabled={presentationIndex <= 0 || isTransitioning}
-                    className="px-4 py-2 md:px-5 md:py-2.5 rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-2 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-sm md:text-base"
+                    className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl bg-[#e8d5b5] text-[#5c3a21] font-bold flex items-center gap-1.5 md:gap-2 hover:bg-[#d4b483] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-xs md:text-base"
                   >
-                    <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+                    <ArrowLeft className="w-3 h-3 md:w-5 md:h-5" />
                     السابق
                   </button>
-                  <div className="text-[#8b5a2b] font-black text-base md:text-lg mx-2">
+                  <div className="text-[#8b5a2b] font-black text-sm md:text-lg mx-1 md:mx-2">
                     {presentationIndex + 1} / {activeJourney.locations.length}
                   </div>
                   <button 
                     onClick={goToNextSlide}
                     disabled={presentationIndex >= activeJourney.locations.length - 1 || isTransitioning}
-                    className="px-4 py-2 md:px-5 md:py-2.5 rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-2 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-sm md:text-base"
+                    className="px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl bg-[#8b5a2b] text-[#fdf5e6] font-bold flex items-center gap-1.5 md:gap-2 hover:bg-[#5c3a21] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-xs md:text-base"
                   >
                     التالي
-                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                    <ArrowRight className="w-3 h-3 md:w-5 md:h-5" />
                   </button>
                 </div>
 
