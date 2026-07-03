@@ -197,7 +197,7 @@ export default function Library() {
     
     try {
       await updateDoc(doc(db, 'library', item.id), {
-        views: (item.views || 0) + 1
+        views: increment(1)
       });
     } catch (err) {
       console.error('Failed to increment views', err);
