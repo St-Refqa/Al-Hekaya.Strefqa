@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn, formatDate } from '../lib/utils';
 import { 
   BookOpen, FileText, FileSpreadsheet, FileIcon, LinkIcon, 
-  Trash2, Plus, Download, ExternalLink, AlertCircle, Edit, Map as MapIcon
+  Trash2, Plus, Download, ExternalLink, AlertCircle, Edit, Map as MapIcon, QrCode, X
 } from 'lucide-react';
+import QRCode from 'react-qr-code';
 import PaulJourneysMap from '../components/library/PaulJourneysMap';
 
 interface LibraryItem {
@@ -31,6 +32,7 @@ export default function Library() {
   const [activeSection, setActiveSection] = useState<'old_testament' | 'new_testament' | 'other'>('old_testament');
   const [isUploading, setIsUploading] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   
   // Filters & Modal state
   const [activeAudience, setActiveAudience] = useState<'all' | 'adults' | 'children'>('all');
@@ -301,7 +303,7 @@ export default function Library() {
 
       {/* Grid List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {isLibraryManager && activeSection === 'new_testament' && activeAudience !== 'children' && (
+        {activeSection === 'new_testament' && activeAudience !== 'children' && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -309,11 +311,21 @@ export default function Library() {
             className="bg-gradient-to-br from-[#e8d5b5] to-[#fdf5e6] p-6 rounded-[24px] border-2 border-[#d4b483] shadow-md hover:shadow-xl transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer"
           >
             <div className="flex justify-between items-start text-right">
-              <div className="bg-brand-red text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">
+              <div className="bg-brand-red text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-sm h-fit">
                 نسخة تجريبية 🤫
               </div>
-              <div className="flex bg-[#8b5a2b] p-3 rounded-2xl mr-auto text-white shadow-inner">
+              <div className="flex bg-[#8b5a2b] p-3 rounded-2xl mr-auto text-white shadow-inner relative z-20">
                 <MapIcon className="w-8 h-8" />
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsQRModalOpen(true);
+                  }}
+                  className="absolute -top-3 -right-3 bg-white text-[#8b5a2b] p-2 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.1)] hover:bg-gray-50 hover:scale-110 transition border border-[#d4b483]"
+                  title="عرض رمز QR"
+                >
+                  <QrCode className="w-4 h-4" />
+                </button>
               </div>
             </div>
             
@@ -408,6 +420,47 @@ export default function Library() {
           </div>
         )}
       </div>
+
+      {/* QR Modal */}
+      <AnimatePresence>
+        {isQRModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[999999]">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white p-8 rounded-[32px] w-full max-w-sm shadow-2xl flex flex-col items-center gap-6 relative"
+            >
+              <button 
+                onClick={() => setIsQRModalOpen(false)}
+                className="absolute top-4 left-4 p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="w-16 h-16 bg-brand-red text-white rounded-full flex items-center justify-center mb-2">
+                <QrCode className="w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-black text-brand-text text-center">امسح للبدء مباشرة!</h2>
+              <p className="text-brand-beige text-center text-sm font-bold -mt-4">
+                شارك هذا الرمز ليدخلوا للعرض التفاعلي مباشرة بدون تسجيل دخول.
+              </p>
+              <div className="p-4 bg-white border-4 border-[#d4b483] rounded-2xl shadow-sm">
+                <QRCode value={`${window.location.origin}/map?present=1`} size={200} />
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/map?present=1`);
+                  alert('تم نسخ الرابط!');
+                }}
+                className="w-full py-3 bg-brand-cream text-brand-text font-black rounded-xl hover:bg-[#e8d5b5] transition-colors flex justify-center items-center gap-2"
+              >
+                <LinkIcon className="w-4 h-4" />
+                نسخ الرابط المباشر
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Add Modal */}
       {isModalOpen && (
