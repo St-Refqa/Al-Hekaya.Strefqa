@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = ({VITE_SUPABASE_URL: 'https://nssuihqftjpojeakupfj.supabase.co', VITE_SUPABASE_ANON_KEY: 'sb_publishable_un9YUbLKIr-QypqU45QyBQ_crgIgAgS'}).VITE_SUPABASE_URL || 'https://nssuihqftjpojeakupfj.supabase.co';
-const supabaseKey = ({VITE_SUPABASE_URL: 'https://nssuihqftjpojeakupfj.supabase.co', VITE_SUPABASE_ANON_KEY: 'sb_publishable_un9YUbLKIr-QypqU45QyBQ_crgIgAgS'}).VITE_SUPABASE_ANON_KEY || 'sb_publishable_un9YUbLKIr-QypqU45QyBQ_crgIgAgS';
+const supabaseUrl = ({VITE_SUPABASE_URL: 'https://zzcwjfnibyvwdhfydvyw.supabase.co', VITE_SUPABASE_ANON_KEY: 'sb_publishable_kbwm0AIzVeSLAAwSUGw3oQ_Pp6AZHKX'}).VITE_SUPABASE_URL || 'https://zzcwjfnibyvwdhfydvyw.supabase.co';
+const supabaseKey = ({VITE_SUPABASE_URL: 'https://zzcwjfnibyvwdhfydvyw.supabase.co', VITE_SUPABASE_ANON_KEY: 'sb_publishable_kbwm0AIzVeSLAAwSUGw3oQ_Pp6AZHKX'}).VITE_SUPABASE_ANON_KEY || 'sb_publishable_kbwm0AIzVeSLAAwSUGw3oQ_Pp6AZHKX';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
