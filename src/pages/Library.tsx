@@ -33,7 +33,7 @@ export default function Library() {
   const [activeSection, setActiveSection] = useState<'old_testament' | 'new_testament' | 'other'>('old_testament');
   const [isUploading, setIsUploading] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [qrModalItem, setQrModalItem] = useState<LibraryItem | 'map' | null>(null);
   const [mapViews, setMapViews] = useState(0);
   
   // Filters & Modal state
@@ -355,7 +355,7 @@ export default function Library() {
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIsQRModalOpen(true);
+                    setQrModalItem('map');
                   }}
                   className="absolute -top-3 -right-3 bg-white text-[#8b5a2b] p-2 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.1)] hover:bg-gray-50 hover:scale-110 transition border border-[#d4b483]"
                   title="عرض رمز QR"
@@ -390,27 +390,36 @@ export default function Library() {
             className="bg-white p-6 rounded-[24px] border border-brand-beige/20 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer hover:border-brand-red/30"
           >
             <div className="flex justify-between items-start text-right">
-              {isLibraryManager && (
-                <div className="flex gap-2 relative z-20" onClick={e => e.stopPropagation()}>
-                  <div className="flex gap-1 items-center bg-gray-100 px-3 py-2 rounded-lg text-xs text-gray-600 font-bold mr-auto">
-                    <span>{item.views || 0} زيارة</span>
-                  </div>
-                  <button 
-                    onClick={() => handleEdit(item)}
-                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-                    title="تعديل"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)}
-                    className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors"
-                    title="حذف"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+              <div className="flex gap-2 relative z-20" onClick={e => e.stopPropagation()}>
+                <div className="flex gap-1 items-center bg-gray-50 px-2 py-1.5 rounded-lg text-xs text-gray-600 font-bold border border-gray-100">
+                  <span>{item.views || 0} زيارة</span>
                 </div>
-              )}
+                <button 
+                  onClick={() => setQrModalItem(item)}
+                  className="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
+                  title="عرض رمز QR"
+                >
+                  <QrCode className="w-4 h-4" />
+                </button>
+                {isLibraryManager && (
+                  <>
+                    <button 
+                      onClick={() => handleEdit(item)}
+                      className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                      title="تعديل"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="p-2 bg-rose-50 text-rose-500 rounded-lg hover:bg-rose-100 transition-colors"
+                      title="حذف"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
               <div className="flex bg-gray-50 p-3 rounded-2xl mr-auto">
                 {getIcon(item.type)}
               </div>
@@ -462,7 +471,7 @@ export default function Library() {
 
       {/* QR Modal */}
       <AnimatePresence>
-        {isQRModalOpen && (
+        {qrModalItem && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[999999]">
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
@@ -471,7 +480,7 @@ export default function Library() {
               className="bg-white p-8 rounded-[32px] w-full max-w-sm shadow-2xl flex flex-col items-center gap-6 relative"
             >
               <button 
-                onClick={() => setIsQRModalOpen(false)}
+                onClick={() => setQrModalItem(null)}
                 className="absolute top-4 left-4 p-2 bg-gray-100 text-gray-500 rounded-full hover:bg-gray-200 transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -481,15 +490,19 @@ export default function Library() {
               </div>
               <h2 className="text-2xl font-black text-brand-text text-center">امسح للبدء مباشرة!</h2>
               <p className="text-brand-beige text-center text-sm font-bold -mt-4">
-                شارك هذا الرمز ليدخلوا للعرض التفاعلي مباشرة بدون تسجيل دخول.
+                شارك هذا الرمز ليدخلوا للمحتوى مباشرة بدون تسجيل دخول.
               </p>
-              <div className="p-4 bg-white border-4 border-[#d4b483] rounded-2xl shadow-sm">
-                <QRCode value={`${window.location.origin}/map?present=1`} size={200} />
+              <div className="p-4 bg-white border-4 border-brand-red/20 rounded-2xl shadow-sm">
+                <QRCode 
+                  value={qrModalItem === 'map' ? `${window.location.origin}/map?present=1` : qrModalItem.contentUrl} 
+                  size={200} 
+                />
               </div>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/map?present=1`);
-                  alert('تم نسخ الرابط!');
+                  const url = qrModalItem === 'map' ? `${window.location.origin}/map?present=1` : qrModalItem.contentUrl;
+                  navigator.clipboard.writeText(url);
+                  alert('تم نسخ الرابط بنجاح!');
                 }}
                 className="w-full py-3 bg-brand-cream text-brand-text font-black rounded-xl hover:bg-[#e8d5b5] transition-colors flex justify-center items-center gap-2"
               >
