@@ -124,7 +124,7 @@ export default function StudentLeaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="flex flex-row justify-center items-end gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
+          <div className="flex flex-row justify-center items-end gap-1 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
             
             {/* 4th Place */}
             {top5[3] && (
@@ -132,10 +132,10 @@ export default function StudentLeaderboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="order-4 flex flex-col items-center group"
+                className="order-4 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-16 h-16 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-12 h-12 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[3].photoUrl ? (
                       <img src={top5[3].photoUrl} alt={top5[3].name} className="w-full h-full object-cover" />
                     ) : top5[3].name[0]}
@@ -143,7 +143,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-8 lg:w-10 bg-slate-400 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-lg shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">4</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-sm md:text-xs sm:text-sm lg:text-lg mb-1">{top5[3].name}</h4>
+                  <h4 className="font-black text-brand-text text-sm md:text-[9px] sm:text-sm lg:text-lg mb-1 truncate max-w-[48px] sm:max-w-none">{top5[3].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[3].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -162,10 +162,10 @@ export default function StudentLeaderboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="order-2 flex flex-col items-center group"
+                className="order-2 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-14 h-14 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[1].photoUrl ? (
                       <img src={top5[1].photoUrl} alt={top5[1].name} className="w-full h-full object-cover" />
                     ) : top5[1].name[0]}
@@ -173,7 +173,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-slate-200 text-slate-600 rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">2</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-sm sm:text-base lg:text-xl mb-1">{top5[1].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-[10px] sm:text-base lg:text-xl mb-1 truncate max-w-[56px] sm:max-w-none">{top5[1].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[1].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -191,7 +191,7 @@ export default function StudentLeaderboard() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1.1 }}
-                className="order-1 flex flex-col items-center relative z-10"
+                className="order-1 shrink-0 flex flex-col items-center relative z-10"
               >
                 <div className="relative mb-6 md:mb-8 pt-4 sm:pt-0">
                   <motion.div
@@ -202,7 +202,7 @@ export default function StudentLeaderboard() {
                     <Crown className="w-8 h-8 sm:w-16 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]" />
                   </motion.div>
                   
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
+                  <div className="w-16 h-16 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
                      {top5[0].photoUrl ? (
                       <img src={top5[0].photoUrl} alt={top5[0].name} className="w-full h-full object-cover" />
                     ) : (
@@ -213,7 +213,7 @@ export default function StudentLeaderboard() {
                 </div>
                 
                 <div className="text-center mb-6 lg:mb-10">
-                  <h4 className="font-black text-brand-text text-lg sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight">{top5[0].name}</h4>
+                  <h4 className="font-black text-brand-text text-xs sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight truncate max-w-[64px] sm:max-w-none">{top5[0].name}</h4>
                   <div className="flex flex-col gap-1.5 lg:gap-2 items-center">
                     <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20 inline-block">{top5[0].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-amber-600 text-[10px] font-black">
@@ -232,10 +232,10 @@ export default function StudentLeaderboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="order-3 flex flex-col items-center group"
+                className="order-3 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-amber-100 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-14 h-14 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-amber-100 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[2].photoUrl ? (
                       <img src={top5[2].photoUrl} alt={top5[2].name} className="w-full h-full object-cover" />
                     ) : top5[2].name[0]}
@@ -243,7 +243,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-amber-600 text-white rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">3</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-sm sm:text-base lg:text-xl mb-1">{top5[2].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-[10px] sm:text-base lg:text-xl mb-1 truncate max-w-[56px] sm:max-w-none">{top5[2].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[2].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -262,10 +262,10 @@ export default function StudentLeaderboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="order-5 flex flex-col items-center group"
+                className="order-5 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 rounded-2xl sm:rounded-2xl lg:rounded-[24px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-lg sm:text-xl lg:text-2xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-10 h-10 sm:w-16 sm:h-16 lg:w-24 lg:h-24 rounded-2xl sm:rounded-2xl lg:rounded-[24px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-lg sm:text-xl lg:text-2xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[4].photoUrl ? (
                       <img src={top5[4].photoUrl} alt={top5[4].name} className="w-full h-full object-cover" />
                     ) : top5[4].name[0]}
@@ -273,7 +273,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-3 sm:-right-3 w-6 h-6 sm:w-8 lg:w-8 bg-slate-500 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-base shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">5</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-[10px] md:text-base mb-1 truncate max-w-[60px] md:max-w-none">{top5[4].name}</h4>
+                  <h4 className="font-black text-brand-text text-[8px] sm:text-[10px] md:text-base mb-1 truncate max-w-[40px] sm:max-w-[60px] md:max-w-none">{top5[4].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-2 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[4].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
