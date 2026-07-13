@@ -132,7 +132,7 @@ export default function StudentLeaderboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="order-4 lg:order-1 flex flex-col items-center group"
+                className="order-4 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
                   <div className="w-16 h-16 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
@@ -162,7 +162,7 @@ export default function StudentLeaderboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="order-2 lg:order-2 flex flex-col items-center group"
+                className="order-2 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
                   <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
@@ -191,7 +191,7 @@ export default function StudentLeaderboard() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1.1 }}
-                className="order-1 lg:order-3 lg:order-4 flex flex-col items-center relative z-10"
+                className="order-1 flex flex-col items-center relative z-10"
               >
                 <div className="relative mb-6 md:mb-8 pt-4 sm:pt-0">
                   <motion.div
