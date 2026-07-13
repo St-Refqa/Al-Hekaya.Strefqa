@@ -76,8 +76,8 @@ export default function StudentLeaderboard() {
       .sort((a, b) => b.totalScore - a.totalScore);
   }, [usersList, searchTerm, user]);
 
-  const top3 = leaderboardData.slice(0, 3);
-  const remaining = leaderboardData.slice(3);
+  const top5 = leaderboardData.slice(0, 5);
+  const remaining = leaderboardData.slice(5);
 
   return (
     <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12", i18n.language === 'ar' ? 'text-right' : 'text-left')} dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
@@ -124,30 +124,61 @@ export default function StudentLeaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-8 items-end max-w-7xl mx-auto px-4">
+            
+            {/* 4th Place */}
+            {top5[3] && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="order-4 lg:order-1 flex flex-col items-center group"
+              >
+                <div className="relative mb-4 md:mb-6">
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                    {top5[3].photoUrl ? (
+                      <img src={top5[3].photoUrl} alt={top5[3].name} className="w-full h-full object-cover" />
+                    ) : top5[3].name[0]}
+                  </div>
+                  <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-8 lg:w-10 bg-slate-400 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-lg shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">4</div>
+                </div>
+                <div className="text-center mb-4 lg:mb-8">
+                  <h4 className="font-black text-brand-text text-sm md:text-lg mb-1">{top5[3].name}</h4>
+                  <div className="flex flex-col gap-1 items-center">
+                    <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[3].totalScore} نقطة</div>
+                    <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
+                      <Medal className="w-3 h-3" />
+                      <span>{top5[3].badgeCount} أوسمة</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full h-8 lg:h-20 bg-gradient-to-b from-slate-100/30 to-transparent rounded-t-[30px] border-x-2 border-t-2 border-slate-200/20" />
+              </motion.div>
+            )}
+
             {/* 2nd Place */}
-            {top3[1] && (
+            {top5[1] && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="order-2 lg:order-1 flex flex-col items-center group"
+                className="order-2 lg:order-2 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
                   <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
-                    {top3[1].photoUrl ? (
-                      <img src={top3[1].photoUrl} alt={top3[1].name} className="w-full h-full object-cover" />
-                    ) : top3[1].name[0]}
+                    {top5[1].photoUrl ? (
+                      <img src={top5[1].photoUrl} alt={top5[1].name} className="w-full h-full object-cover" />
+                    ) : top5[1].name[0]}
                   </div>
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-slate-200 text-slate-600 rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">2</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-xl mb-1">{top3[1].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-xl mb-1">{top5[1].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
-                    <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top3[1].totalScore} نقطة</div>
+                    <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[1].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
                       <Medal className="w-3 h-3" />
-                      <span>{top3[1].badgeCount} أوسمة</span>
+                      <span>{top5[1].badgeCount} أوسمة</span>
                     </div>
                   </div>
                 </div>
@@ -156,11 +187,11 @@ export default function StudentLeaderboard() {
             )}
 
             {/* 1st Place */}
-            {top3[0] && (
+            {top5[0] && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1.1 }}
-                className="order-1 lg:order-2 flex flex-col items-center relative z-10"
+                className="order-1 lg:order-3 lg:order-4 flex flex-col items-center relative z-10"
               >
                 <div className="relative mb-6 md:mb-8 pt-4 sm:pt-0">
                   <motion.div
@@ -172,22 +203,22 @@ export default function StudentLeaderboard() {
                   </motion.div>
                   
                   <div className="w-24 h-24 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
-                     {top3[0].photoUrl ? (
-                      <img src={top3[0].photoUrl} alt={top3[0].name} className="w-full h-full object-cover" />
+                     {top5[0].photoUrl ? (
+                      <img src={top5[0].photoUrl} alt={top5[0].name} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="relative z-10">{top3[0].name[0]}</span>
+                      <span className="relative z-10">{top5[0].name[0]}</span>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-amber-400/20 to-transparent" />
                   </div>
                 </div>
                 
                 <div className="text-center mb-6 lg:mb-10">
-                  <h4 className="font-black text-brand-text text-lg lg:text-3xl mb-1 lg:mb-2 tracking-tight">{top3[0].name}</h4>
+                  <h4 className="font-black text-brand-text text-lg lg:text-3xl mb-1 lg:mb-2 tracking-tight">{top5[0].name}</h4>
                   <div className="flex flex-col gap-1.5 lg:gap-2 items-center">
-                    <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20 inline-block">{top3[0].totalScore} نقطة</div>
+                    <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20 inline-block">{top5[0].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-amber-600 text-[10px] font-black">
                       <Medal className="w-4 h-4" />
-                      <span>{top3[0].badgeCount} أوسمة للملك</span>
+                      <span>{top5[0].badgeCount} أوسمة للملك</span>
                     </div>
                   </div>
                 </div>
@@ -196,7 +227,7 @@ export default function StudentLeaderboard() {
             )}
 
             {/* 3rd Place */}
-            {top3[2] && (
+            {top5[2] && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -205,19 +236,19 @@ export default function StudentLeaderboard() {
               >
                 <div className="relative mb-4 md:mb-6">
                   <div className="w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-amber-100 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
-                    {top3[2].photoUrl ? (
-                      <img src={top3[2].photoUrl} alt={top3[2].name} className="w-full h-full object-cover" />
-                    ) : top3[2].name[0]}
+                    {top5[2].photoUrl ? (
+                      <img src={top5[2].photoUrl} alt={top5[2].name} className="w-full h-full object-cover" />
+                    ) : top5[2].name[0]}
                   </div>
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-amber-600 text-white rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">3</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-xl mb-1">{top3[2].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-xl mb-1">{top5[2].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
-                    <div className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top3[2].totalScore} نقطة</div>
+                    <div className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[2].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
                       <Medal className="w-3 h-3" />
-                      <span>{top3[2].badgeCount} أوسمة</span>
+                      <span>{top5[2].badgeCount} أوسمة</span>
                     </div>
                   </div>
                 </div>
@@ -247,7 +278,7 @@ export default function StudentLeaderboard() {
                     )}
                   >
                     <div className="w-6 md:w-12 text-center font-black text-brand-beige text-sm md:text-xl">
-                      {idx + 4}
+                      {idx + 6}
                     </div>
                     
                     <div className="relative shrink-0">
