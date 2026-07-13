@@ -206,7 +206,7 @@ export default function Leaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-8 items-end max-w-7xl mx-auto px-4">
+          <div className="flex flex-row justify-center items-end gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
             
             {/* 4th Place */}
             {top5[3] && (
@@ -217,7 +217,7 @@ export default function Leaderboard() {
                 className="order-4 lg:order-1 flex flex-col items-center group"
               >
                 <div className="relative mb-6">
-                  <div className="w-24 h-24 rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl sm:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[3].photoUrl ? (
                       <img src={top5[3].photoUrl} alt={top5[3].name} className="w-full h-full object-cover" />
                     ) : top5[3].name[0]}
@@ -225,7 +225,7 @@ export default function Leaderboard() {
                   <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-400 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-xl border-4 border-white rotate-12 group-hover:rotate-0 transition-all">4</div>
                 </div>
                 <div className="text-center mb-6">
-                  <h4 className="font-black text-brand-text text-lg mb-1">{top5[3].name}</h4>
+                  <h4 className="font-black text-brand-text text-xs sm:text-sm lg:text-lg mb-1">{top5[3].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[3].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[3].avgAccuracy * 100).toFixed(0)}% دقة</span>
@@ -244,7 +244,7 @@ export default function Leaderboard() {
                 className="order-2 lg:order-2 flex flex-col items-center group"
               >
                 <div className="relative mb-6">
-                  <div className="w-28 h-28 rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[1].photoUrl ? (
                       <img src={top5[1].photoUrl} alt={top5[1].name} className="w-full h-full object-cover" />
                     ) : top5[1].name[0]}
@@ -253,7 +253,7 @@ export default function Leaderboard() {
                   <Medal className="absolute -bottom-4 -left-4 w-10 h-10 text-slate-300 drop-shadow-lg" />
                 </div>
                 <div className="text-center mb-8">
-                  <h4 className="font-black text-brand-text text-xl mb-1">{top5[1].name}</h4>
+                  <h4 className="font-black text-brand-text text-sm sm:text-base lg:text-xl mb-1">{top5[1].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[1].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[1].avgAccuracy * 100).toFixed(0)}% دقة</span>
@@ -279,7 +279,7 @@ export default function Leaderboard() {
                     <Crown className="w-16 h-16 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]" />
                   </motion.div>
                   
-                  <div className="w-36 h-36 rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-5xl border-4 border-amber-400 overflow-hidden ring-8 ring-amber-400/5 relative">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-[32px] sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-5xl border-4 border-amber-400 overflow-hidden ring-8 ring-amber-400/5 relative">
                      {top5[0].photoUrl ? (
                       <img src={top5[0].photoUrl} alt={top5[0].name} className="w-full h-full object-cover" />
                     ) : (
@@ -292,7 +292,7 @@ export default function Leaderboard() {
                 </div>
                 
                 <div className="text-center mb-10">
-                  <h4 className="font-black text-brand-text text-3xl mb-2 tracking-tight">{top5[0].name}</h4>
+                  <h4 className="font-black text-brand-text text-xl sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight">{top5[0].name}</h4>
                   <div className="flex items-center justify-center gap-3">
                     <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20">{top5[0].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-sm font-black text-amber-600">
@@ -301,7 +301,7 @@ export default function Leaderboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-48 bg-gradient-to-b from-amber-50 to-transparent rounded-t-[50px] border-x-2 border-t-2 border-amber-200/30' shadow-[0_-20px_50px_rgba(251,191,36,0.1)]" />
+                <div className="w-full h-48 bg-gradient-to-b from-amber-50 to-transparent rounded-t-[50px] border-x-2 border-t-2 border-amber-200/30 shadow-[0_-20px_50px_rgba(251,191,36,0.1)]" />
               </motion.div>
             )}
 
@@ -323,7 +323,7 @@ export default function Leaderboard() {
                   <Medal className="absolute -bottom-4 -left-4 w-10 h-10 text-amber-700 drop-shadow-lg" />
                 </div>
                 <div className="text-center mb-8">
-                  <h4 className="font-black text-brand-text text-xl mb-1">{top5[2].name}</h4>
+                  <h4 className="font-black text-brand-text text-sm sm:text-base lg:text-xl mb-1">{top5[2].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[2].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[2].avgAccuracy * 100).toFixed(0)}% دقة</span>

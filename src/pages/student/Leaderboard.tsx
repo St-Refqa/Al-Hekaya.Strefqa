@@ -124,7 +124,7 @@ export default function StudentLeaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-8 items-end max-w-7xl mx-auto px-4">
+          <div className="flex flex-row justify-center items-end gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
             
             {/* 4th Place */}
             {top5[3] && (
@@ -143,7 +143,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-8 lg:w-10 bg-slate-400 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-lg shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">4</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-sm md:text-lg mb-1">{top5[3].name}</h4>
+                  <h4 className="font-black text-brand-text text-sm md:text-xs sm:text-sm lg:text-lg mb-1">{top5[3].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[3].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -173,7 +173,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-slate-200 text-slate-600 rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">2</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-xl mb-1">{top5[1].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-sm sm:text-base lg:text-xl mb-1">{top5[1].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[1].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -202,7 +202,7 @@ export default function StudentLeaderboard() {
                     <Crown className="w-8 h-8 sm:w-16 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]" />
                   </motion.div>
                   
-                  <div className="w-24 h-24 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
                      {top5[0].photoUrl ? (
                       <img src={top5[0].photoUrl} alt={top5[0].name} className="w-full h-full object-cover" />
                     ) : (
@@ -213,7 +213,7 @@ export default function StudentLeaderboard() {
                 </div>
                 
                 <div className="text-center mb-6 lg:mb-10">
-                  <h4 className="font-black text-brand-text text-lg lg:text-3xl mb-1 lg:mb-2 tracking-tight">{top5[0].name}</h4>
+                  <h4 className="font-black text-brand-text text-lg sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight">{top5[0].name}</h4>
                   <div className="flex flex-col gap-1.5 lg:gap-2 items-center">
                     <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20 inline-block">{top5[0].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-amber-600 text-[10px] font-black">
@@ -243,7 +243,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-amber-600 text-white rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">3</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-xl mb-1">{top5[2].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-sm sm:text-base lg:text-xl mb-1">{top5[2].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[2].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
