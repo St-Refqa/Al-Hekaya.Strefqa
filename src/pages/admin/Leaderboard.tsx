@@ -332,6 +332,33 @@ export default function Leaderboard() {
                 <div className="w-full h-24 bg-gradient-to-b from-amber-50/50 to-transparent rounded-t-[40px] border-x-2 border-t-2 border-amber-200/20" />
               </motion.div>
             )}
+
+            {/* 5th Place */}
+            {top5[4] && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="order-5 flex flex-col items-center group"
+              >
+                <div className="relative mb-6">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl sm:rounded-[24px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-2xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                    {top5[4].photoUrl ? (
+                      <img src={top5[4].photoUrl} alt={top5[4].name} className="w-full h-full object-cover" />
+                    ) : top5[4].name[0]}
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-slate-500 text-white rounded-lg flex items-center justify-center font-black text-base shadow-xl border-4 border-white rotate-12 group-hover:rotate-0 transition-all">5</div>
+                </div>
+                <div className="text-center mb-6">
+                  <h4 className="font-black text-brand-text text-[10px] sm:text-xs lg:text-base mb-1">{top5[4].name}</h4>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[4].totalScore} نقطة</span>
+                    <span className="text-[10px] font-black text-brand-beige">{(top5[4].avgAccuracy * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+                <div className="w-full h-16 bg-gradient-to-b from-slate-100/20 to-transparent rounded-t-[20px] border-x-2 border-t-2 border-slate-200/10" />
+              </motion.div>
+            )}
           </div>
 
           {/* List Section */}

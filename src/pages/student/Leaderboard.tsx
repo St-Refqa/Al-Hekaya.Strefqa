@@ -255,6 +255,36 @@ export default function StudentLeaderboard() {
                 <div className="w-full h-8 lg:h-24 bg-gradient-to-b from-amber-50/50 to-transparent rounded-t-[40px] border-x-2 border-t-2 border-amber-200/20" />
               </motion.div>
             )}
+
+            {/* 5th Place */}
+            {top5[4] && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="order-5 flex flex-col items-center group"
+              >
+                <div className="relative mb-4 md:mb-6">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 rounded-2xl sm:rounded-2xl lg:rounded-[24px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-lg sm:text-xl lg:text-2xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                    {top5[4].photoUrl ? (
+                      <img src={top5[4].photoUrl} alt={top5[4].name} className="w-full h-full object-cover" />
+                    ) : top5[4].name[0]}
+                  </div>
+                  <div className="absolute -top-1 -right-1 sm:-top-3 sm:-right-3 w-6 h-6 sm:w-8 lg:w-8 bg-slate-500 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-base shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">5</div>
+                </div>
+                <div className="text-center mb-4 lg:mb-8">
+                  <h4 className="font-black text-brand-text text-[10px] md:text-base mb-1 truncate max-w-[60px] md:max-w-none">{top5[4].name}</h4>
+                  <div className="flex flex-col gap-1 items-center">
+                    <div className="px-2 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[4].totalScore} نقطة</div>
+                    <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
+                      <Medal className="w-3 h-3" />
+                      <span>{top5[4].badgeCount} أوسمة</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full h-6 lg:h-16 bg-gradient-to-b from-slate-100/20 to-transparent rounded-t-[20px] border-x-2 border-t-2 border-slate-200/10" />
+              </motion.div>
+            )}
           </div>
 
           {/* List Section */}
