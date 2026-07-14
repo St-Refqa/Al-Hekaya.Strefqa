@@ -206,7 +206,8 @@ export default function Leaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="flex flex-row justify-start md:justify-center items-center gap-2 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
+          <div className="w-full overflow-x-auto custom-scrollbar pb-4 pt-8">
+            <div className="flex flex-row items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 w-max mx-auto px-4 md:px-8">
             
             {/* 4th Place */}
             {top5[3] && (
@@ -354,6 +355,7 @@ export default function Leaderboard() {
                 <div className="w-full h-16 bg-gradient-to-b from-slate-100/20 to-transparent rounded-t-[20px] border-x-2 border-t-2 border-slate-200/10" />
               </motion.div>
             )}
+          </div>
           </div>
 
           {/* List Section */}
