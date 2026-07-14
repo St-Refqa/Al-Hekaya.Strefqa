@@ -124,7 +124,7 @@ export default function StudentLeaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="flex flex-row justify-center items-end gap-1 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
+          <div className="flex flex-row justify-start md:justify-center items-end gap-1 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
             
             {/* 4th Place */}
             {top5[3] && (
