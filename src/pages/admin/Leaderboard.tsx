@@ -206,7 +206,7 @@ export default function Leaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="flex flex-row justify-start md:justify-center items-end gap-1 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
+          <div className="flex flex-row justify-start md:justify-center items-center gap-2 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
             
             {/* 4th Place */}
             {top5[3] && (
@@ -225,7 +225,7 @@ export default function Leaderboard() {
                   <div className="absolute -top-3 -right-3 w-10 h-10 bg-slate-400 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-xl border-4 border-white rotate-12 group-hover:rotate-0 transition-all">4</div>
                 </div>
                 <div className="text-center mb-6">
-                  <h4 className="font-black text-brand-text text-[9px] sm:text-sm lg:text-lg mb-1 truncate max-w-[48px] sm:max-w-none">{top5[3].name}</h4>
+                  <h4 className="font-black text-brand-text text-[9px] sm:text-sm lg:text-lg mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[3].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[3].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[3].avgAccuracy * 100).toFixed(0)}% دقة</span>
@@ -253,7 +253,7 @@ export default function Leaderboard() {
                   <Medal className="absolute -bottom-4 -left-4 w-10 h-10 text-slate-300 drop-shadow-lg" />
                 </div>
                 <div className="text-center mb-8">
-                  <h4 className="font-black text-brand-text text-[10px] sm:text-base lg:text-xl mb-1 truncate max-w-[56px] sm:max-w-none">{top5[1].name}</h4>
+                  <h4 className="font-black text-brand-text text-[10px] sm:text-base lg:text-xl mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[1].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[1].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[1].avgAccuracy * 100).toFixed(0)}% دقة</span>
@@ -292,7 +292,7 @@ export default function Leaderboard() {
                 </div>
                 
                 <div className="text-center mb-10">
-                  <h4 className="font-black text-brand-text text-xs sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight truncate max-w-[64px] sm:max-w-none">{top5[0].name}</h4>
+                  <h4 className="font-black text-brand-text text-xs sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight text-wrap break-words min-w-[50px] leading-tight px-1">{top5[0].name}</h4>
                   <div className="flex items-center justify-center gap-3">
                     <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20">{top5[0].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-sm font-black text-amber-600">
@@ -323,7 +323,7 @@ export default function Leaderboard() {
                   <Medal className="absolute -bottom-4 -left-4 w-10 h-10 text-amber-700 drop-shadow-lg" />
                 </div>
                 <div className="text-center mb-8">
-                  <h4 className="font-black text-brand-text text-[10px] sm:text-base lg:text-xl mb-1 truncate max-w-[56px] sm:max-w-none">{top5[2].name}</h4>
+                  <h4 className="font-black text-brand-text text-[10px] sm:text-base lg:text-xl mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[2].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[2].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[2].avgAccuracy * 100).toFixed(0)}% دقة</span>
@@ -350,7 +350,7 @@ export default function Leaderboard() {
                   <div className="absolute -top-3 -right-3 w-8 h-8 bg-slate-500 text-white rounded-lg flex items-center justify-center font-black text-base shadow-xl border-4 border-white rotate-12 group-hover:rotate-0 transition-all">5</div>
                 </div>
                 <div className="text-center mb-6">
-                  <h4 className="font-black text-brand-text text-[8px] sm:text-xs lg:text-base mb-1 truncate max-w-[40px] sm:max-w-none">{top5[4].name}</h4>
+                  <h4 className="font-black text-brand-text text-[8px] sm:text-xs lg:text-base mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[4].name}</h4>
                   <div className="flex items-center justify-center gap-2">
                     <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest">{top5[4].totalScore} نقطة</span>
                     <span className="text-[10px] font-black text-brand-beige">{(top5[4].avgAccuracy * 100).toFixed(0)}%</span>

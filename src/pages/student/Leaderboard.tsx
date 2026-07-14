@@ -124,7 +124,7 @@ export default function StudentLeaderboard() {
       ) : (
         <div className="space-y-20">
           {/* Podium Section */}
-          <div className="flex flex-row justify-start md:justify-center items-end gap-1 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
+          <div className="flex flex-row justify-start md:justify-center items-center gap-2 sm:gap-2 md:gap-6 lg:gap-8 max-w-7xl mx-auto px-2 md:px-4 overflow-x-auto pb-8 pt-8 custom-scrollbar">
             
             {/* 4th Place */}
             {top5[3] && (
@@ -143,7 +143,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-8 lg:w-10 bg-slate-400 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-lg shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">4</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-sm md:text-[9px] sm:text-sm lg:text-lg mb-1 truncate max-w-[48px] sm:max-w-none">{top5[3].name}</h4>
+                  <h4 className="font-black text-brand-text text-sm md:text-[9px] sm:text-sm lg:text-lg mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[3].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[3].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -152,7 +152,7 @@ export default function StudentLeaderboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-8 lg:h-20 bg-gradient-to-b from-slate-100/30 to-transparent rounded-t-[30px] border-x-2 border-t-2 border-slate-200/20" />
+                
               </motion.div>
             )}
 
@@ -173,7 +173,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-slate-200 text-slate-600 rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">2</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-[10px] sm:text-base lg:text-xl mb-1 truncate max-w-[56px] sm:max-w-none">{top5[1].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-[10px] sm:text-base lg:text-xl mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[1].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[1].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -182,7 +182,7 @@ export default function StudentLeaderboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-12 lg:h-32 bg-gradient-to-b from-slate-100/50 to-transparent rounded-t-[40px] border-x-2 border-t-2 border-slate-200/30" />
+                
               </motion.div>
             )}
 
@@ -213,7 +213,7 @@ export default function StudentLeaderboard() {
                 </div>
                 
                 <div className="text-center mb-6 lg:mb-10">
-                  <h4 className="font-black text-brand-text text-xs sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight truncate max-w-[64px] sm:max-w-none">{top5[0].name}</h4>
+                  <h4 className="font-black text-brand-text text-xs sm:text-2xl lg:text-3xl mb-1 lg:mb-2 tracking-tight text-wrap break-words min-w-[50px] leading-tight px-1">{top5[0].name}</h4>
                   <div className="flex flex-col gap-1.5 lg:gap-2 items-center">
                     <div className="px-4 py-1.5 bg-amber-400 text-white rounded-full text-xs font-black shadow-lg shadow-amber-400/20 inline-block">{top5[0].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-amber-600 text-[10px] font-black">
@@ -222,7 +222,7 @@ export default function StudentLeaderboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-16 lg:h-48 bg-gradient-to-b from-amber-50 to-transparent rounded-t-[50px] border-x-2 border-t-2 border-amber-200/30 shadow-[0_-20px_50px_rgba(251,191,36,0.1)]" />
+                
               </motion.div>
             )}
 
@@ -243,7 +243,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-4 sm:-right-4 w-6 h-6 sm:w-10 lg:w-12 bg-amber-600 text-white rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-xs sm:text-base lg:text-xl shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">3</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-base md:text-[10px] sm:text-base lg:text-xl mb-1 truncate max-w-[56px] sm:max-w-none">{top5[2].name}</h4>
+                  <h4 className="font-black text-brand-text text-base md:text-[10px] sm:text-base lg:text-xl mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[2].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[2].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -252,7 +252,7 @@ export default function StudentLeaderboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-8 lg:h-24 bg-gradient-to-b from-amber-50/50 to-transparent rounded-t-[40px] border-x-2 border-t-2 border-amber-200/20" />
+                
               </motion.div>
             )}
 
@@ -273,7 +273,7 @@ export default function StudentLeaderboard() {
                   <div className="absolute -top-1 -right-1 sm:-top-3 sm:-right-3 w-6 h-6 sm:w-8 lg:w-8 bg-slate-500 text-white rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-sm lg:text-base shadow-xl border sm:border-4 border-white rotate-12 group-hover:rotate-0 transition-all">5</div>
                 </div>
                 <div className="text-center mb-4 lg:mb-8">
-                  <h4 className="font-black text-brand-text text-[8px] sm:text-[10px] md:text-base mb-1 truncate max-w-[40px] sm:max-w-[60px] md:max-w-none">{top5[4].name}</h4>
+                  <h4 className="font-black text-brand-text text-[8px] sm:text-[10px] md:text-base mb-1 text-wrap break-words min-w-[50px] leading-tight px-1">{top5[4].name}</h4>
                   <div className="flex flex-col gap-1 items-center">
                     <div className="px-2 py-1 bg-slate-50 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">{top5[4].totalScore} نقطة</div>
                     <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-black">
@@ -282,7 +282,7 @@ export default function StudentLeaderboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-6 lg:h-16 bg-gradient-to-b from-slate-100/20 to-transparent rounded-t-[20px] border-x-2 border-t-2 border-slate-200/10" />
+                
               </motion.div>
             )}
           </div>
