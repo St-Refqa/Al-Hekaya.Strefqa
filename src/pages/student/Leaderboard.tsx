@@ -135,7 +135,7 @@ export default function StudentLeaderboard() {
                 className="order-4 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-12 h-12 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[3].photoUrl ? (
                       <img src={top5[3].photoUrl} alt={top5[3].name} className="w-full h-full object-cover" />
                     ) : top5[3].name[0]}
@@ -165,7 +165,7 @@ export default function StudentLeaderboard() {
                 className="order-2 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-14 h-14 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-16 h-16 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[1].photoUrl ? (
                       <img src={top5[1].photoUrl} alt={top5[1].name} className="w-full h-full object-cover" />
                     ) : top5[1].name[0]}
@@ -193,16 +193,16 @@ export default function StudentLeaderboard() {
                 animate={{ opacity: 1, scale: 1.1 }}
                 className="order-1 shrink-0 flex flex-col items-center relative z-10"
               >
-                <div className="relative mb-6 md:mb-8 pt-4 sm:pt-0">
+                <div className="relative mb-6 md:mb-8 pt-4 sm:pt-0 flex flex-col items-center">
                   <motion.div
                     animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 3, repeat: Infinity }}
-                    className="absolute -top-5 sm:-top-16 left-1/2 -translate-x-1/2"
+                    className="flex justify-center -mb-2 sm:-mb-6 relative z-20"
                   >
                     <Crown className="w-8 h-8 sm:w-16 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]" />
                   </motion.div>
                   
-                  <div className="w-16 h-16 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
+                  <div className="w-20 h-20 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
                      {top5[0].photoUrl ? (
                       <img src={top5[0].photoUrl} alt={top5[0].name} className="w-full h-full object-cover" />
                     ) : (
@@ -235,7 +235,7 @@ export default function StudentLeaderboard() {
                 className="order-3 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-4 md:mb-6">
-                  <div className="w-14 h-14 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-amber-100 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-14 h-14 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-amber-100 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[2].photoUrl ? (
                       <img src={top5[2].photoUrl} alt={top5[2].name} className="w-full h-full object-cover" />
                     ) : top5[2].name[0]}

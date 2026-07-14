@@ -217,7 +217,7 @@ export default function Leaderboard() {
                 className="order-4 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-6">
-                  <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl sm:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-28 lg:h-28 rounded-2xl sm:rounded-3xl lg:rounded-[28px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-2xl lg:text-3xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[3].photoUrl ? (
                       <img src={top5[3].photoUrl} alt={top5[3].name} className="w-full h-full object-cover" />
                     ) : top5[3].name[0]}
@@ -235,7 +235,6 @@ export default function Leaderboard() {
               </motion.div>
             )}
 
-            {/* 2nd Place */}
             {top5[1] && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -244,7 +243,7 @@ export default function Leaderboard() {
                 className="order-2 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-6">
-                  <div className="w-14 h-14 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl sm:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-16 h-16 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-2xl sm:rounded-3xl lg:rounded-[32px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-xl sm:text-3xl lg:text-4xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[1].photoUrl ? (
                       <img src={top5[1].photoUrl} alt={top5[1].name} className="w-full h-full object-cover" />
                     ) : top5[1].name[0]}
@@ -263,32 +262,30 @@ export default function Leaderboard() {
               </motion.div>
             )}
 
-            {/* 1st Place */}
             {top5[0] && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1.1 }}
                 className="order-1 shrink-0 flex flex-col items-center relative z-10"
               >
-                <div className="relative mb-8">
+                <div className="relative mb-6 md:mb-8 pt-4 sm:pt-0 flex flex-col items-center">
                   <motion.div
-                    animate={{ y: [0, -10, 0] }}
+                    animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 3, repeat: Infinity }}
-                    className="absolute -top-16 left-1/2 -translate-x-1/2"
+                    className="flex justify-center -mb-2 sm:-mb-6 relative z-20"
                   >
-                    <Crown className="w-16 h-16 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]" />
+                    <Crown className="w-8 h-8 sm:w-16 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]" />
                   </motion.div>
                   
-                  <div className="w-16 h-16 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-[32px] sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-5xl border-4 border-amber-400 overflow-hidden ring-8 ring-amber-400/5 relative">
+                  <div className="w-20 h-20 sm:w-32 sm:h-32 lg:w-48 lg:h-48 rounded-2xl sm:rounded-[40px] bg-white shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center justify-center text-brand-red font-black text-2xl sm:text-5xl border-4 border-amber-400 overflow-hidden ring-4 sm:ring-8 ring-amber-400/5 relative">
                      {top5[0].photoUrl ? (
                       <img src={top5[0].photoUrl} alt={top5[0].name} className="w-full h-full object-cover" />
                     ) : (
                       <span className="relative z-10">{top5[0].name[0]}</span>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-amber-400/20 to-transparent" />
                   </div>
                   
-                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-brand-text text-white px-6 py-2 rounded-2xl font-black text-xs shadow-2xl border-2 border-white/10 uppercase tracking-widest">البطل المنتظر</div>
+                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-brand-text text-white px-6 py-2 rounded-2xl font-black text-xs shadow-2xl border-2 border-white/10 uppercase tracking-widest z-30">البطل المنتظر</div>
                 </div>
                 
                 <div className="text-center mb-10">
@@ -305,7 +302,6 @@ export default function Leaderboard() {
               </motion.div>
             )}
 
-            {/* 3rd Place */}
             {top5[2] && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -333,7 +329,6 @@ export default function Leaderboard() {
               </motion.div>
             )}
 
-            {/* 5th Place */}
             {top5[4] && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -342,7 +337,7 @@ export default function Leaderboard() {
                 className="order-5 shrink-0 flex flex-col items-center group"
               >
                 <div className="relative mb-6">
-                  <div className="w-10 h-10 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl sm:rounded-[24px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-2xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                  <div className="w-10 h-10 sm:w-16 sm:h-16 lg:w-24 lg:h-24 rounded-2xl sm:rounded-2xl lg:rounded-[24px] bg-white shadow-2xl flex items-center justify-center text-brand-beige font-black text-lg sm:text-xl lg:text-2xl border-4 border-slate-200 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
                     {top5[4].photoUrl ? (
                       <img src={top5[4].photoUrl} alt={top5[4].name} className="w-full h-full object-cover" />
                     ) : top5[4].name[0]}
