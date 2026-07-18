@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أفكار تفاعلية - الحكاية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#1C0606',
+                            red: '#8C1C13',
+                            beige: '#D4B483',
+                            cream: '#F3E8EE'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F3E8EE;
+            background-image: radial-gradient(#D4B483 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 180, 131, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(140, 28, 19, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(140, 28, 19, 0.2);
+            border-color: rgba(140, 28, 19, 0.5);
+        }
+
+        .icon-box {
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover .icon-box {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .fire-anim {
+            animation: burn 1s infinite alternate;
+        }
+
+        @keyframes burn {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px #ff7b00); }
+            100% { transform: scale(1.2); filter: drop-shadow(0 0 15px #ff0000); }
+        }
+
+        .hidden-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            opacity: 0;
+        }
+
+        .expanded .hidden-content {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="text-brand-dark min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+
+    <!-- Header Section -->
+    <div class="max-w-7xl mx-auto text-center mb-16 relative">
+        <div class="inline-block p-4 rounded-full bg-brand-red text-white mb-6 shadow-xl relative animate-bounce">
+            <i class="fa-solid fa-lightbulb text-4xl"></i>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black text-brand-dark mb-4 tracking-tight">
+            أفكار لزيادة <span class="text-transparent bg-clip-text bg-gradient-to-l from-brand-red to-brand-beige">التفاعل المستمر</span>
+        </h1>
+        <p class="text-xl text-gray-600 font-bold max-w-2xl mx-auto">
+            مقترحات لتطوير موقع "الحكاية" لضمان تفاعل المخدومين يومياً طوال الأسبوع وحتى موعد الاجتماع.
+        </p>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Idea 1 -->
+        <div class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group" onclick="toggleCard(this)">
+            <div class="absolute top-0 right-0 w-2 h-full bg-brand-red opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="icon-box w-14 h-14 rounded-2xl bg-gradient-to-br from-red-100 to-red-50 flex items-center justify-center text-brand-red text-2xl shadow-inner border border-red-200">
+                    <i class="fa-solid fa-swords"></i>
+                </div>
+                <h2 class="text-2xl font-black text-brand-dark">حرب الأسر</h2>
+            </div>
+            <p class="text-gray-600 font-bold leading-relaxed mb-4">
+                تقسيم الطلبة لفرق (عائلات). أي نقطة بيجمعها الطالب بتنضاف لفريقه، مع شريط مباشر يوضح الفريق المتصدر.
+            </p>
+            <div class="hidden-content border-t border-brand-beige/30 pt-4">
+                <div class="bg-gray-100 rounded-full h-4 w-full overflow-hidden flex relative">
+                    <div class="bg-brand-red h-full w-[60%] flex items-center justify-center text-[10px] text-white font-bold">فريق الحق (60%)</div>
+                    <div class="bg-brand-beige h-full w-[40%] flex items-center justify-center text-[10px] text-white font-bold">فريق النور (40%)</div>
+                </div>
+                <button onclick="fireConfetti(event)" class="mt-4 w-full py-2 bg-brand-dark text-white rounded-xl font-bold hover:bg-brand-red transition">تصويت للفكرة 👍</button>
+            </div>
+            <div class="text-center mt-2 text-brand-beige text-sm font-bold group-[.expanded]:hidden">اضغط للتفاصيل ⬇️</div>
+        </div>
+
+        <!-- Idea 2 -->
+        <div class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group" onclick="toggleCard(this)">
+            <div class="absolute top-0 right-0 w-2 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="icon-box w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-blue-600 text-2xl shadow-inner border border-blue-200">
+                    <i class="fa-solid fa-puzzle-piece"></i>
+                </div>
+                <h2 class="text-2xl font-black text-brand-dark">اللغز التراكمي</h2>
+            </div>
+            <p class="text-gray-600 font-bold leading-relaxed mb-4">
+                تحدي يُحل على مدار الأسبوع. كل يوم ينزل دليل جديد، ويوم الجمعة يفتح صندوق الإجابة النهائي.
+            </p>
+            <div class="hidden-content border-t border-brand-beige/30 pt-4 flex flex-col gap-2">
+                <div class="flex gap-2 justify-center text-2xl">
+                    <span class="bg-blue-100 p-2 rounded-lg">🔍</span>
+                    <span class="bg-blue-100 p-2 rounded-lg">📜</span>
+                    <span class="bg-gray-200 p-2 rounded-lg opacity-50">❓</span>
+                </div>
+                <button onclick="fireConfetti(event)" class="mt-4 w-full py-2 bg-brand-dark text-white rounded-xl font-bold hover:bg-blue-600 transition">تصويت للفكرة 👍</button>
+            </div>
+            <div class="text-center mt-2 text-brand-beige text-sm font-bold group-[.expanded]:hidden">اضغط للتفاصيل ⬇️</div>
+        </div>
+
+        <!-- Idea 3 -->
+        <div class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group" onclick="toggleCard(this)">
+            <div class="absolute top-0 right-0 w-2 h-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="icon-box w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center text-orange-500 text-2xl shadow-inner border border-orange-200">
+                    <i class="fa-solid fa-fire fire-anim"></i>
+                </div>
+                <h2 class="text-2xl font-black text-brand-dark">تحدي المواظبة</h2>
+            </div>
+            <p class="text-gray-600 font-bold leading-relaxed mb-4">
+                (Streaks) دخول الموقع يومياً والإجابة على سؤال سريع يحافظ على "الشعلة". الانقطاع يضيع المكافأة.
+            </p>
+            <div class="hidden-content border-t border-brand-beige/30 pt-4 flex gap-1 justify-center">
+                <div class="text-center"><div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mb-1">✓</div><span class="text-xs">الأحد</span></div>
+                <div class="text-center"><div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mb-1">✓</div><span class="text-xs">الإثنين</span></div>
+                <div class="text-center"><div class="w-8 h-8 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold mb-1">?</div><span class="text-xs">اليوم</span></div>
+                <button onclick="fireConfetti(event)" class="mt-4 w-full py-2 bg-brand-dark text-white rounded-xl font-bold hover:bg-orange-500 transition col-span-3">تصويت للفكرة 👍</button>
+            </div>
+            <div class="text-center mt-2 text-brand-beige text-sm font-bold group-[.expanded]:hidden">اضغط للتفاصيل ⬇️</div>
+        </div>
+
+        <!-- Idea 4 -->
+        <div class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group" onclick="toggleCard(this)">
+            <div class="absolute top-0 right-0 w-2 h-full bg-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="icon-box w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center text-purple-600 text-2xl shadow-inner border border-purple-200">
+                    <i class="fa-solid fa-stopwatch"></i>
+                </div>
+                <h2 class="text-2xl font-black text-brand-dark">الساعة الذهبية</h2>
+            </div>
+            <p class="text-gray-600 font-bold leading-relaxed mb-4">
+                تحدي يظهر فجأة لمدة ساعة واحدة فقط في منتصف الأسبوع. من يدخل ويجيب يحصل على أضعاف النقاط.
+            </p>
+            <div class="hidden-content border-t border-brand-beige/30 pt-4 text-center">
+                <div class="text-3xl font-black text-purple-600 animate-pulse">00:59:32</div>
+                <div class="text-xs text-gray-500 font-bold">متبقي على انتهاء التحدي</div>
+                <button onclick="fireConfetti(event)" class="mt-4 w-full py-2 bg-brand-dark text-white rounded-xl font-bold hover:bg-purple-600 transition">تصويت للفكرة 👍</button>
+            </div>
+            <div class="text-center mt-2 text-brand-beige text-sm font-bold group-[.expanded]:hidden">اضغط للتفاصيل ⬇️</div>
+        </div>
+
+        <!-- Idea 5 -->
+        <div class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group" onclick="toggleCard(this)">
+            <div class="absolute top-0 right-0 w-2 h-full bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="icon-box w-14 h-14 rounded-2xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center text-green-600 text-2xl shadow-inner border border-green-200">
+                    <i class="fa-solid fa-egg"></i>
+                </div>
+                <h2 class="text-2xl font-black text-brand-dark">الكنز الخفي</h2>
+            </div>
+            <p class="text-gray-600 font-bold leading-relaxed mb-4">
+                إخفاء أيقونة كنز صغيرة عشوائياً داخل صفحات الموقع أو الخرائط أسبوعياً لزيادة تصفح وقراءة المحتوى.
+            </p>
+            <div class="hidden-content border-t border-brand-beige/30 pt-4 text-center">
+                <button onclick="event.stopPropagation(); alert('لقد وجدت الكنز! +50 نقطة 🏆'); fireConfetti(event);" class="p-2 hover:bg-green-100 rounded-full transition transform hover:scale-125">
+                    <i class="fa-solid fa-gem text-green-500 text-3xl"></i>
+                </button>
+                <div class="text-xs text-gray-500 mt-2">جرب تضغط على الجوهرة!</div>
+                <button onclick="fireConfetti(event)" class="mt-4 w-full py-2 bg-brand-dark text-white rounded-xl font-bold hover:bg-green-600 transition">تصويت للفكرة 👍</button>
+            </div>
+            <div class="text-center mt-2 text-brand-beige text-sm font-bold group-[.expanded]:hidden">اضغط للتفاصيل ⬇️</div>
+        </div>
+
+        <!-- Idea 6 -->
+        <div class="glass-card rounded-3xl p-8 cursor-pointer relative overflow-hidden group" onclick="toggleCard(this)">
+            <div class="absolute top-0 right-0 w-2 h-full bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 mb-4">
+                <div class="icon-box w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-100 to-teal-50 flex items-center justify-center text-teal-600 text-2xl shadow-inner border border-teal-200">
+                    <i class="fa-solid fa-lock-open"></i>
+                </div>
+                <h2 class="text-2xl font-black text-brand-dark">المستويات المغلقة</h2>
+            </div>
+            <p class="text-gray-600 font-bold leading-relaxed mb-4">
+                بدل القراءة المباشرة، لفتح "الفصل الثاني" يجب اجتياز اختبار قصير على "الفصل الأول" كأنها لعبة.
+            </p>
+            <div class="hidden-content border-t border-brand-beige/30 pt-4 flex flex-col gap-2">
+                <div class="flex items-center gap-2 bg-teal-50 p-2 rounded border border-teal-100">
+                    <i class="fa-solid fa-check-circle text-teal-500"></i> <span class="text-sm font-bold">المستوى 1: مفتوح</span>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded border border-gray-200 opacity-60">
+                    <i class="fa-solid fa-lock text-gray-400"></i> <span class="text-sm font-bold">المستوى 2: يتطلب 3 إجابات صحيحة</span>
+                </div>
+                <button onclick="fireConfetti(event)" class="mt-4 w-full py-2 bg-brand-dark text-white rounded-xl font-bold hover:bg-teal-600 transition">تصويت للفكرة 👍</button>
+            </div>
+            <div class="text-center mt-2 text-brand-beige text-sm font-bold group-[.expanded]:hidden">اضغط للتفاصيل ⬇️</div>
+        </div>
+
+    </div>
+
+    <!-- Script for interactions -->
+    <script>
+        function toggleCard(element) {
+            // Close other cards
+            document.querySelectorAll('.glass-card').forEach(card => {
+                if(card !== element) card.classList.remove('expanded');
+            });
+            // Toggle clicked card
+            element.classList.toggle('expanded');
+        }
+
+        function fireConfetti(event) {
+            event.stopPropagation();
+            
+            var rect = event.target.getBoundingClientRect();
+            var x = (rect.left + rect.width / 2) / window.innerWidth;
+            var y = (rect.top + rect.height / 2) / window.innerHeight;
+
+            confetti({
+                particleCount: 60,
+                spread: 70,
+                origin: { x: x, y: y },
+                colors: ['#8C1C13', '#D4B483', '#1C0606', '#ffffff']
+            });
+            
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "تم التصويت! ❤️";
+            btn.classList.add('bg-brand-red');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-brand-red');
+            }, 2000);
+        }
+        
+        // Initial welcome confetti
+        window.onload = function() {
+            setTimeout(function() {
+                confetti({
+                    particleCount: 100,
+                    spread: 100,
+                    origin: { y: 0.1 },
+                    colors: ['#8C1C13', '#D4B483']
+                });
+            }, 500);
+        };
+    </script>
+</body>
+</html>
