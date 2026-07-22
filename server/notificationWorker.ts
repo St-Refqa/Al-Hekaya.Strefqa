@@ -8,6 +8,8 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://nssuihqftjpojeakup
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "sb_publishable_un9YUbLKIr-QypqU45QyBQ_crgIgAgS";
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+import { sendWebPushNotification } from "./webPush";
+
 
 // WhatsApp dispatch credentials
 const instanceId = process.env.ULTRAMSG_INSTANCE_ID;
@@ -27,7 +29,7 @@ function cleanEgyptianPhone(phone: string): string {
 }
 
 // Bulk send WhatsApp helper
-async function sendWhatsAppReminders(phones: string[], message: string) {
+export async function sendWhatsAppReminders(phones: string[], message: string) {
   if (phones.length === 0) return;
   const cleanedPhones = phones.map(p => cleanEgyptianPhone(p)).filter(p => p !== "");
   
@@ -117,6 +119,9 @@ export async function checkAndInjectWeeklyReminders() {
 
         if (error && error.code !== "23505") throw error;
         console.log(`[Worker] Generated weekly reminder for target group: ${targetGroup}`);
+        
+        // Trigger Web Push Notification
+        await sendWebPushNotification(title, message);
       }
     }
   } catch (err: any) {
@@ -197,6 +202,7 @@ export async function checkAndInjectPrepMeetingReminders() {
             if (errInsert.code !== "23505") throw errInsert;
           } else {
             console.log(`[Worker] Sent immediate meeting notification for: ${meeting.title}`);
+            await sendWebPushNotification(`📅 اجتماع تحضيري جديد للخدمة`, `تمت جدولة اجتماع تحضيري رئيسي جديد بعنوان "${meeting.title}"`);
 
             const phones = await getServantPhones();
             if (phones.length > 0) {
@@ -252,6 +258,7 @@ ${meeting.description}
 
           if (errInsert && errInsert.code !== "23505") throw errInsert;
           console.log(`[Worker] Sent 12h pre-meeting notification for: ${meeting.title}`);
+          await sendWebPushNotification(`تذكير بموعد: اجتماع تحضيري للم شمل الخدام ⏰`, `الاجتماع التحضيري الرئيسي "${meeting.title}" سيبدأ بعد أقل من 12 ساعة`);
 
           const phones = await getServantPhones();
           if (phones.length > 0) {
@@ -339,6 +346,7 @@ export async function checkAndInjectFixedMeetings12hReminders() {
 
             if (errInsert && errInsert.code !== "23505") throw errInsert;
             console.log(`[Worker] Broadcasted 12h fixed schedule warning for tag: ${tag}`);
+            await sendWebPushNotification(title, message);
           }
         }
       }
@@ -402,6 +410,7 @@ export async function checkAndInjectFavorites12hReminders() {
 
           if (errInsert && errInsert.code !== "23505") throw errInsert;
           console.log(`[Worker] Injected personalized favorite reminder for user ${fav.userId}: ${fav.topic1}`);
+          await sendWebPushNotification(`⭐ تنبيه لمحاضرتك المفضلة: ${fav.topic1}`, `نود تذكيرك بمحاضرتك المفضلة: "${fav.topic1}" المقررة اليوم`);
         }
       }
     }

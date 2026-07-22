@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { Share2 } from "lucide-react";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../hooks/useAuth";
 import {
@@ -1464,7 +1465,25 @@ export default function PublicAssessment() {
                 />
               </div>
 
-
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => {
+                    const text = `🏆 خلصت اختبار "${finalSubmission.assessmentTitle}" على الحكاية وجبت ${finalSubmission.finalScore} من ${finalSubmission.maxScore}!\nادخل جرب انت كمان وابدأ التحدي🔥\n${window.location.origin}/assessment/${id}`;
+                    if (navigator.share) {
+                      navigator.share({
+                        title: 'نتيجتي في الحكاية',
+                        text: text,
+                      }).catch(console.error);
+                    } else {
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                    }
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-8 py-4 rounded-2xl transition-all flex items-center gap-3 shadow-xl hover:shadow-emerald-600/30 hover:-translate-y-1"
+                >
+                  <Share2 className="w-5 h-5" />
+                  شارك نتيجتك على واتساب!
+                </button>
+              </div>
 
               <div className="space-y-8 pt-10 border-t border-brand-beige/10 text-right">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-beige text-center">

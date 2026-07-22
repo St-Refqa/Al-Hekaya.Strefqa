@@ -37,6 +37,9 @@ import { StudentLayout } from './components/StudentLayout';
 import { AdminLayout } from './components/AdminLayout';
 import { useTranslation } from 'react-i18next';
 import { useSoundEffects } from './hooks/useSoundEffects';
+import { usePushNotifications } from './hooks/usePushNotifications';
+import { PushNotificationBanner } from './components/ui/PushNotificationBanner';
+
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
   const { isAuthenticated, isLoading, isAdmin, isStudent, user } = useAuth();
@@ -90,6 +93,7 @@ function AnimatedRoutes() {
   const { user } = useAuth();
   const [quotaExceeded, setQuotaExceeded] = React.useState(false);
   useSoundEffects(); // Attach global sounds inside router context so it works everywhere
+  usePushNotifications(); // Attach push notifications initialization
 
   React.useEffect(() => {
     const handleQuota = () => {
@@ -366,6 +370,7 @@ export default function App() {
       <BrowserRouter>
         <AntiCheatGuard />
         <AutoRefreshHandler />
+        <PushNotificationBanner />
         <AnimatedRoutes />
       </BrowserRouter>
     </div>

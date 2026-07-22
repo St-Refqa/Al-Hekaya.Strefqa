@@ -14,8 +14,8 @@ const inputJson = {
       "events": "نقطة الانطلاق للرحلة الأولى، حيث فرز الروح القدس شاول وبرنابا للعمل. صاموا وصلوا ووضعوا عليهما الأيادي.",
       "image": "/assets/cities/antioch_syria.png",
       "labelPosition": "right",
-      "labelX": 94.48818897637796,
-      "labelY": 46.95752009184845,
+      "labelX": 96.48293963254592,
+      "labelY": 47.646383467278994,
       "hideLabel": false
     },
     {
@@ -30,8 +30,8 @@ const inputJson = {
       "events": "ميناء أنطاكية، ومنه أبحروا إلى قبرص بتوجيه من الروح القدس.",
       "image": "/assets/cities/seleucia.png",
       "labelPosition": "bottom",
-      "labelX": 92.54593175853019,
-      "labelY": 43.16877152698048,
+      "labelX": 93.96325459317585,
+      "labelY": 43.05396096440873,
       "cx": 91.28608923884515,
       "cy": 45.2353616532721
     },
@@ -47,8 +47,8 @@ const inputJson = {
       "events": "أول محطة في قبرص، نادوا بكلمة الله في مجامع اليهود.",
       "image": "/assets/cities/salamis_cyprus.png",
       "labelPosition": "right",
-      "labelX": 86.24671916010499,
-      "labelY": 52.23880597014925
+      "labelX": 87.45406824146981,
+      "labelY": 53.84615384615385
     },
     {
       "id": "paphos",
@@ -62,8 +62,8 @@ const inputJson = {
       "events": "مواجهة عليم الساحر وضربه بالعمى، وإيمان سيرجيوس بولس الوالي. وهنا تغير اسم شاول إلى بولس رسمياً.",
       "image": "/assets/cities/paphos_cyprus.png",
       "labelPosition": "bottom",
-      "labelX": 81.15485564304463,
-      "labelY": 58.2089552238806
+      "labelX": 77.53280839895012,
+      "labelY": 59.47187141216992
     },
     {
       "id": "perga",
@@ -76,8 +76,8 @@ const inputJson = {
       "events": "في هذه النقطة فارقهم يوحنا مرقس وعاد إلى أورشليم، وأكمل بولس وبرنابا الطريق الصعب.",
       "image": "/assets/cities/perga.png",
       "labelPosition": "bottom-left",
-      "labelX": 74.06824146981627,
-      "labelY": 45.00574052812859
+      "labelX": 74.48818897637796,
+      "labelY": 46.0390355912744
     },
     {
       "id": "antioch-pisidia",
@@ -90,8 +90,8 @@ const inputJson = {
       "events": "ألقى بولس عظة تاريخية في المجمع، وآمن الكثير من الأمم، لكن اليهود أثاروا اضطهاداً فطردوهما، فنفضا غبار أرجلهما.",
       "image": "/assets/cities/antioch_pisidia.png",
       "labelPosition": "top-left",
-      "labelX": 69.97375328083989,
-      "labelY": 32.14695752009185
+      "labelX": 69.34383202099738,
+      "labelY": 28.817451205510906
     },
     {
       "id": "iconium",
@@ -118,8 +118,8 @@ const inputJson = {
       "events": "شفاء مقعد من بطن أمه، فظنهم الناس آلهة (زفس وهرمس). جاء يهود وحرضوا الجموع فرجموا بولس وجروه خارج المدينة ظانين أنه مات، لكنه قام.",
       "image": "/assets/cities/lystra.png",
       "labelPosition": "bottom",
-      "labelX": 79.58005249343833,
-      "labelY": 38.23191733639495
+      "labelX": 80.10498687664041,
+      "labelY": 37.65786452353617
     },
     {
       "id": "derbe",
@@ -132,8 +132,8 @@ const inputJson = {
       "events": "بشرا في هذه المدينة وتلمذا كثيرين. ثم عادا في نفس الطريق (لسترة وأيقونية وأنطاكية) لتشديد عزائم الكنائس ورسامة قسوس.",
       "image": "/assets/cities/derbe.png",
       "labelPosition": "top-right",
-      "labelX": 82.51968503937009,
-      "labelY": 40.18369690011481
+      "labelX": 83.46456692913385,
+      "labelY": 39.9540757749713
     },
     {
       "id": "attalia",
@@ -145,8 +145,8 @@ const inputJson = {
       ],
       "events": "نزلا إلى أتالية وتكلما بالكلمة هناك.",
       "labelPosition": "bottom",
-      "labelX": 69.71128608923884,
-      "labelY": 44.20206659012629
+      "labelX": 68.18897637795276,
+      "labelY": 42.13547646383467
     },
     {
       "id": "return-seleucia",
@@ -183,9 +183,6 @@ const fileData = fs.readFileSync('src/lib/journeysData.ts', 'utf8');
 
 // Convert object to string but match formatting
 let replacement = JSON.stringify(inputJson.journey1, null, 2);
-// JSON stringify quotes all keys. Let's make it look like TS for consistency, or just leave it. TypeScript parses JSON objects fine.
-// We just need to replace the locations array of journey 1.
-// Let's use string manipulation to find the bounds of journey1's locations array.
 
 const journey1Start = fileData.indexOf("id: 'journey1'");
 if (journey1Start === -1) throw new Error("Could not find journey1");

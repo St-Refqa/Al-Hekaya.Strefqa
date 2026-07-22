@@ -9,6 +9,7 @@ import {
   refineQuestionWithAI 
 } from "./server/gemini";
 import { runNotificationWorker } from "./server/notificationWorker";
+import { sendWebPushNotification } from "./server/webPush";
 
 dotenv.config();
 
@@ -98,6 +99,17 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
       res.json({ success: true, message: "Server-side notification cycle executed successfully." });
     } catch (error: any) {
       console.error("Error triggering manual notification check:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/system/push-broadcast", async (req, res) => {
+    try {
+      const { title, message } = req.body;
+      await sendWebPushNotification(title, message);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error in push broadcast:", error);
       res.status(500).json({ error: error.message });
     }
   });
