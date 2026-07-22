@@ -61,6 +61,7 @@ import NotificationBell from "../../components/ui/NotificationBell";
 import { notificationService } from "../../lib/notificationService";
 import { useTranslation } from "react-i18next";
 import { safeLocalStorage, safeSessionStorage } from "../../lib/storage";
+import { usePushNotifications } from "../../hooks/usePushNotifications";
 
 // Helper component for live countdown
 function CountdownTimer({ expiresAt }: { expiresAt: string }) {
@@ -115,6 +116,7 @@ export default function StudentDashboard() {
   const [purchases, setPurchases] = useState<any[]>([]);
   const [pointLogs, setPointLogs] = useState<any[]>([]);
   const [showPointsLedger, setShowPointsLedger] = useState(false);
+  const { isSubscribed, permission, requestPermission } = usePushNotifications();
 
   // Generate local QR Code for Attendance scanning
   useEffect(() => {
@@ -582,6 +584,15 @@ export default function StudentDashboard() {
                 {user.code?.toUpperCase().startsWith("S") ? "خادم" : "طالب"} -{" "}
                 {t("sidebar.story_title")}
               </p>
+              {permission !== 'granted' && !isSubscribed && (
+                <button
+                  onClick={requestPermission}
+                  className="mt-2 text-[10px] bg-brand-red/10 text-brand-red px-3 py-1 rounded-full font-bold hover:bg-brand-red/20 transition-colors flex items-center gap-1 ml-auto"
+                >
+                  <Bell className="w-3 h-3" />
+                  تفعيل الإشعارات
+                </button>
+              )}
             </div>
           </div>
 
@@ -595,16 +606,31 @@ export default function StudentDashboard() {
                   fallback={<div className="text-sm md:text-base">H</div>}
                 />
               </div>
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-[3px] border-white bg-brand-red flex items-center justify-center font-black text-white shadow-sm overflow-hidden relative">
-                {user.photoUrl ? (
-                  <img
-                    src={user.photoUrl}
-                    alt={user.fullName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  user.fullName.charAt(0)
-                )}
+              <div className="relative">
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-profile'))}
+                  className="w-16 h-16 md:w-20 md:h-20 rounded-full border-[3px] border-white bg-brand-red flex items-center justify-center font-black text-white shadow-sm overflow-hidden relative group cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  {user.photoUrl ? (
+                    <img
+                      src={user.photoUrl}
+                      alt={user.fullName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user.fullName.charAt(0)
+                  )}
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="w-5 h-5 text-white" />
+                  </div>
+                </button>
+                <div 
+                  className="absolute -bottom-1 -right-1 md:hidden w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md border border-slate-100 pointer-events-none"
+                >
+                  <Camera className="w-4 h-4 text-brand-red" />
+                </div>
               </div>
             </div>
             <SmartImage

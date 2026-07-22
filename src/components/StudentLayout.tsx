@@ -16,6 +16,12 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
   const location = useLocation();
 
+  useEffect(() => {
+    const handler = () => setIsProfileModalOpen(true);
+    window.addEventListener('open-profile', handler);
+    return () => window.removeEventListener('open-profile', handler);
+  }, []);
+
   const mobileNavItems = [
     { icon: Home, label: 'الرئيسية', path: '/student' },
     { icon: Scroll, label: 'الامتحانات', path: '/student/assessments' },
