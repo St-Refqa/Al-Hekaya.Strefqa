@@ -1,11 +1,15 @@
 let audioContext: AudioContext | null = null;
 
-function getAudioContext() {
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+function getAudioContext(allowCreate = true) {
+  if (!audioContext && allowCreate) {
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    } catch (e) {
+      console.warn('AudioContext creation failed', e);
+    }
   }
-  if (audioContext.state === 'suspended') {
-    audioContext.resume();
+  if (audioContext && audioContext.state === 'suspended' && allowCreate) {
+    audioContext.resume().catch(() => {});
   }
   return audioContext;
 }
@@ -14,36 +18,42 @@ function playTone(
   frequency: number,
   type: OscillatorType,
   duration: number,
-  vol: number = 0.1
+  vol: number = 0.1,
+  allowCreate = true
 ) {
-  const ctx = getAudioContext();
+  const ctx = getAudioContext(allowCreate);
+  if (!ctx) return; // Silent return if not allowed to create or failed
 
-  const oscillator = ctx.createOscillator();
-  const originGain = ctx.createGain();
+  try {
+    const oscillator = ctx.createOscillator();
+    const originGain = ctx.createGain();
 
-  oscillator.type = type;
-  oscillator.frequency.value = frequency;
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
 
-  originGain.gain.setValueAtTime(0.00001, ctx.currentTime);
-  originGain.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.02);
-  originGain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
+    originGain.gain.setValueAtTime(0.00001, ctx.currentTime);
+    originGain.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 0.02);
+    originGain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
 
-  oscillator.connect(originGain);
-  originGain.connect(ctx.destination);
+    oscillator.connect(originGain);
+    originGain.connect(ctx.destination);
 
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + duration);
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + duration);
+  } catch (e) {
+    // Ignore audio errors to prevent app crash
+  }
 }
 
 export const playClickSound = () => {
-  // A short subtle pop
-  playTone(600, 'sine', 0.05, 0.1);
-  setTimeout(() => playTone(800, 'sine', 0.05, 0.05), 20);
+  // A short subtle pop (allowed to initialize AudioContext)
+  playTone(600, 'sine', 0.05, 0.1, true);
+  setTimeout(() => playTone(800, 'sine', 0.05, 0.05, true), 20);
 };
 
 export const playHoverSound = () => {
-  // Very soft click
-  playTone(400, 'sine', 0.03, 0.02);
+  // Very soft click (NOT allowed to initialize AudioContext, prevents autoplay warnings on hover)
+  playTone(400, 'sine', 0.03, 0.02, false);
 };
 
 export const playSuccessSound = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StudentSidebar } from './StudentSidebar';
 import { Menu, User, Bell, Home, Scroll, BookOpen, Trophy } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
