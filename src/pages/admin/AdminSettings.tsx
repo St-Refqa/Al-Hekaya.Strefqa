@@ -135,9 +135,31 @@ export default function AdminSettings() {
       for (const student of students) {
         // Find their submissions
         const mySubs = allSubs.filter(s => s.participantId === student.uid || s.participantName === student.normalizedName);
-        const totalExams = mySubs.length;
-        const totalScoreSum = mySubs.reduce((acc, sub) => acc + (sub.finalScore ?? (sub as any).score ?? sub.baseScore ?? 0), 0);
-        const maxScoreSum = mySubs.reduce((acc, sub) => acc + (sub.maxScore || 100), 0);
+        
+        // Group submissions by assessment to prevent duplicate scores from multiple attempts
+        const uniqueSubsMap = new Map();
+        for (const sub of mySubs) {
+          const key = sub.assessmentId || sub.assessmentTitle;
+          if (!key) continue;
+          
+          const currentScore = sub.finalScore ?? (sub as any).score ?? sub.baseScore ?? 0;
+          const currentMaxScore = sub.maxScore || 100;
+          
+          if (!uniqueSubsMap.has(key)) {
+            uniqueSubsMap.set(key, { score: currentScore, maxScore: currentMaxScore, sub });
+          } else {
+            const existing = uniqueSubsMap.get(key);
+            if (currentScore > existing.score) {
+              uniqueSubsMap.set(key, { score: currentScore, maxScore: currentMaxScore, sub });
+            }
+          }
+        }
+        
+        const uniqueSubs = Array.from(uniqueSubsMap.values());
+        const totalExams = uniqueSubs.length;
+        const totalScoreSum = uniqueSubs.reduce((acc, curr) => acc + curr.score, 0);
+        const maxScoreSum = uniqueSubs.reduce((acc, curr) => acc + curr.maxScore, 0);
+        
         const calculatedAvg = maxScoreSum > 0 ? (totalScoreSum / maxScoreSum) * 100 : 0;
         const examPoints = totalScoreSum;
 
