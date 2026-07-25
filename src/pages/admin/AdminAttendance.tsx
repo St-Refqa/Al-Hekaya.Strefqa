@@ -504,7 +504,7 @@ export default function AdminAttendance() {
       const [logH, logM] = logTimeStr.split(':').map(Number);
       if (!isNaN(logH) && !isNaN(logM)) {
         const totalMinutes = logH * 60 + logM;
-        if (totalMinutes >= 19 * 60 && totalMinutes <= 21 * 60) {
+        if (totalMinutes >= 18 * 60 && totalMinutes <= 21 * 60) {
           isWithinPointsWindow = true;
         }
       }
@@ -547,7 +547,7 @@ export default function AdminAttendance() {
 
       let detailMsg = `تم تسجيل حضور ${rolePrefix} ${studentName} بنجاح الساعة ${logTimeStr}.`;
       if (!isWithinPointsWindow) {
-        detailMsg += ` (خارج الفترة المحددة للنقاط من 7-9 مساءً)، ولم يتم احتساب نقاط. 🕒`;
+        detailMsg += ` (خارج الفترة المحددة للنقاط من 6-9 مساءً)، ولم يتم احتساب نقاط. 🕒`;
       } else if (calcResult.minutesLate <= 15) {
         detailMsg += ` (خلال الربع ساعة الأولى)، وحصل على الدرجة الكاملة: 20 من 20 درجة! 🎉`;
       } else {
