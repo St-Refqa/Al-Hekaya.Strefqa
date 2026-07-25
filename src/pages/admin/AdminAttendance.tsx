@@ -124,13 +124,31 @@ const getLocalTimeStr = () => {
 // First 15 mins (grace period) = 20 points
 // Every 5 mins late after that reduces points by 1 point
 // Floor of 1 point (so attenders always get some reward)
-const calculateDynamicPoints = (startTimeStr: string, scanTimeStr: string) => {
+const calculateDynamicPoints = (startTimeStr: string, scanTimeStr: string, dateStr?: string) => {
   try {
-    const [startHour, startMin] = startTimeStr.split(':').map(Number);
+    let [startHour, startMin] = startTimeStr.split(':').map(Number);
     const [scanHour, scanMin] = scanTimeStr.split(':').map(Number);
 
     if (isNaN(startHour) || isNaN(startMin) || isNaN(scanHour) || isNaN(scanMin)) {
       return { points: 20, minutesLate: 0, penalty: 0 };
+    }
+
+    if (dateStr === '2026-07-25') {
+      startHour = 18;
+      startMin = 0;
+      
+      const startTotal = startHour * 60 + startMin;
+      const scanTotal = scanHour * 60 + scanMin;
+      const minutesLate = scanTotal - startTotal;
+      
+      if (minutesLate <= 5) {
+        return { points: 20, minutesLate: Math.max(0, minutesLate), penalty: 0 };
+      } else {
+        const excessMinutes = minutesLate - 5;
+        const penalty = Math.ceil(excessMinutes / 5);
+        const points = Math.max(1, 20 - penalty);
+        return { points, minutesLate, penalty };
+      }
     }
 
     const startTotal = startHour * 60 + startMin;
@@ -496,7 +514,7 @@ export default function AdminAttendance() {
     const lectureNameStr = activeLecture ? activeLecture.name : (meeting === 'OT' ? 'طلاب اونلاين' : 'طلاب الورشة');
 
     // Calculate dynamic points points
-    const calcResult = calculateDynamicPoints(startTimeStr, logTimeStr);
+    const calcResult = calculateDynamicPoints(startTimeStr, logTimeStr, todayStr);
     
     // Check if scan time is within 7:00 PM (19:00) to 9:00 PM (21:00) inclusive
     let isWithinPointsWindow = false;
@@ -546,10 +564,14 @@ export default function AdminAttendance() {
       const rolePrefix = isServ ? "الخادم" : "الطالب";
 
       let detailMsg = `تم تسجيل حضور ${rolePrefix} ${studentName} بنجاح الساعة ${logTimeStr}.`;
+      
+      const gracePeriod = todayStr === '2026-07-25' ? 5 : 15;
+      const graceText = todayStr === '2026-07-25' ? "الخمس دقائق الأولى" : "الربع ساعة الأولى";
+
       if (!isWithinPointsWindow) {
         detailMsg += ` (خارج الفترة المحددة للنقاط من 6-9 مساءً)، ولم يتم احتساب نقاط. 🕒`;
-      } else if (calcResult.minutesLate <= 15) {
-        detailMsg += ` (خلال الربع ساعة الأولى)، وحصل على الدرجة الكاملة: 20 من 20 درجة! 🎉`;
+      } else if (calcResult.minutesLate <= gracePeriod) {
+        detailMsg += ` (خلال ${graceText})، وحصل على الدرجة الكاملة: 20 من 20 درجة! 🎉`;
       } else {
         detailMsg += ` (متأخر ${calcResult.minutesLate} دقيقة - يقل ${calcResult.penalty} درجة)، وحصل على ${points} من 20 درجة. 🕒`;
       }
