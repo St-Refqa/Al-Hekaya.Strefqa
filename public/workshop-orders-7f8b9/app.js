@@ -46,7 +46,7 @@ function fetchData() {
             data = json.table.rows.map(row => {
                 const obj = {};
                 row.c.forEach((cell, i) => {
-                    obj[cols[i]] = cell ? cell.v : null;
+                    obj[cols[i]] = cell ? (cell.f !== undefined ? cell.f : cell.v) : null;
                 });
                 return obj;
             });
