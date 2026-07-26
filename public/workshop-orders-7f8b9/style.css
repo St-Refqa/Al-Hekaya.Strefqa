@@ -249,3 +249,17 @@ tbody tr:hover {
     font-style: italic;
     font-weight: 600;
 }
+
+/* Mobile Responsive Tables */
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr { display: block; }
+    thead tr { position: absolute; top: -9999px; left: -9999px; }
+    tr { border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 1rem; overflow: hidden; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    td { border: none; border-bottom: 1px solid #eee; position: relative; padding-right: 40%; text-align: left; min-height: 40px; }
+    td:last-child { border-bottom: 0; }
+    td:before { position: absolute; top: 50%; right: 1rem; transform: translateY(-50%); width: 35%; padding-right: 10px; white-space: nowrap; font-weight: bold; color: var(--text-secondary); content: attr(data-label); text-align: right; }
+    .table-container { padding: 0.5rem; overflow-x: hidden; }
+    table { min-width: 100%; }
+    .btn-action { width: 100%; padding: 10px; margin-top: 5px; }
+}
+

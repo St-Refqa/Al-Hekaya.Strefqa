@@ -131,42 +131,42 @@ function processData() {
     // Render Tables
     renderTable('pending', categories.pending, row => `
         <tr>
-            <td>${row['Client Name'] || '-'}</td>
-            <td>${row['Date'] || '-'}</td>
-            <td>${row['Order Details'] || '-'}</td>
-            <td>${row['Quantity'] || '-'}</td>
-            <td>${row['Total'] || '0'} ج.م</td>
-            <td><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button></td>
+            <td data-label="العميل">${row['Client Name'] || '-'}</td>
+            <td data-label="التاريخ">${row['Date'] || '-'}</td>
+            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
+            <td data-label="الكمية">${row['Quantity'] || '-'}</td>
+            <td data-label="الإجمالي">${row['Total'] || '0'} ج.م</td>
+            <td data-label="إجراء"><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button></td>
         </tr>
     `);
 
     renderTable('ready', categories.ready, row => `
         <tr>
-            <td>${row['Client Name'] || '-'}</td>
-            <td>${row['Date'] || '-'}</td>
-            <td>${row['Order Details'] || '-'}</td>
-            <td>${row['المحافطة'] || '-'}</td>
-            <td><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button></td>
+            <td data-label="العميل">${row['Client Name'] || '-'}</td>
+            <td data-label="التاريخ">${row['Date'] || '-'}</td>
+            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
+            <td data-label="المحافظة">${row['المحافطة'] || '-'}</td>
+            <td data-label="إجراء"><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button></td>
         </tr>
     `);
 
     renderTable('shipped', categories.shipped, row => `
         <tr>
-            <td>${row['Client Name'] || '-'}</td>
-            <td>${row['Order Details'] || '-'}</td>
-            <td>${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</td>
-            <td><strong style="color:var(--color-shipped)">${row['The Rest'] || '0'} ج.م</strong></td>
-            <td><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button></td>
+            <td data-label="العميل">${row['Client Name'] || '-'}</td>
+            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
+            <td data-label="المحافظة/المنطقة">${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</td>
+            <td data-label="الباقي للتحصيل"><strong style="color:var(--color-shipped)">${row['The Rest'] || '0'} ج.م</strong></td>
+            <td data-label="إجراء"><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button></td>
         </tr>
     `);
 
     renderTable('arrived', categories.arrived, row => `
         <tr>
-            <td>${row['Client Name'] || '-'}</td>
-            <td>${row['Order Details'] || '-'}</td>
-            <td>${row['Payment Method'] || '-'}</td>
-            <td><strong style="color:var(--color-arrived)">${row['Total'] || '0'} ج.م</strong></td>
-            <td><button class="btn-action" disabled>مكتمل</button></td>
+            <td data-label="العميل">${row['Client Name'] || '-'}</td>
+            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
+            <td data-label="الدفع">${row['Payment Method'] || '-'}</td>
+            <td data-label="المبلغ النهائي"><strong style="color:var(--color-arrived)">${row['Total'] || '0'} ج.م</strong></td>
+            <td data-label="إجراء"><button class="btn-action" disabled>مكتمل</button></td>
         </tr>
     `);
 }
