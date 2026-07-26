@@ -83,12 +83,63 @@ body {
     align-items: center;
     box-shadow: var(--card-shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: default;
+    cursor: pointer;
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px 0 rgba(31, 38, 135, 0.15);
+}
+
+.header-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 1rem;
+}
+
+.btn-refresh {
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+}
+.btn-refresh:hover {
+    background-color: #2d3748;
+}
+
+.btn-refresh:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-action {
+    background-color: #4299e1;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 0.85rem;
+}
+
+.btn-action:hover {
+    background-color: #3182ce;
+}
+
+.btn-action:disabled {
+    background-color: #cbd5e0;
+    cursor: not-allowed;
 }
 
 .stat-icon {

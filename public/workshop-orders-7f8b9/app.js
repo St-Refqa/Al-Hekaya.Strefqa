@@ -136,6 +136,7 @@ function processData() {
             <td>${row['Order Details'] || '-'}</td>
             <td>${row['Quantity'] || '-'}</td>
             <td>${row['Total'] || '0'} ج.م</td>
+            <td><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button></td>
         </tr>
     `);
 
@@ -145,6 +146,7 @@ function processData() {
             <td>${row['Date'] || '-'}</td>
             <td>${row['Order Details'] || '-'}</td>
             <td>${row['المحافطة'] || '-'}</td>
+            <td><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button></td>
         </tr>
     `);
 
@@ -154,6 +156,7 @@ function processData() {
             <td>${row['Order Details'] || '-'}</td>
             <td>${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</td>
             <td><strong style="color:var(--color-shipped)">${row['The Rest'] || '0'} ج.م</strong></td>
+            <td><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button></td>
         </tr>
     `);
 
@@ -163,6 +166,7 @@ function processData() {
             <td>${row['Order Details'] || '-'}</td>
             <td>${row['Payment Method'] || '-'}</td>
             <td><strong style="color:var(--color-arrived)">${row['Total'] || '0'} ج.م</strong></td>
+            <td><button class="btn-action" disabled>مكتمل</button></td>
         </tr>
     `);
 }
@@ -173,7 +177,7 @@ function renderTable(type, items, rowTemplate) {
     tbody.innerHTML = ''; // clear existing
     
     if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">لا يوجد أوردرات في هذه القائمة حالياً</div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">لا يوجد أوردرات في هذه القائمة حالياً</div></td></tr>`;
         return;
     }
 
@@ -181,6 +185,68 @@ function renderTable(type, items, rowTemplate) {
         tbody.innerHTML += rowTemplate(row);
     });
 }
+
+// Interactivity Functions
+window.scrollToSection = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+window.refreshData = function() {
+    const btn = document.getElementById('refresh-btn');
+    if (btn) btn.disabled = true;
+    fetchData();
+    setTimeout(() => {
+        if (btn) btn.disabled = false;
+    }, 2000);
+};
+
+// This URL will be updated once the user deploys the Apps Script
+const APPS_SCRIPT_URL = ''; 
+
+window.moveToNextStep = function(clientName, orderDetails, nextStepColumn) {
+    if (!APPS_SCRIPT_URL) {
+        alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
+        return;
+    }
+    
+    const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
+    if (!confirm(confirmMsg)) return;
+    
+    // Disable all action buttons to prevent double clicks
+    document.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
+    elements.lastUpdated.textContent = 'جاري ترحيل الأوردر...';
+    
+    // In a real scenario with the Apps Script, we would use fetch (POST) here.
+    // Example:
+    /*
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            clientName: clientName,
+            orderDetails: orderDetails,
+            nextStep: nextStepColumn
+        })
+    }).then(res => res.json())
+      .then(result => {
+          if (result.success) {
+              refreshData(); // Refresh table
+          } else {
+              alert('حدث خطأ أثناء الترحيل.');
+              document.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+          }
+      }).catch(err => {
+          console.error(err);
+          alert('تعذر الاتصال بالسيرفر.');
+          document.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+      });
+    */
+};
 
 // Run app
 document.addEventListener('DOMContentLoaded', init);
