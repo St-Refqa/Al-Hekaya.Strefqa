@@ -133,21 +133,70 @@ function processData() {
     elements.counts.shipped.textContent = categories.shipped.length;
     elements.counts.arrived.textContent = categories.arrived.length;
 
+    // Render Analytics
+    renderAnalytics(data);
+
+    // Helper to format WhatsApp link
+    const getWhatsAppLink = (phone, name, status) => {
+        if (!phone) return '';
+        let cleanedPhone = String(phone).replace(/\D/g, '');
+        if (cleanedPhone.startsWith('0')) {
+            cleanedPhone = '2' + cleanedPhone;
+        } else if (!cleanedPhone.startsWith('20')) {
+            cleanedPhone = '20' + cleanedPhone;
+        }
+        
+        let msg = `أهلاً بك أ. ${name || ''} من ورشة الحكاية، `;
+        if (status === 'pending') msg += 'جاري حالياً العمل على تجهيز طلبك وسيتم الانتهاء منه قريباً.';
+        else if (status === 'ready') msg += 'طلبك الآن جاهز وفي انتظار المندوب لاستلامه وشحنه لك.';
+        else if (status === 'shipped') msg += 'تم تسليم طلبك لشركة الشحن وسيتواصلون معك قريباً للتوصيل.';
+        else msg += 'نتمنى أن يكون طلبك قد نال إعجابك!';
+        
+        const encodedMsg = encodeURIComponent(msg);
+        return `<a href="https://wa.me/${cleanedPhone}?text=${encodedMsg}" target="_blank" class="btn-whatsapp" title="تواصل عبر واتساب">💬 واتساب</a>`;
+    };
+
+    // Helper to check if order is delayed (older than 3 days)
+    const isDelayed = (dateStr) => {
+        if (!dateStr) return false;
+        // Parse "Date" object string if it comes as "Date(2026, 6, 26)" from Google JSON
+        let orderDate = null;
+        if (String(dateStr).startsWith('Date(')) {
+            const parts = String(dateStr).match(/Date\((\d+),\s*(\d+),\s*(\d+)/);
+            if (parts) {
+                // Month in JS is 0-indexed, but Google JSON is also 0-indexed for month
+                orderDate = new Date(parseInt(parts[1]), parseInt(parts[2]), parseInt(parts[3]));
+            }
+        } else {
+            orderDate = new Date(dateStr);
+        }
+        
+        if (orderDate && !isNaN(orderDate.getTime())) {
+            const today = new Date();
+            const diffTime = Math.abs(today - orderDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 3;
+        }
+        return false;
+    };
+
     // Render Accordion Lists
     renderList('pending', categories.pending, row => `
-        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
+        <div class="accordion-item ${isDelayed(row['col_1']) ? 'delayed-warning' : ''}" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title">
+                    ${isDelayed(row['col_1']) ? '<span class="delayed-icon" title="أوردر متأخر">⚠️</span>' : ''}
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge">${row['Total'] || '0'} ج.م</span>
                 </div>
                 <div class="accordion-arrow">🔽</div>
             </div>
             <div class="accordion-content">
-                <p><strong>التاريخ:</strong> ${row['Date'] || '-'}</p>
+                <p><strong>التاريخ:</strong> ${row['col_1'] || '-'}</p>
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
                 <div class="action-container">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
                     <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button>
                 </div>
             </div>
@@ -164,9 +213,10 @@ function processData() {
                 <div class="accordion-arrow">🔽</div>
             </div>
             <div class="accordion-content">
-                <p><strong>التاريخ:</strong> ${row['Date'] || '-'}</p>
+                <p><strong>التاريخ:</strong> ${row['col_1'] || '-'}</p>
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'ready')}
                     <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button>
                 </div>
             </div>
@@ -186,6 +236,7 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <p><strong>المحافظة/المنطقة:</strong> ${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</p>
                 <div class="action-container">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'shipped')}
                     <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button>
                 </div>
             </div>
@@ -205,6 +256,7 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <p><strong>الدفع:</strong> ${row['Payment Method'] || '-'}</p>
                 <div class="action-container">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'arrived')}
                     <button class="btn-action" disabled>مكتمل</button>
                 </div>
             </div>
@@ -224,6 +276,85 @@ function renderList(type, items, rowTemplate) {
 
     items.forEach(row => {
         container.innerHTML += rowTemplate(row);
+    });
+}
+
+// Chart Variables
+let govChartInstance = null;
+let productChartInstance = null;
+
+function toggleAnalytics() {
+    const section = document.getElementById('analytics-section');
+    if (section.style.display === 'none') {
+        section.style.display = 'flex';
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+function renderAnalytics(allData) {
+    const validData = allData.filter(row => row['Client Name'] && row['Client Name'] !== '');
+    
+    // 1. Governorate Stats
+    const govCounts = {};
+    // 2. Product Stats
+    const productCounts = {};
+
+    validData.forEach(row => {
+        const gov = row['المحافطة'] ? String(row['المحافطة']).trim() : 'غير محدد';
+        const product = row['Order Details'] ? String(row['Order Details']).trim() : 'غير محدد';
+        
+        govCounts[gov] = (govCounts[gov] || 0) + 1;
+        productCounts[product] = (productCounts[product] || 0) + 1;
+    });
+
+    // Prepare Gov Chart Data
+    const govLabels = Object.keys(govCounts).sort((a, b) => govCounts[b] - govCounts[a]).slice(0, 10);
+    const govValues = govLabels.map(label => govCounts[label]);
+
+    // Prepare Product Chart Data
+    const prodLabels = Object.keys(productCounts).sort((a, b) => productCounts[b] - productCounts[a]).slice(0, 5);
+    const prodValues = prodLabels.map(label => productCounts[label]);
+
+    if (govChartInstance) govChartInstance.destroy();
+    if (productChartInstance) productChartInstance.destroy();
+
+    const ctxGov = document.getElementById('govChart').getContext('2d');
+    govChartInstance = new Chart(ctxGov, {
+        type: 'bar',
+        data: {
+            labels: govLabels,
+            datasets: [{
+                label: 'عدد الطلبات',
+                data: govValues,
+                backgroundColor: '#4299e1',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    const ctxProd = document.getElementById('productChart').getContext('2d');
+    productChartInstance = new Chart(ctxProd, {
+        type: 'pie',
+        data: {
+            labels: prodLabels,
+            datasets: [{
+                data: prodValues,
+                backgroundColor: ['#f6ad55', '#68d391', '#b794f4', '#fc8181', '#4fd1c5']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
     });
 }
 
