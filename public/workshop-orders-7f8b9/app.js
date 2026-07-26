@@ -1,5 +1,6 @@
-// Fetching from local proxy instead of third-party CORS proxy
-const CSV_URL = '/api/workshop/orders';
+// Google Sheets JSONP URL
+const SHEET_ID = '1qLw0Md1-A9x8Vj_FWg_2B4j_cUOGTAmNTsdoASzvx-c';
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=&gid=0`;
 
 // App State
 let data = [];
@@ -28,26 +29,57 @@ function init() {
     setInterval(fetchData, 300000);
 }
 
-// Fetch Data using PapaParse
+// Fetch Data using Google Visualization JSONP (No CORS needed)
 function fetchData() {
     elements.lastUpdated.textContent = 'جاري التحديث...';
     
-    Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-            data = results.data;
+    // Define the global callback function for JSONP
+    window.processGvizData = function(json) {
+        if (json.status !== 'ok') {
+            elements.lastUpdated.textContent = 'حدث خطأ أثناء جلب البيانات.';
+            return;
+        }
+        
+        // Transform Google Visualization JSON to Array of Objects
+        try {
+            const cols = json.table.cols.map(c => c ? c.label : '');
+            data = json.table.rows.map(row => {
+                const obj = {};
+                row.c.forEach((cell, i) => {
+                    obj[cols[i]] = cell ? cell.v : null;
+                });
+                return obj;
+            });
+            
             processData();
             
             const now = new Date();
             elements.lastUpdated.textContent = `آخر تحديث: ${now.toLocaleTimeString('ar-EG')}`;
-        },
-        error: function(error) {
-            console.error('Error fetching data:', error);
-            elements.lastUpdated.textContent = 'حدث خطأ أثناء جلب البيانات. يرجى المحاولة لاحقاً.';
+        } catch (e) {
+            console.error('Error processing JSONP data:', e);
+            elements.lastUpdated.textContent = 'حدث خطأ أثناء معالجة البيانات.';
         }
-    });
+        
+        // Cleanup script tag
+        const oldScript = document.getElementById('gviz-script');
+        if (oldScript) oldScript.remove();
+    };
+    
+    // Inject script tag for JSONP
+    const script = document.createElement('script');
+    script.id = 'gviz-script';
+    // Append callback name to URL
+    script.src = GVIZ_URL + '&tqx=responseHandler:processGvizData';
+    script.onerror = function() {
+        console.error('Failed to load JSONP script');
+        elements.lastUpdated.textContent = 'حدث خطأ في الاتصال بجوجل شيت.';
+    };
+    
+    // Remove previous script if it got stuck
+    const oldScript = document.getElementById('gviz-script');
+    if (oldScript) oldScript.remove();
+    
+    document.body.appendChild(script);
 }
 
 // Process and categorize data
