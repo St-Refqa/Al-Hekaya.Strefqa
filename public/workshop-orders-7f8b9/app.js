@@ -5,21 +5,21 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx
 // App State
 let data = [];
 
-// DOM Elements
+// Cache DOM elements
 const elements = {
+    lastUpdated: document.getElementById('last-updated'),
     counts: {
         pending: document.getElementById('count-pending'),
         ready: document.getElementById('count-ready'),
         shipped: document.getElementById('count-shipped'),
         arrived: document.getElementById('count-arrived')
     },
-    tables: {
-        pending: document.querySelector('#table-pending tbody'),
-        ready: document.querySelector('#table-ready tbody'),
-        shipped: document.querySelector('#table-shipped tbody'),
-        arrived: document.querySelector('#table-arrived tbody')
-    },
-    lastUpdated: document.getElementById('last-updated')
+    lists: {
+        pending: document.getElementById('list-pending'),
+        ready: document.getElementById('list-ready'),
+        shipped: document.getElementById('list-shipped'),
+        arrived: document.getElementById('list-arrived')
+    }
 };
 
 // Initialize App
@@ -128,61 +128,97 @@ function processData() {
     elements.counts.shipped.textContent = categories.shipped.length;
     elements.counts.arrived.textContent = categories.arrived.length;
 
-    // Render Tables
-    renderTable('pending', categories.pending, row => `
-        <tr>
-            <td data-label="العميل">${row['Client Name'] || '-'}</td>
-            <td data-label="التاريخ">${row['Date'] || '-'}</td>
-            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
-            <td data-label="الكمية">${row['Quantity'] || '-'}</td>
-            <td data-label="الإجمالي">${row['Total'] || '0'} ج.م</td>
-            <td data-label="إجراء"><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button></td>
-        </tr>
+    // Render Accordion Lists
+    renderList('pending', categories.pending, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="total-badge">${row['Total'] || '0'} ج.م</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التاريخ:</strong> ${row['Date'] || '-'}</p>
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
+                <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
+                <div class="action-container">
+                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button>
+                </div>
+            </div>
+        </div>
     `);
 
-    renderTable('ready', categories.ready, row => `
-        <tr>
-            <td data-label="العميل">${row['Client Name'] || '-'}</td>
-            <td data-label="التاريخ">${row['Date'] || '-'}</td>
-            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
-            <td data-label="المحافظة">${row['المحافطة'] || '-'}</td>
-            <td data-label="إجراء"><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button></td>
-        </tr>
+    renderList('ready', categories.ready, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="gov-badge">${row['المحافطة'] || '-'}</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التاريخ:</strong> ${row['Date'] || '-'}</p>
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
+                <div class="action-container">
+                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button>
+                </div>
+            </div>
+        </div>
     `);
 
-    renderTable('shipped', categories.shipped, row => `
-        <tr>
-            <td data-label="العميل">${row['Client Name'] || '-'}</td>
-            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
-            <td data-label="المحافظة/المنطقة">${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</td>
-            <td data-label="الباقي للتحصيل"><strong style="color:var(--color-shipped)">${row['The Rest'] || '0'} ج.م</strong></td>
-            <td data-label="إجراء"><button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button></td>
-        </tr>
+    renderList('shipped', categories.shipped, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="total-badge shipped-color">${row['The Rest'] || '0'} ج.م</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
+                <p><strong>المحافظة/المنطقة:</strong> ${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</p>
+                <div class="action-container">
+                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button>
+                </div>
+            </div>
+        </div>
     `);
 
-    renderTable('arrived', categories.arrived, row => `
-        <tr>
-            <td data-label="العميل">${row['Client Name'] || '-'}</td>
-            <td data-label="التفاصيل">${row['Order Details'] || '-'}</td>
-            <td data-label="الدفع">${row['Payment Method'] || '-'}</td>
-            <td data-label="المبلغ النهائي"><strong style="color:var(--color-arrived)">${row['Total'] || '0'} ج.م</strong></td>
-            <td data-label="إجراء"><button class="btn-action" disabled>مكتمل</button></td>
-        </tr>
+    renderList('arrived', categories.arrived, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="total-badge arrived-color">${row['Total'] || '0'} ج.م</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
+                <p><strong>الدفع:</strong> ${row['Payment Method'] || '-'}</p>
+                <div class="action-container">
+                    <button class="btn-action" disabled>مكتمل</button>
+                </div>
+            </div>
+        </div>
     `);
 }
 
-// Helper to render table rows
-function renderTable(type, items, rowTemplate) {
-    const tbody = elements.tables[type];
-    tbody.innerHTML = ''; // clear existing
+// Helper to render accordion lists
+function renderList(type, items, rowTemplate) {
+    const container = elements.lists[type];
+    container.innerHTML = ''; // clear existing
     
     if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">لا يوجد أوردرات في هذه القائمة حالياً</div></td></tr>`;
+        container.innerHTML = `<div class="empty-state">لا يوجد أوردرات في هذه القائمة حالياً</div>`;
         return;
     }
 
     items.forEach(row => {
-        tbody.innerHTML += rowTemplate(row);
+        container.innerHTML += rowTemplate(row);
     });
 }
 
@@ -197,10 +233,38 @@ window.scrollToSection = function(sectionId) {
 window.refreshData = function() {
     const btn = document.getElementById('refresh-btn');
     if (btn) btn.disabled = true;
+    
+    // Clear search inputs
+    document.querySelectorAll('.search-input').forEach(input => input.value = '');
+    
     fetchData();
     setTimeout(() => {
         if (btn) btn.disabled = false;
     }, 2000);
+};
+
+// Accordion Toggle Logic
+window.toggleAccordion = function(headerElement) {
+    const item = headerElement.parentElement;
+    item.classList.toggle('active');
+};
+
+// Search Filter Logic
+window.filterList = function(type) {
+    const input = document.getElementById('search-' + type);
+    const filter = input.value.toLowerCase();
+    const container = elements.lists[type];
+    const items = container.getElementsByClassName('accordion-item');
+    
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const searchData = item.getAttribute('data-search') || '';
+        if (searchData.indexOf(filter) > -1) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    }
 };
 
 // This URL will be updated once the user deploys the Apps Script

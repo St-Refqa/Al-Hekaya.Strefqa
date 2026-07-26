@@ -59,20 +59,11 @@
                 <div class="section-header pending-header">
                     <h2>مطلوبة ولسه متحضرتش</h2>
                 </div>
-                <div class="table-container">
-                    <table id="table-pending">
-                        <thead>
-                            <tr>
-                                <th>العميل</th>
-                                <th>التاريخ</th>
-                                <th>التفاصيل</th>
-                                <th>الكمية</th>
-                                <th>الإجمالي</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div class="search-container">
+                    <input type="text" id="search-pending" class="search-input" placeholder="بحث بالاسم أو التفاصيل..." onkeyup="filterList('pending')">
+                </div>
+                <div class="accordion-container" id="list-pending">
+                    <!-- Items will be injected here -->
                 </div>
             </section>
 
@@ -80,19 +71,11 @@
                 <div class="section-header ready-header">
                     <h2>جاهزة وعايزة تتشحن</h2>
                 </div>
-                <div class="table-container">
-                    <table id="table-ready">
-                        <thead>
-                            <tr>
-                                <th>العميل</th>
-                                <th>التاريخ</th>
-                                <th>التفاصيل</th>
-                                <th>المحافظة</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div class="search-container">
+                    <input type="text" id="search-ready" class="search-input" placeholder="بحث بالاسم أو التفاصيل..." onkeyup="filterList('ready')">
+                </div>
+                <div class="accordion-container" id="list-ready">
+                    <!-- Items will be injected here -->
                 </div>
             </section>
 
@@ -100,19 +83,11 @@
                 <div class="section-header shipped-header">
                     <h2>في شركة الشحن</h2>
                 </div>
-                <div class="table-container">
-                    <table id="table-shipped">
-                        <thead>
-                            <tr>
-                                <th>العميل</th>
-                                <th>التفاصيل</th>
-                                <th>المحافظة/المنطقة</th>
-                                <th>الباقي للتحصيل</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div class="search-container">
+                    <input type="text" id="search-shipped" class="search-input" placeholder="بحث بالاسم أو التفاصيل..." onkeyup="filterList('shipped')">
+                </div>
+                <div class="accordion-container" id="list-shipped">
+                    <!-- Items will be injected here -->
                 </div>
             </section>
 
@@ -120,18 +95,11 @@
                 <div class="section-header arrived-header">
                     <h2>الأوردرات التي وصلت</h2>
                 </div>
-                <div class="table-container">
-                    <table id="table-arrived">
-                        <thead>
-                            <tr>
-                                <th>العميل</th>
-                                <th>التفاصيل</th>
-                                <th>الدفع</th>
-                                <th>المبلغ النهائي</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <div class="search-container">
+                    <input type="text" id="search-arrived" class="search-input" placeholder="بحث بالاسم أو التفاصيل..." onkeyup="filterList('arrived')">
+                </div>
+                <div class="accordion-container" id="list-arrived">
+                    <!-- Items will be injected here -->
                 </div>
             </section>
         </div>
