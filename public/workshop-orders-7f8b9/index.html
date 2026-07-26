@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الأوردرات</title>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- PapaParse for robust CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>لوحة تحكم الطلبيات 📦</h1>
+            <p>تحديث مباشر لحالة الأوردرات من Google Sheets</p>
+            <div id="last-updated" class="last-updated">جاري التحميل...</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <div class="stat-icon">🕒</div>
+                <div class="stat-details">
+                    <h3>مطلوبة ولسه متحضرتش</h3>
+                    <p id="count-pending" class="stat-number">0</p>
+                </div>
+            </div>
+            <div class="stat-card ready">
+                <div class="stat-icon">📦</div>
+                <div class="stat-details">
+                    <h3>جاهزة وعايزة تتشحن</h3>
+                    <p id="count-ready" class="stat-number">0</p>
+                </div>
+            </div>
+            <div class="stat-card shipped">
+                <div class="stat-icon">🚚</div>
+                <div class="stat-details">
+                    <h3>في شركة الشحن</h3>
+                    <p id="count-shipped" class="stat-number">0</p>
+                </div>
+            </div>
+            <div class="stat-card arrived">
+                <div class="stat-icon">✅</div>
+                <div class="stat-details">
+                    <h3>وصلت وتم التسليم</h3>
+                    <p id="count-arrived" class="stat-number">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lists-container">
+            <section class="list-section" id="section-pending">
+                <div class="section-header pending-header">
+                    <h2>مطلوبة ولسه متحضرتش</h2>
+                </div>
+                <div class="table-container">
+                    <table id="table-pending">
+                        <thead>
+                            <tr>
+                                <th>العميل</th>
+                                <th>التاريخ</th>
+                                <th>التفاصيل</th>
+                                <th>الكمية</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="list-section" id="section-ready">
+                <div class="section-header ready-header">
+                    <h2>جاهزة وعايزة تتشحن</h2>
+                </div>
+                <div class="table-container">
+                    <table id="table-ready">
+                        <thead>
+                            <tr>
+                                <th>العميل</th>
+                                <th>التاريخ</th>
+                                <th>التفاصيل</th>
+                                <th>المحافظة</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="list-section" id="section-shipped">
+                <div class="section-header shipped-header">
+                    <h2>في شركة الشحن</h2>
+                </div>
+                <div class="table-container">
+                    <table id="table-shipped">
+                        <thead>
+                            <tr>
+                                <th>العميل</th>
+                                <th>التفاصيل</th>
+                                <th>المحافظة/المنطقة</th>
+                                <th>الباقي للتحصيل</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="list-section" id="section-arrived">
+                <div class="section-header arrived-header">
+                    <h2>الأوردرات التي وصلت</h2>
+                </div>
+                <div class="table-container">
+                    <table id="table-arrived">
+                        <thead>
+                            <tr>
+                                <th>العميل</th>
+                                <th>التفاصيل</th>
+                                <th>الدفع</th>
+                                <th>المبلغ النهائي</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Main Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
