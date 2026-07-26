@@ -24,6 +24,21 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
     res.json({ status: "ok" });
   });
 
+  app.get("/api/workshop/orders", async (req, res) => {
+    try {
+      const response = await fetch("https://docs.google.com/spreadsheets/d/1qLw0Md1-A9x8Vj_FWg_2B4j_cUOGTAmNTsdoASzvx-c/export?format=csv");
+      if (!response.ok) {
+        throw new Error("Failed to fetch sheet");
+      }
+      const csv = await response.text();
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.send(csv);
+    } catch (error: any) {
+      console.error("Error fetching workshop sheet:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post("/api/system/dispatch", async (req, res) => {
     try {
       const { recipients, message } = req.body;

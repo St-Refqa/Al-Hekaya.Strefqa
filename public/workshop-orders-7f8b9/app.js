@@ -1,6 +1,5 @@
-// Google Sheets CSV Export URL - using a CORS proxy to allow fetching from local file://
-const RAW_URL = 'https://docs.google.com/spreadsheets/d/1qLw0Md1-A9x8Vj_FWg_2B4j_cUOGTAmNTsdoASzvx-c/export?format=csv';
-const CSV_URL = 'https://corsproxy.io/?' + encodeURIComponent(RAW_URL);
+// Fetching from local proxy instead of third-party CORS proxy
+const CSV_URL = '/api/workshop/orders';
 
 // App State
 let data = [];
