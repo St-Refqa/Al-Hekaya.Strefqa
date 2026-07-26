@@ -68,8 +68,8 @@ function fetchData() {
     // Inject script tag for JSONP
     const script = document.createElement('script');
     script.id = 'gviz-script';
-    // Append callback name to URL
-    script.src = GVIZ_URL + '&tqx=responseHandler:processGvizData';
+    // Use semicolon to separate tqx options in Google Visualization API
+    script.src = GVIZ_URL.replace('out:json', 'out:json;responseHandler:processGvizData');
     script.onerror = function() {
         console.error('Failed to load JSONP script');
         elements.lastUpdated.textContent = 'حدث خطأ في الاتصال بجوجل شيت.';
