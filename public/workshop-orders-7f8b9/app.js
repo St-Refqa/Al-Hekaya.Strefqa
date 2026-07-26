@@ -204,7 +204,7 @@ window.refreshData = function() {
 };
 
 // This URL will be updated once the user deploys the Apps Script
-const APPS_SCRIPT_URL = ''; 
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 
 
 window.moveToNextStep = function(clientName, orderDetails, nextStepColumn) {
     if (!APPS_SCRIPT_URL) {
@@ -219,9 +219,6 @@ window.moveToNextStep = function(clientName, orderDetails, nextStepColumn) {
     document.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
     elements.lastUpdated.textContent = 'جاري ترحيل الأوردر...';
     
-    // In a real scenario with the Apps Script, we would use fetch (POST) here.
-    // Example:
-    /*
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: {
@@ -237,15 +234,15 @@ window.moveToNextStep = function(clientName, orderDetails, nextStepColumn) {
           if (result.success) {
               refreshData(); // Refresh table
           } else {
-              alert('حدث خطأ أثناء الترحيل.');
+              alert('حدث خطأ أثناء الترحيل: ' + (result.error || 'خطأ غير معروف'));
               document.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
           }
       }).catch(err => {
           console.error(err);
-          alert('تعذر الاتصال بالسيرفر.');
-          document.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
+          // Sometimes Google Apps Script redirects block JSON reading due to CORS, but action still succeeds.
+          // Let's refresh data anyway to check if it succeeded.
+          refreshData();
       });
-    */
 };
 
 // Run app
