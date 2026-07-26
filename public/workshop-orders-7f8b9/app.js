@@ -46,7 +46,9 @@ function fetchData() {
             data = json.table.rows.map(row => {
                 const obj = {};
                 row.c.forEach((cell, i) => {
-                    obj[cols[i]] = cell ? (cell.f !== undefined ? cell.f : cell.v) : null;
+                    const val = cell ? (cell.f !== undefined ? cell.f : cell.v) : null;
+                    obj[cols[i]] = val;
+                    obj['col_' + i] = val; // Also save by index (0-based) for reliable access
                 });
                 return obj;
             });
@@ -98,10 +100,13 @@ function processData() {
             return;
         }
 
-        // Parsing booleans (Assuming they come as 'TRUE' or 'FALSE' string or similar)
-        const isDone = String(row['Done']).trim().toUpperCase() === 'TRUE';
-        const isProcessed = String(row['Processed']).trim().toUpperCase() === 'TRUE';
-        const isDelivery = String(row['Delivery']).trim().toUpperCase() === 'TRUE';
+        // Parsing booleans using hardcoded column indices (0-based array)
+        // Column O = index 14 (التجهيز)
+        // Column P = index 15 (الشحن)
+        // Column T = index 19 (الوصول)
+        const isProcessed = String(row['col_14']).trim().toUpperCase() === 'TRUE';
+        const isDelivery = String(row['col_15']).trim().toUpperCase() === 'TRUE';
+        const isDone = String(row['col_19']).trim().toUpperCase() === 'TRUE';
 
         // Categorization Logic
         if (isDone) {
