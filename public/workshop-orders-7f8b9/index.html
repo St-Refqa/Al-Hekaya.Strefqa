@@ -48,29 +48,22 @@
 
             <!-- TAB 1: Home (Orders Dashboard) -->
             <div id="tab-home" class="tab-content active-tab">
-                <div class="dashboard-header" style="margin-bottom: 20px;">
-                    <h2>لوحة الأوردرات اليومية</h2>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-                        <input type="text" id="search-pending" class="search-input" placeholder="🔍 ابحث في (مطلوبة)..." onkeyup="filterList('pending')">
-                        <input type="text" id="search-ready" class="search-input" placeholder="🔍 ابحث في (الجاهزة)..." onkeyup="filterList('ready')">
-                        <input type="text" id="search-shipped" class="search-input" placeholder="🔍 ابحث في (الشحن)..." onkeyup="filterList('shipped')">
-                    </div>
-                </div>
+                <!-- Removed dashboard header as requested -->
 
                 <div class="stats-grid" id="stats-grid">
-                    <div class="stat-card" style="border-left: 4px solid #48bb78;">
+                    <div class="stat-card" id="card-pending" onclick="switchCategory('pending')" style="border-left: 4px solid #48bb78; cursor: pointer;">
                         <div class="stat-title">مطلوبة ولسه متحضرتش</div>
                         <div class="stat-value" id="count-pending" style="color: #48bb78;">0</div>
                     </div>
-                    <div class="stat-card" style="border-left: 4px solid #ed8936;">
+                    <div class="stat-card" id="card-ready" onclick="switchCategory('ready')" style="border-left: 4px solid #ed8936; cursor: pointer;">
                         <div class="stat-title">جاهزة وعايزة تتشحن</div>
                         <div class="stat-value" id="count-ready" style="color: #ed8936;">0</div>
                     </div>
-                    <div class="stat-card" style="border-left: 4px solid #4299e1;">
+                    <div class="stat-card" id="card-shipped" onclick="switchCategory('shipped')" style="border-left: 4px solid #4299e1; cursor: pointer;">
                         <div class="stat-title">في شركة الشحن</div>
                         <div class="stat-value" id="count-shipped" style="color: #4299e1;">0</div>
                     </div>
-                    <div class="stat-card" style="border-left: 4px solid #9f7aea;">
+                    <div class="stat-card" id="card-arrived" onclick="switchCategory('arrived')" style="border-left: 4px solid #9f7aea; cursor: pointer;">
                         <div class="stat-title">أوردرات وصلت بنجاح</div>
                         <div class="stat-value" id="count-arrived" style="color: #9f7aea;">0</div>
                     </div>
@@ -84,9 +77,12 @@
                                 <span class="badge" id="badge-pending">0</span>
                                 مطلوبة ولسه متحضرتش ⏳
                             </h3>
-                            <select class="filter-select" id="filter-pending" onchange="filterList('pending')">
-                                <option value="">كل المنتجات</option>
-                            </select>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-pending" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('pending')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                <select class="filter-select" id="filter-pending" onchange="filterList('pending')">
+                                    <option value="">كل المنتجات</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="accordion-list" id="list-pending">
                             <!-- Items will be injected here -->
@@ -102,6 +98,7 @@
                                 الأوردرات الجاهزة 📦
                             </h3>
                             <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-ready" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('ready')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
                                 <button class="btn-whatsapp" onclick="bulkWhatsApp('ready')" style="font-size: 0.8rem; padding: 5px 10px;">رسائل مجمعة 💬</button>
                                 <select class="filter-select" id="filter-ready" onchange="filterList('ready')">
                                     <option value="">كل المنتجات</option>
@@ -119,6 +116,7 @@
                                 في شركة الشحن 🚚
                             </h3>
                             <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-shipped" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('shipped')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
                                 <button class="btn-whatsapp" onclick="bulkWhatsApp('shipped')" style="font-size: 0.8rem; padding: 5px 10px;">رسائل مجمعة 💬</button>
                                 <select class="filter-select" id="filter-shipped" onchange="filterList('shipped')">
                                     <option value="">كل المنتجات</option>
@@ -135,9 +133,12 @@
                                 <span class="badge" id="badge-arrived">0</span>
                                 أوردرات وصلت بنجاح ✅
                             </h3>
-                            <select class="filter-select" id="filter-arrived" onchange="filterList('arrived')">
-                                <option value="">كل المنتجات</option>
-                            </select>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-arrived" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('arrived')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                <select class="filter-select" id="filter-arrived" onchange="filterList('arrived')">
+                                    <option value="">كل المنتجات</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="accordion-list" id="list-arrived"></div>
                     </div>
