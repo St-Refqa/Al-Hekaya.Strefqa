@@ -476,59 +476,27 @@ window.renderInventory = function() {
     const tbody = document.getElementById('inventory-tbody');
     if (!tbody) return;
     
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري جلب بيانات المخزن... ⏳</td></tr>';
-
-    fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ action: 'getInventory' })
-    }).then(res => res.json())
-      .then(result => {
-          if (result.success && result.inventory) {
-              const inventoryMap = {};
-              result.inventory.forEach(item => {
-                  inventoryMap[item.name] = item.stock;
-              });
-
-              // Group sold quantities
-              const validData = data.filter(row => row['Client Name'] && row['Delivery By'] !== 'Reject');
-              const productSales = {};
-              validData.forEach(row => {
-                  const product = row['Order Details'] ? String(row['Order Details']).trim() : 'غير محدد';
-                  if (product !== 'غير محدد') {
-                      productSales[product] = (productSales[product] || 0) + (parseInt(row['Quantity']) || 1);
-                  }
-              });
-
-              let html = '';
-              // Merge products from sheet and products from orders
-              const allProducts = new Set([...Object.keys(inventoryMap), ...Object.keys(productSales)]);
-              
-              Array.from(allProducts).sort().forEach(prod => {
-                  if (prod === 'غير محدد') return;
-                  const sold = productSales[prod] || 0;
-                  const stock = inventoryMap[prod] !== undefined ? inventoryMap[prod] : 0;
-                  
-                  html += `
-                      <tr>
-                          <td><strong>${prod}</strong></td>
-                          <td>${sold}</td>
-                          <td><span class="total-badge" style="background: ${stock < 10 ? '#fed7d7; color: #c53030' : '#c6f6d5; color: #22543d'}">${stock}</span></td>
-                          <td>
-                              <button class="btn-add-stock" onclick="addStock('${prod.replace(/'/g, "\\'")}')">➕ إضافة</button>
-                          </td>
-                      </tr>
-                  `;
-              });
-              
-              tbody.innerHTML = html;
-          } else {
-              tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: red;">فشل جلب المخزن: ' + (result.error || 'غير معروف') + '</td></tr>';
-          }
-      }).catch(err => {
-          console.error(err);
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: red;">حدث خطأ في الاتصال بالسيرفر!</td></tr>';
-      });
+    if (!window.appOptions || !window.appOptions.products || window.appOptions.products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري جلب بيانات المخزن... ⏳</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    window.appOptions.products.forEach(prod => {
+        html += `
+            <tr>
+                <td><strong>${prod.name}</strong></td>
+                <td>${prod.orders}</td>
+                <td>${prod.inbound}</td>
+                <td><span class="total-badge" style="background: ${prod.stock < 10 ? '#fed7d7; color: #c53030' : '#c6f6d5; color: #22543d'}">${prod.stock}</span></td>
+                <td>
+                    <button class="btn-add-stock" onclick="addStock('${prod.name.replace(/'/g, "\\'")}')">➕ توريد</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
 }
 
 window.addStock = function(productName) {
@@ -555,7 +523,7 @@ window.addStock = function(productName) {
       .then(result => {
           if (result.success) {
               alert(`تم بنجاح! الرصيد الجديد هو: ${result.newStock}`);
-              renderInventory(); // refresh inventory view
+              fetchFormOptions(); // refresh inventory view
           } else {
               alert('فشل إضافة البضاعة: ' + (result.error || ''));
           }
@@ -644,7 +612,10 @@ window.fetchFormOptions = function() {
                 window.appOptions.products = json.table.rows.map(row => {
                     return {
                         name: row.c[0] ? String(row.c[0].v).trim() : '',
-                        price: row.c[3] ? parseFloat(row.c[3].v) || 0 : 0
+                        price: row.c[3] ? parseFloat(row.c[3].v) || 0 : 0,
+                        orders: row.c[6] ? parseFloat(row.c[6].v) || 0 : 0,
+                        inbound: row.c[7] ? parseFloat(row.c[7].v) || 0 : 0,
+                        stock: row.c[8] ? parseFloat(row.c[8].v) || 0 : 0
                     };
                 }).filter(p => p.name);
                 document.querySelectorAll('.prod-name').forEach(select => {
@@ -652,6 +623,9 @@ window.fetchFormOptions = function() {
                         populateProductSelect(select);
                     }
                 });
+                if (document.getElementById('tab-inventory').style.display === 'block') {
+                    renderInventory();
+                }
             } catch(e) {}
         }
         prodScript.remove();
