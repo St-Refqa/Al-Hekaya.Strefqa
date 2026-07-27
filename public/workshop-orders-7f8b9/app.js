@@ -325,12 +325,27 @@ function renderList(type, items, rowTemplate) {
 let govChartInstance = null;
 let productChartInstance = null;
 
-function toggleAnalytics() {
-    const section = document.getElementById('analytics-section');
-    if (section.style.display === 'none') {
-        section.style.display = 'flex';
-    } else {
-        section.style.display = 'none';
+window.switchTab = function(tabId, navItemElement) {
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active-tab'));
+    
+    // Show selected tab
+    const activeTab = document.getElementById(tabId);
+    if (activeTab) {
+        activeTab.classList.add('active-tab');
+    }
+    
+    // Update Sidebar highlighting
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => item.classList.remove('active'));
+    if (navItemElement) {
+        navItemElement.classList.add('active');
+    }
+    
+    // If switching to inventory, trigger render
+    if (tabId === 'tab-inventory') {
+        renderInventory();
     }
 }
 
@@ -455,17 +470,7 @@ window.filterList = function(type) {
 };
 
 // Inventory Logic
-window.toggleInventory = function() {
-    const section = document.getElementById('inventory-section');
-    if (section.style.display === 'none') {
-        section.style.display = 'flex';
-        renderInventory();
-    } else {
-        section.style.display = 'none';
-    }
-};
-
-function renderInventory() {
+window.renderInventory = function() {
     const tbody = document.getElementById('inventory-tbody');
     if (!tbody) return;
     
