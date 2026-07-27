@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -14,187 +14,263 @@
 <body>
     <div class="app-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar collapsed" id="main-sidebar">
             <div class="sidebar-logo">
                 <h2>ورشة الحكاية 📦</h2>
                 <div id="last-updated" class="last-updated" style="color: #cbd5e0; font-size: 0.8rem; margin-top: 5px;">جاري التحميل...</div>
             </div>
             
-            <div class="nav-item active" onclick="switchTab('tab-home', this)">
+            <div class="nav-item active" onclick="switchTab('tab-home', this); if(window.innerWidth<=768) toggleSidebar();">
                 🏠 الرئيسية
             </div>
-            <div class="nav-item" onclick="switchTab('tab-inventory', this)">
+            <div class="nav-item" onclick="switchTab('tab-inventory', this); if(window.innerWidth<=768) toggleSidebar();">
                 📦 المخزن
             </div>
-            <div class="nav-item" onclick="switchTab('tab-analytics', this)">
+            <div class="nav-item" onclick="switchTab('tab-analytics', this); if(window.innerWidth<=768) toggleSidebar();">
                 📊 الإحصائيات
             </div>
-            <div class="nav-item" onclick="switchTab('tab-add-product', this)">
-                ➕ إضافة منتج
+            <div class="nav-item" onclick="switchTab('tab-add-order', this); if(window.innerWidth<=768) toggleSidebar();">
+                📝 إضافة أوردر
             </div>
-            <div class="nav-item" onclick="refreshData()" style="margin-top: auto; border-top: 1px solid #4a5568;">
+            <div class="nav-item" onclick="refreshData(); if(window.innerWidth<=768) toggleSidebar();" style="margin-top: auto; border-top: 1px solid #4a5568;">
                 🔄 تحديث البيانات
             </div>
         </aside>
 
         <!-- Main Content Area -->
-        <main class="main-content">
+        <main class="main-content" id="main-content">
             
+            <!-- Mobile Header / Hamburger -->
+            <div class="mobile-header">
+                <button class="hamburger-btn" onclick="toggleSidebar()">☰ القائمة</button>
+                <h2 style="margin: 0; font-size: 1.2rem;">ورشة الحكاية</h2>
+            </div>
+
             <!-- TAB 1: Home (Orders Dashboard) -->
             <div id="tab-home" class="tab-content active-tab">
                 <div class="dashboard-header" style="margin-bottom: 20px;">
-                    <h1>لوحة تحكم الطلبيات 📋</h1>
-                    <p>متابعة وتحديث حالة الأوردرات</p>
+                    <h2>لوحة الأوردرات اليومية</h2>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                        <input type="text" id="search-pending" class="search-input" placeholder="🔍 ابحث في (مطلوبة)..." onkeyup="filterList('pending')">
+                        <input type="text" id="search-ready" class="search-input" placeholder="🔍 ابحث في (الجاهزة)..." onkeyup="filterList('ready')">
+                        <input type="text" id="search-shipped" class="search-input" placeholder="🔍 ابحث في (الشحن)..." onkeyup="filterList('shipped')">
+                    </div>
                 </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card pending" onclick="scrollToSection('section-pending')">
-                        <div class="stat-icon">🕒</div>
-                        <div class="stat-details">
-                            <h3>مطلوبة ولسه متحضرتش</h3>
-                            <p id="count-pending" class="stat-number">0</p>
-                        </div>
+
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card" style="border-left: 4px solid #48bb78;">
+                        <div class="stat-title">مطلوبة ولسه متحضرتش</div>
+                        <div class="stat-value" id="count-pending" style="color: #48bb78;">0</div>
                     </div>
-                    <div class="stat-card ready" onclick="scrollToSection('section-ready')">
-                        <div class="stat-icon">📦</div>
-                        <div class="stat-details">
-                            <h3>جاهزة وعايزة تتشحن</h3>
-                            <p id="count-ready" class="stat-number">0</p>
-                        </div>
+                    <div class="stat-card" style="border-left: 4px solid #ed8936;">
+                        <div class="stat-title">جاهزة وعايزة تتشحن</div>
+                        <div class="stat-value" id="count-ready" style="color: #ed8936;">0</div>
                     </div>
-                    <div class="stat-card shipped" onclick="scrollToSection('section-shipped')">
-                        <div class="stat-icon">🚚</div>
-                        <div class="stat-details">
-                            <h3>في شركة الشحن</h3>
-                            <p id="count-shipped" class="stat-number">0</p>
-                        </div>
+                    <div class="stat-card" style="border-left: 4px solid #4299e1;">
+                        <div class="stat-title">في شركة الشحن</div>
+                        <div class="stat-value" id="count-shipped" style="color: #4299e1;">0</div>
                     </div>
-                    <div class="stat-card arrived" onclick="scrollToSection('section-arrived')">
-                        <div class="stat-icon">✅</div>
-                        <div class="stat-details">
-                            <h3>وصلت وتم التسليم</h3>
-                            <p id="count-arrived" class="stat-number">0</p>
-                        </div>
+                    <div class="stat-card" style="border-left: 4px solid #9f7aea;">
+                        <div class="stat-title">أوردرات وصلت بنجاح</div>
+                        <div class="stat-value" id="count-arrived" style="color: #9f7aea;">0</div>
                     </div>
                 </div>
 
                 <div class="lists-container">
                     <!-- Pending -->
-                    <div id="section-pending" class="section-card">
-                        <div class="section-header pending-header">
-                            <h2>مطلوبة ولسه متحضرتش <span class="count-badge" id="badge-pending">0</span></h2>
-                            <div class="filter-controls">
-                                <select class="product-filter" id="filter-pending" onchange="filterList('pending')">
-                                    <option value="">كل المنتجات</option>
-                                </select>
-                                <input type="text" class="search-input" placeholder="بحث بالاسم أو التفاصيل..." onkeyup="filterList('pending')">
-                            </div>
+                    <div class="list-section" id="section-pending">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-pending">0</span>
+                                مطلوبة ولسه متحضرتش ⏳
+                            </h3>
+                            <select class="filter-select" id="filter-pending" onchange="filterList('pending')">
+                                <option value="">كل المنتجات</option>
+                            </select>
                         </div>
-                        <div id="list-pending" class="accordion-container"></div>
+                        <div class="accordion-list" id="list-pending">
+                            <!-- Items will be injected here -->
+                            <div class="loading">جاري تحميل الأوردرات...</div>
+                        </div>
                     </div>
 
                     <!-- Ready -->
-                    <div id="section-ready" class="section-card">
-                        <div class="section-header ready-header">
-                            <h2>جاهزة وعايزة تتشحن <span class="count-badge" id="badge-ready">0</span></h2>
-                            <div class="filter-controls">
-                                <select class="product-filter" id="filter-ready" onchange="filterList('ready')">
+                    <div class="list-section" id="section-ready" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-ready">0</span>
+                                الأوردرات الجاهزة 📦
+                            </h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-whatsapp" onclick="bulkWhatsApp('ready')" style="font-size: 0.8rem; padding: 5px 10px;">رسائل مجمعة 💬</button>
+                                <select class="filter-select" id="filter-ready" onchange="filterList('ready')">
                                     <option value="">كل المنتجات</option>
                                 </select>
-                                <input type="text" class="search-input" placeholder="بحث..." onkeyup="filterList('ready')">
                             </div>
                         </div>
-                        <div id="list-ready" class="accordion-container"></div>
+                        <div class="accordion-list" id="list-ready"></div>
                     </div>
 
                     <!-- Shipped -->
-                    <div id="section-shipped" class="section-card">
-                        <div class="section-header shipped-header">
-                            <h2>في شركة الشحن <span class="count-badge" id="badge-shipped">0</span></h2>
-                            <div class="filter-controls">
-                                <select class="product-filter" id="filter-shipped" onchange="filterList('shipped')">
+                    <div class="list-section" id="section-shipped" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-shipped">0</span>
+                                في شركة الشحن 🚚
+                            </h3>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-whatsapp" onclick="bulkWhatsApp('shipped')" style="font-size: 0.8rem; padding: 5px 10px;">رسائل مجمعة 💬</button>
+                                <select class="filter-select" id="filter-shipped" onchange="filterList('shipped')">
                                     <option value="">كل المنتجات</option>
                                 </select>
-                                <input type="text" class="search-input" placeholder="بحث..." onkeyup="filterList('shipped')">
                             </div>
                         </div>
-                        <div id="list-shipped" class="accordion-container"></div>
+                        <div class="accordion-list" id="list-shipped"></div>
                     </div>
 
                     <!-- Arrived -->
-                    <div id="section-arrived" class="section-card">
-                        <div class="section-header arrived-header">
-                            <h2>وصلت <span class="count-badge" id="badge-arrived">0</span></h2>
-                            <div class="filter-controls">
-                                <select class="product-filter" id="filter-arrived" onchange="filterList('arrived')">
-                                    <option value="">كل المنتجات</option>
-                                </select>
-                                <input type="text" class="search-input" placeholder="بحث..." onkeyup="filterList('arrived')">
-                            </div>
+                    <div class="list-section" id="section-arrived" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-arrived">0</span>
+                                أوردرات وصلت بنجاح ✅
+                            </h3>
+                            <select class="filter-select" id="filter-arrived" onchange="filterList('arrived')">
+                                <option value="">كل المنتجات</option>
+                            </select>
                         </div>
-                        <div id="list-arrived" class="accordion-container"></div>
+                        <div class="accordion-list" id="list-arrived"></div>
                     </div>
                 </div>
             </div>
 
             <!-- TAB 2: Inventory -->
             <div id="tab-inventory" class="tab-content">
-                <div class="analytics-container" style="display: block;">
-                    <div class="inventory-wrapper" style="width: 100%;">
-                        <h3>إدارة المخزن 📦</h3>
-                        <div class="inventory-controls">
-                            <p class="inventory-hint">الرصيد يتم قراءته مباشرة من جوجل شيت ويتم الخصم تلقائياً عند تجهيز الأوردرات.</p>
-                            <button class="btn-refresh" onclick="renderInventory()" style="margin-top: 10px;">تحديث رصيد المخزن 🔄</button>
-                        </div>
-                        <table class="inventory-table">
-                            <thead>
-                                <tr>
-                                    <th>المنتج</th>
-                                    <th>المباع مؤخراً (في الأوردرات)</th>
-                                    <th>المخزون (حسب الشيت)</th>
-                                    <th>إضافة بضاعة للمخزن</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-tbody">
-                                <tr><td colspan="4" style="text-align:center;">جاري جلب بيانات المخزن... ⏳</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="dashboard-header" style="margin-bottom: 20px;">
+                    <h2>حالة المخزن والجرد 📊</h2>
+                </div>
+                <div style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                        <thead>
+                            <tr style="background: #f7fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 15px; color: #4a5568;">المنتج</th>
+                                <th style="padding: 15px; color: #4a5568;">تم بيعه (تقريبي)</th>
+                                <th style="padding: 15px; color: #4a5568;">الرصيد المتاح</th>
+                                <th style="padding: 15px; color: #4a5568;">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-tbody">
+                            <tr><td colspan="4" style="padding: 20px; text-align: center;">اضغط على المخزن لجلب البيانات...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- TAB 3: Analytics -->
             <div id="tab-analytics" class="tab-content">
-                <div class="analytics-container" style="display: flex;">
-                    <div class="chart-wrapper">
-                        <h3>المبيعات حسب المحافظة</h3>
+                <div class="dashboard-header" style="margin-bottom: 20px;">
+                    <h2>إحصائيات متقدمة 📈</h2>
+                </div>
+                
+                <div class="charts-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="chart-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top: 0; color: #2d3748; text-align: center;">توزيع المبيعات حسب المحافظة</h3>
                         <canvas id="govChart"></canvas>
                     </div>
-                    <div class="chart-wrapper">
-                        <h3>المبيعات حسب المنتج</h3>
+                    
+                    <div class="chart-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top: 0; color: #2d3748; text-align: center;">أكثر المنتجات مبيعاً</h3>
                         <canvas id="productChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 4: Add Product -->
-            <div id="tab-add-product" class="tab-content">
+            <!-- TAB 4: Add Order -->
+            <div id="tab-add-order" class="tab-content">
                 <div class="add-product-form">
-                    <h3>➕ إضافة منتج جديد</h3>
+                    <h3>📝 تسجيل أوردر جديد</h3>
                     <p style="color: #718096; font-size: 0.9rem; margin-bottom: 20px;">
-                        ملاحظة: إضافة المنتج هنا ستضيفه فقط إلى قائمة المنتجات لتستطيع اختياره، ولكن لتتبع رصيده يجب عليك إنشاء بلوك له في شيت (المخزن) بشكل يدوي.
+                        سيتم تسجيل الأوردر مباشرة في جوجل شيت في قسم (مطلوبة ولسه متحضرتش).
                     </p>
                     
-                    <div class="form-group">
-                        <label for="new-product-name">اسم المنتج</label>
-                        <input type="text" id="new-product-name" placeholder="أدخل اسم المنتج الجديد...">
-                    </div>
-                    <div class="form-group">
-                        <label for="new-product-price">السعر (اختياري)</label>
-                        <input type="number" id="new-product-price" placeholder="أدخل السعر...">
-                    </div>
-                    
-                    <button class="btn-submit" onclick="alert('هذه الميزة قيد التطوير وسيتم تفعيلها في التحديث القادم!')">حفظ المنتج</button>
+                    <form id="add-order-form" onsubmit="submitNewOrder(event)">
+                        <div class="form-group">
+                            <label for="order-client">اسم العميل *</label>
+                            <input type="text" id="order-client" required placeholder="مثال: مينا كمال">
+                        </div>
+                        <div class="form-group">
+                            <label for="order-phone">رقم الموبايل</label>
+                            <input type="text" id="order-phone" placeholder="01xxxxxxxxx">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="order-gov">المحافظة</label>
+                                <input type="text" id="order-gov" placeholder="القاهرة، الإسكندرية...">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label for="order-region">المنطقة/العنوان</label>
+                                <input type="text" id="order-region" placeholder="العنوان بالتفصيل...">
+                            </div>
+                        </div>
+                        
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+                        <h4 style="margin-bottom: 10px;">المنتجات 🛒</h4>
+                        
+                        <div id="products-container">
+                            <div class="product-entry" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;">
+                                <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                                    <label>المنتج *</label>
+                                    <input type="text" class="prod-name" required placeholder="اسم المنتج...">
+                                </div>
+                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                    <label>الكمية *</label>
+                                    <input type="number" class="prod-qty" value="1" required min="1" onchange="calculateOrderTotals()">
+                                </div>
+                                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                    <label>السعر</label>
+                                    <input type="number" class="prod-price" value="0" min="0" onchange="calculateOrderTotals()">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-refresh" onclick="addProductRow()" style="margin-bottom: 20px; font-size: 0.9rem; padding: 8px 12px;">➕ إضافة منتج آخر</button>
+                        
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+                        <h4 style="margin-bottom: 10px;">الحسابات المالية 💰</h4>
+
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="order-discount">الخصم (Discount)</label>
+                                <input type="number" id="order-discount" value="0" min="0" onchange="calculateOrderTotals()">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label for="order-total">الإجمالي (Total)</label>
+                                <input type="number" id="order-total" placeholder="0" readonly style="background-color: #edf2f7; font-weight: bold;">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="order-deposit">المقدم (Deposit)</label>
+                                <input type="number" id="order-deposit" value="0" min="0" onchange="calculateOrderTotals()">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label for="order-deposit-method">طريقة الدفع (Method)</label>
+                                <select id="order-deposit-method" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                    <option value="">بدون مقدم</option>
+                                    <option value="Vodafone Cash">Vodafone Cash</option>
+                                    <option value="InstaPay">InstaPay</option>
+                                    <option value="Cash">Cash</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="order-rest">الباقي (The Rest)</label>
+                            <input type="number" id="order-rest" placeholder="0" readonly style="background-color: #edf2f7; font-weight: bold; color: #e53e3e;">
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="btn-submit-order">حفظ الأوردر 💾</button>
+                    </form>
                 </div>
             </div>
 

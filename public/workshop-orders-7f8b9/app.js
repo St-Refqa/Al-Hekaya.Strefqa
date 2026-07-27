@@ -561,6 +561,187 @@ window.addStock = function(productName) {
       }).catch(err => {
           console.error(err);
           alert('حدث خطأ في الاتصال بالسيرفر');
+ window.toggleSidebar = function() {
+    const sidebar = document.querySelector('.sidebar');
+    if(sidebar) sidebar.classList.toggle('collapsed');
+};
+
+let bulkQueue = [];
+let bulkCurrentIndex = 0;
+let bulkCategory = '';
+
+window.bulkWhatsApp = function(type) {
+    const container = document.getElementById('list-' + type);
+    if (!container) return;
+    const items = container.querySelectorAll('.accordion-item');
+    bulkQueue = [];
+    items.forEach(item => {
+        if (item.style.display !== 'none') {
+            const btn = item.querySelector('.btn-whatsapp');
+            if (btn) {
+                bulkQueue.push({
+                    name: item.querySelector('.client-name').textContent,
+                    url: btn.href
+                });
+            }
+        }
+    });
+    if (bulkQueue.length === 0) {
+        alert('لا يوجد أوردرات لإرسال رسائل لها.');
+        return;
+    }
+    bulkCategory = type === 'ready' ? 'الأوردرات الجاهزة' : 'في شركة الشحن';
+    bulkCurrentIndex = 0;
+    showBulkWhatsAppUI();
+};
+
+window.showBulkWhatsAppUI = function() {
+    let ui = document.getElementById('bulk-whatsapp-ui');
+    if (!ui) {
+        ui = document.createElement('div');
+        ui.id = 'bulk-whatsapp-ui';
+        ui.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999; width: 300px; border: 2px solid #ed8936;';
+        document.body.appendChild(ui);
+    }
+    ui.style.display = 'block';
+    if (bulkCurrentIndex >= bulkQueue.length) {
+        ui.innerHTML = `
+            <h4 style="margin-top:0; color:#2d3748;">🎉 اكتمل الإرسال!</h4>
+            <p>تم الانتهاء من جميع العملاء في قسم (${bulkCategory}).</p>
+            <button onclick="this.parentElement.style.display='none'" style="width:100%; padding:10px; background:#4a5568; color:white; border:none; border-radius:5px; cursor:pointer;">إغلاق</button>
+        `;
+        return;
+    }
+    const client = bulkQueue[bulkCurrentIndex];
+    ui.innerHTML = `
+        <h4 style="margin-top:0; color:#2d3748;">رسائل مجمعة (${bulkCategory})</h4>
+        <p style="margin-bottom: 10px;"><strong>العميل ${bulkCurrentIndex + 1} من ${bulkQueue.length}:</strong><br> ${client.name}</p>
+        <button onclick="sendBulkNext()" style="width:100%; padding:10px; background:#48bb78; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; margin-bottom:10px;">
+            إرسال للعميل ( ${client.name} ) 💬
+        </button>
+        <button onclick="this.parentElement.style.display='none'" style="width:100%; padding:8px; background:#e2e8f0; color:#4a5568; border:none; border-radius:5px; cursor:pointer;">إلغاء</button>
+    `;
+};
+
+window.sendBulkNext = function() {
+    if (bulkCurrentIndex < bulkQueue.length) {
+        const client = bulkQueue[bulkCurrentIndex];
+        window.open(client.url, '_blank');
+        bulkCurrentIndex++;
+        setTimeout(showBulkWhatsAppUI, 500);
+    }
+};
+
+window.addProductRow = function() {
+    const container = document.getElementById('products-container');
+    const row = document.createElement('div');
+    row.className = 'product-entry';
+    row.style = 'display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;';
+    row.innerHTML = `
+        <div class="form-group" style="flex: 2; margin-bottom: 0;">
+            <input type="text" class="prod-name" required placeholder="اسم المنتج...">
+        </div>
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <input type="number" class="prod-qty" value="1" required min="1" onchange="calculateOrderTotals()">
+        </div>
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <input type="number" class="prod-price" value="0" min="0" onchange="calculateOrderTotals()">
+        </div>
+        <button type="button" onclick="this.parentElement.remove(); calculateOrderTotals();" style="padding: 10px; background: #e53e3e; color: white; border: none; border-radius: 8px; cursor: pointer;">❌</button>
+    `;
+    container.appendChild(row);
+};
+
+window.calculateOrderTotals = function() {
+    let total = 0;
+    document.querySelectorAll('.product-entry').forEach(row => {
+        const qty = parseFloat(row.querySelector('.prod-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.prod-price').value) || 0;
+        total += (qty * price);
+    });
+    
+    const discount = parseFloat(document.getElementById('order-discount').value) || 0;
+    const finalTotal = Math.max(0, total - discount);
+    document.getElementById('order-total').value = finalTotal;
+    
+    const deposit = parseFloat(document.getElementById('order-deposit').value) || 0;
+    const rest = Math.max(0, finalTotal - deposit);
+    document.getElementById('order-rest').value = rest;
+};
+
+window.submitNewOrder = function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit-order');
+    btn.disabled = true;
+    btn.textContent = 'جاري الحفظ... ⏳';
+
+    let detailsStr = '';
+    let totalQty = 0;
+    document.querySelectorAll('.product-entry').forEach(row => {
+        const name = row.querySelector('.prod-name').value.trim();
+        const qty = parseInt(row.querySelector('.prod-qty').value) || 1;
+        if (name) {
+            detailsStr += `${name} (x${qty}), `;
+            totalQty += qty;
+        }
+    });
+    detailsStr = detailsStr.replace(/, $/, '');
+
+    const payload = {
+        action: 'addOrder',
+        clientName: document.getElementById('order-client').value,
+        phone: document.getElementById('order-phone').value,
+        gov: document.getElementById('order-gov').value,
+        region: document.getElementById('order-region').value,
+        details: detailsStr,
+        qty: totalQty,
+        total: document.getElementById('order-total').value,
+        discount: document.getElementById('order-discount').value,
+        deposit: document.getElementById('order-deposit').value,
+        deposit_method: document.getElementById('order-deposit-method').value,
+        the_rest: document.getElementById('order-rest').value
+    };
+
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(payload)
+    }).then(() => {
+        alert('تم حفظ الأوردر بنجاح! سيظهر في قسم (مطلوبة ولسه متحضرتش) بعد ثواني.');
+        document.getElementById('add-order-form').reset();
+        document.getElementById('products-container').innerHTML = `
+            <div class="product-entry" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;">
+                <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                    <label>المنتج *</label>
+                    <input type="text" class="prod-name" required placeholder="اسم المنتج...">
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>الكمية *</label>
+                    <input type="number" class="prod-qty" value="1" required min="1" onchange="calculateOrderTotals()">
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label>السعر</label>
+                    <input type="number" class="prod-price" value="0" min="0" onchange="calculateOrderTotals()">
+                </div>
+            </div>
+        `;
+        calculateOrderTotals();
+        refreshData();
+        switchTab('tab-home', document.querySelectorAll('.nav-item')[0]);
+    }).catch(err => {
+        console.error(err);
+        alert('حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+    }).finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'حفظ الأوردر 💾';
+    });
+};
+
+// Run app
+document.addEventListener('DOMContentLoaded', init);
       });
 };
 
