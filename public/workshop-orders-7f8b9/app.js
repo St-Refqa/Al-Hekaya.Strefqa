@@ -820,79 +820,30 @@ window.submitNewOrder = function(e) {
 
 // Run app
 document.addEventListener('DOMContentLoaded', init);
-      });
-};
 
-// This URL will be updated once the user deploys the Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 
 
-window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quantity = 1) {
-    if (!APPS_SCRIPT_URL) {
-        alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
-        return;
+window.switchCategory = function(category) {
+    const sections = ['pending', 'ready', 'shipped', 'arrived'];
+    sections.forEach(sec => {
+        const el = document.getElementById('section-' + sec);
+        if (el) el.style.display = 'none';
+        
+        const card = document.getElementById('card-' + sec);
+        if (card) {
+            card.style.opacity = '0.5';
+            card.style.transform = 'scale(0.98)';
+            card.style.boxShadow = 'none';
+        }
+    });
+    
+    const activeSection = document.getElementById('section-' + category);
+    if (activeSection) activeSection.style.display = 'block';
+    
+    const activeCard = document.getElementById('card-' + category);
+    if (activeCard) {
+        activeCard.style.opacity = '1';
+        activeCard.style.transform = 'scale(1.02)';
+        activeCard.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        activeCard.style.transition = 'all 0.3s ease';
     }
-    
-    const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
-    if (!confirm(confirmMsg)) return;
-    
-    // Disable all action buttons to prevent double clicks
-    document.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
-    elements.lastUpdated.textContent = 'جاري ترحيل الأوردر...';
-    
-    fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            clientName: clientName,
-            orderDetails: orderDetails,
-            nextStep: nextStepColumn,
-            quantity: quantity // For auto-deduction in inventory
-        })
-    }).then(res => res.json())
-      .then(result => {
-          if (result.success) {
-              refreshData(); // Refresh table
-          } else {
-              alert('حدث خطأ أثناء الترحيل: ' + (result.error || 'خطأ غير معروف'));
-              document.querySelectorAll('.btn-action').forEach(b => b.disabled = false);
-          }
-      }).catch(err => {
-          console.error(err);
-          // Sometimes Google Apps Script redirects block JSON reading due to CORS, but action still succeeds.
-          // Let's refresh data anyway to check if it succeeded.
-          refreshData();
-      });
 };
-
-// Run app
-document.addEventListener('DOMContentLoaded', init);
-
- w i n d o w . s w i t c h C a t e g o r y   =   f u n c t i o n ( c a t e g o r y )   { 
-         c o n s t   s e c t i o n s   =   [ ' p e n d i n g ' ,   ' r e a d y ' ,   ' s h i p p e d ' ,   ' a r r i v e d ' ] ; 
-         s e c t i o n s . f o r E a c h ( s e c   = >   { 
-                 c o n s t   e l   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' s e c t i o n - '   +   s e c ) ; 
-                 i f   ( e l )   e l . s t y l e . d i s p l a y   =   ' n o n e ' ; 
-                 
-                 c o n s t   c a r d   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' c a r d - '   +   s e c ) ; 
-                 i f   ( c a r d )   { 
-                         c a r d . s t y l e . o p a c i t y   =   ' 0 . 5 ' ; 
-                         c a r d . s t y l e . t r a n s f o r m   =   ' s c a l e ( 0 . 9 8 ) ' ; 
-                         c a r d . s t y l e . b o x S h a d o w   =   ' n o n e ' ; 
-                 } 
-         } ) ; 
-         
-         c o n s t   a c t i v e S e c t i o n   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' s e c t i o n - '   +   c a t e g o r y ) ; 
-         i f   ( a c t i v e S e c t i o n )   a c t i v e S e c t i o n . s t y l e . d i s p l a y   =   ' b l o c k ' ; 
-         
-         c o n s t   a c t i v e C a r d   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' c a r d - '   +   c a t e g o r y ) ; 
-         i f   ( a c t i v e C a r d )   { 
-                 a c t i v e C a r d . s t y l e . o p a c i t y   =   ' 1 ' ; 
-                 a c t i v e C a r d . s t y l e . t r a n s f o r m   =   ' s c a l e ( 1 . 0 2 ) ' ; 
-                 a c t i v e C a r d . s t y l e . b o x S h a d o w   =   ' 0   4 p x   6 p x   r g b a ( 0 , 0 , 0 , 0 . 1 ) ' ; 
-                 a c t i v e C a r d . s t y l e . t r a n s i t i o n   =   ' a l l   0 . 3 s   e a s e ' ; 
-         } 
- } ; 
-  
- 
