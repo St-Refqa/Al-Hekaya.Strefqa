@@ -133,6 +133,36 @@ function processData() {
     elements.counts.shipped.textContent = categories.shipped.length;
     elements.counts.arrived.textContent = categories.arrived.length;
 
+    // Populate Product Filters
+    const populateFilter = (type, items) => {
+        const select = document.getElementById('filter-' + type);
+        if (!select) return;
+        
+        // Save current selection if any
+        const currentVal = select.value;
+        
+        const products = new Set();
+        items.forEach(row => {
+            const p = row['Order Details'] ? String(row['Order Details']).trim() : '';
+            if (p) products.add(p);
+        });
+        
+        let html = '<option value="">كل المنتجات</option>';
+        Array.from(products).sort().forEach(p => {
+            html += `<option value="${p}">${p}</option>`;
+        });
+        
+        select.innerHTML = html;
+        if (products.has(currentVal)) {
+            select.value = currentVal;
+        }
+    };
+    
+    populateFilter('pending', categories.pending);
+    populateFilter('ready', categories.ready);
+    populateFilter('shipped', categories.shipped);
+    populateFilter('arrived', categories.arrived);
+
     // Render Analytics
     renderAnalytics(data);
 
@@ -388,20 +418,77 @@ window.toggleAccordion = function(headerElement) {
 // Search Filter Logic
 window.filterList = function(type) {
     const input = document.getElementById('search-' + type);
-    const filter = input.value.toLowerCase();
+    const select = document.getElementById('filter-' + type);
+    
+    const textFilter = input ? input.value.toLowerCase() : '';
+    const productFilter = select ? select.value.toLowerCase() : '';
+    
     const container = elements.lists[type];
     const items = container.getElementsByClassName('accordion-item');
     
     for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const searchData = item.getAttribute('data-search') || '';
-        if (searchData.indexOf(filter) > -1) {
+        
+        // Exact match for product filter (if selected), fuzzy match for text search
+        const matchesText = textFilter === '' || searchData.indexOf(textFilter) > -1;
+        const matchesProduct = productFilter === '' || searchData.indexOf(productFilter) > -1;
+        
+        if (matchesText && matchesProduct) {
             item.style.display = "";
         } else {
             item.style.display = "none";
         }
     }
 };
+
+// Inventory Logic
+window.toggleInventory = function() {
+    const section = document.getElementById('inventory-section');
+    if (section.style.display === 'none') {
+        section.style.display = 'flex';
+        renderInventory();
+    } else {
+        section.style.display = 'none';
+    }
+};
+
+function renderInventory() {
+    const tbody = document.getElementById('inventory-tbody');
+    if (!tbody || !data || data.length === 0) return;
+    
+    // Group all non-rejected products
+    const validData = data.filter(row => row['Client Name'] && row['Delivery By'] !== 'Reject');
+    const productSales = {};
+    
+    validData.forEach(row => {
+        const product = row['Order Details'] ? String(row['Order Details']).trim() : 'غير محدد';
+        if (product !== 'غير محدد') {
+            productSales[product] = (productSales[product] || 0) + (parseInt(row['Quantity']) || 1);
+        }
+    });
+
+    let html = '';
+    Object.keys(productSales).sort().forEach(prod => {
+        const sold = productSales[prod];
+        // Mocking stock for now: e.g. Random starting stock minus sold, or just a placeholder
+        // In the future this will read from the actual Products sheet.
+        const mockStock = Math.max(0, 100 - sold);
+        
+        html += `
+            <tr>
+                <td><strong>${prod}</strong></td>
+                <td>${sold}</td>
+                <td><span class="total-badge" style="background: ${mockStock < 10 ? '#fed7d7; color: #c53030' : '#c6f6d5; color: #22543d'}">${mockStock}</span></td>
+                <td>
+                    <button class="btn-add-stock" onclick="alert('خاصية إضافة الرصيد ستعمل فور ربط شيت المنتجات!')">➕ إضافة</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
 
 // This URL will be updated once the user deploys the Apps Script
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 

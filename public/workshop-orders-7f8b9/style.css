@@ -616,3 +616,66 @@ body {
     100% { opacity: 1; }
 }
 
+
+/* Filter Controls */
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.product-filter {
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background-color: white;
+    flex: 1;
+}
+
+/* Inventory Section */
+.inventory-wrapper {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.inventory-controls {
+    margin-bottom: 1rem;
+}
+.inventory-hint {
+    font-size: 0.85rem;
+    color: #718096;
+}
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+.inventory-table th, .inventory-table td {
+    padding: 12px;
+    text-align: right;
+    border-bottom: 1px solid #e2e8f0;
+}
+.inventory-table th {
+    background-color: #f7fafc;
+    font-weight: 600;
+    color: #4a5568;
+}
+.inventory-table td {
+    color: #2d3748;
+}
+.btn-add-stock {
+    background-color: #48bb78;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: inherit;
+}
+.btn-add-stock:hover {
+    background-color: #38a169;
+}
+
