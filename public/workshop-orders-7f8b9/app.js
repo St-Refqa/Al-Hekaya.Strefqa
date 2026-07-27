@@ -147,11 +147,6 @@ function processData() {
     if (elements.badges.shipped) elements.badges.shipped.textContent = categories.shipped.length;
     if (elements.badges.arrived) elements.badges.arrived.textContent = categories.arrived.length;
 
-    // Initialize the first category tab if no active style is set
-    if (!document.getElementById('card-pending') || !document.getElementById('card-pending').style.opacity) {
-        switchCategory('pending');
-    }
-
     // Populate Product Filters
     const populateFilter = (type, items) => {
         const select = document.getElementById('filter-' + type);
@@ -536,10 +531,7 @@ window.addStock = function(productName) {
       }).catch(err => {
           console.error(err);
           alert('حدث خطأ في الاتصال بالسيرفر');
-      });
-};
-
-window.toggleSidebar = function() {
+ window.toggleSidebar = function() {
     const sidebar = document.querySelector('.sidebar');
     if(sidebar) sidebar.classList.toggle('collapsed');
 };
@@ -820,7 +812,47 @@ window.submitNewOrder = function(e) {
 
 // Run app
 document.addEventListener('DOMContentLoaded', init);
+      });
+};
 
+// This URL will be updated once the user deploys the Apps Script
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 
+
+window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quantity = 1) {
+    if (!APPS_SCRIPT_URL) {
+        alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
+        return;
+    }
+    
+    const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
+    if (!confirm(confirmMsg)) return;
+    
+    // Disable all action buttons to prevent double clicks
+    document.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
+    elements.lastUpdated.textContent = 'جاري ترحيل الأوردر...';
+    
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            clientName: clientName,
+            orderDetails: orderDetails,
+            nextStep: nextStepColumn,
+            quantity: quantity // For auto-deduction in inventory
+        })
+    }).then(() => {
+        refreshData();
+    }).catch(err => {
+        console.error(err);
+        refreshData();
+    });
+};
+
+// Run app
+document.addEventListener('DOMContentLoaded', init);
 
 window.switchCategory = function(category) {
     const sections = ['pending', 'ready', 'shipped', 'arrived'];
