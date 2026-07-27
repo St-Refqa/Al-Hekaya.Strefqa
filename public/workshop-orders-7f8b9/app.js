@@ -239,7 +239,7 @@ function processData() {
                 <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed')">تجهيز الأوردر</button>
+                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed', '${row['Quantity'] || 1}')">تجهيز الأوردر</button>
                 </div>
             </div>
         </div>
@@ -467,45 +467,102 @@ window.toggleInventory = function() {
 
 function renderInventory() {
     const tbody = document.getElementById('inventory-tbody');
-    if (!tbody || !data || data.length === 0) return;
+    if (!tbody) return;
     
-    // Group all non-rejected products
-    const validData = data.filter(row => row['Client Name'] && row['Delivery By'] !== 'Reject');
-    const productSales = {};
-    
-    validData.forEach(row => {
-        const product = row['Order Details'] ? String(row['Order Details']).trim() : 'غير محدد';
-        if (product !== 'غير محدد') {
-            productSales[product] = (productSales[product] || 0) + (parseInt(row['Quantity']) || 1);
-        }
-    });
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري جلب بيانات المخزن... ⏳</td></tr>';
 
-    let html = '';
-    Object.keys(productSales).sort().forEach(prod => {
-        const sold = productSales[prod];
-        // Mocking stock for now: e.g. Random starting stock minus sold, or just a placeholder
-        // In the future this will read from the actual Products sheet.
-        const mockStock = Math.max(0, 100 - sold);
-        
-        html += `
-            <tr>
-                <td><strong>${prod}</strong></td>
-                <td>${sold}</td>
-                <td><span class="total-badge" style="background: ${mockStock < 10 ? '#fed7d7; color: #c53030' : '#c6f6d5; color: #22543d'}">${mockStock}</span></td>
-                <td>
-                    <button class="btn-add-stock" onclick="alert('خاصية إضافة الرصيد ستعمل فور ربط شيت المنتجات!')">➕ إضافة</button>
-                </td>
-            </tr>
-        `;
-    });
-    
-    tbody.innerHTML = html;
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ action: 'getInventory' })
+    }).then(res => res.json())
+      .then(result => {
+          if (result.success && result.inventory) {
+              const inventoryMap = {};
+              result.inventory.forEach(item => {
+                  inventoryMap[item.name] = item.stock;
+              });
+
+              // Group sold quantities
+              const validData = data.filter(row => row['Client Name'] && row['Delivery By'] !== 'Reject');
+              const productSales = {};
+              validData.forEach(row => {
+                  const product = row['Order Details'] ? String(row['Order Details']).trim() : 'غير محدد';
+                  if (product !== 'غير محدد') {
+                      productSales[product] = (productSales[product] || 0) + (parseInt(row['Quantity']) || 1);
+                  }
+              });
+
+              let html = '';
+              // Merge products from sheet and products from orders
+              const allProducts = new Set([...Object.keys(inventoryMap), ...Object.keys(productSales)]);
+              
+              Array.from(allProducts).sort().forEach(prod => {
+                  if (prod === 'غير محدد') return;
+                  const sold = productSales[prod] || 0;
+                  const stock = inventoryMap[prod] !== undefined ? inventoryMap[prod] : 0;
+                  
+                  html += `
+                      <tr>
+                          <td><strong>${prod}</strong></td>
+                          <td>${sold}</td>
+                          <td><span class="total-badge" style="background: ${stock < 10 ? '#fed7d7; color: #c53030' : '#c6f6d5; color: #22543d'}">${stock}</span></td>
+                          <td>
+                              <button class="btn-add-stock" onclick="addStock('${prod.replace(/'/g, "\\'")}')">➕ إضافة</button>
+                          </td>
+                      </tr>
+                  `;
+              });
+              
+              tbody.innerHTML = html;
+          } else {
+              tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: red;">فشل جلب المخزن: ' + (result.error || 'غير معروف') + '</td></tr>';
+          }
+      }).catch(err => {
+          console.error(err);
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: red;">حدث خطأ في الاتصال بالسيرفر!</td></tr>';
+      });
 }
+
+window.addStock = function(productName) {
+    const qtyStr = prompt(`كم عدد القطع التي تريد إضافتها لمخزون المنتج:\n"${productName}" ؟`);
+    if (!qtyStr) return;
+    
+    const qty = parseFloat(qtyStr);
+    if (isNaN(qty) || qty <= 0) {
+        alert('الرجاء إدخال رقم صحيح أكبر من الصفر.');
+        return;
+    }
+
+    elements.lastUpdated.textContent = 'جاري إضافة البضاعة...';
+    
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'addStock',
+            productName: productName,
+            quantity: qty
+        })
+    }).then(res => res.json())
+      .then(result => {
+          if (result.success) {
+              alert(`تم بنجاح! الرصيد الجديد هو: ${result.newStock}`);
+              renderInventory(); // refresh inventory view
+          } else {
+              alert('فشل إضافة البضاعة: ' + (result.error || ''));
+          }
+          elements.lastUpdated.textContent = 'مكتمل';
+      }).catch(err => {
+          console.error(err);
+          alert('حدث خطأ في الاتصال بالسيرفر');
+      });
+};
 
 // This URL will be updated once the user deploys the Apps Script
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 
 
-window.moveToNextStep = function(clientName, orderDetails, nextStepColumn) {
+window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quantity = 1) {
     if (!APPS_SCRIPT_URL) {
         alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
         return;
@@ -526,7 +583,8 @@ window.moveToNextStep = function(clientName, orderDetails, nextStepColumn) {
         body: new URLSearchParams({
             clientName: clientName,
             orderDetails: orderDetails,
-            nextStep: nextStepColumn
+            nextStep: nextStepColumn,
+            quantity: quantity // For auto-deduction in inventory
         })
     }).then(res => res.json())
       .then(result => {
