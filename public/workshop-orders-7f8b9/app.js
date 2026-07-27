@@ -177,6 +177,40 @@ function processData() {
     populateFilter('shipped', categories.shipped);
     populateFilter('arrived', categories.arrived);
 
+    // --- Clients Auto-fill Logic ---
+    window.clientsMap = {};
+    const clientsList = document.getElementById('clients-list');
+    if (clientsList) {
+        let clientsHtml = '';
+        data.forEach(row => {
+            const name = row['Client Name'] ? String(row['Client Name']).trim() : '';
+            if (name && !window.clientsMap[name]) {
+                window.clientsMap[name] = {
+                    phone: row['col_2'] || '',
+                    gov: row['col_3'] || '',
+                    region: row['col_4'] || ''
+                };
+                clientsHtml += `<option value="${name}">`;
+            }
+        });
+        clientsList.innerHTML = clientsHtml;
+    }
+
+    const clientInput = document.getElementById('order-client');
+    if (clientInput && !clientInput.hasAttribute('data-listener')) {
+        clientInput.setAttribute('data-listener', 'true');
+        clientInput.addEventListener('input', function() {
+            const name = this.value.trim();
+            if (window.clientsMap && window.clientsMap[name]) {
+                document.getElementById('order-phone').value = window.clientsMap[name].phone;
+                document.getElementById('order-gov').value = window.clientsMap[name].gov;
+                document.getElementById('order-region').value = window.clientsMap[name].region;
+            }
+        });
+    }
+    // -------------------------------
+
+
     // Render Analytics
     renderAnalytics(data);
 
