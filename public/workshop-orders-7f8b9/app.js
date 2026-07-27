@@ -14,6 +14,12 @@ const elements = {
         shipped: document.getElementById('count-shipped'),
         arrived: document.getElementById('count-arrived')
     },
+    badges: {
+        pending: document.getElementById('badge-pending'),
+        ready: document.getElementById('badge-ready'),
+        shipped: document.getElementById('badge-shipped'),
+        arrived: document.getElementById('badge-arrived')
+    },
     lists: {
         pending: document.getElementById('list-pending'),
         ready: document.getElementById('list-ready'),
@@ -127,11 +133,17 @@ function processData() {
         }
     });
 
-    // Update Counts
-    elements.counts.pending.textContent = categories.pending.length;
-    elements.counts.ready.textContent = categories.ready.length;
-    elements.counts.shipped.textContent = categories.shipped.length;
-    elements.counts.arrived.textContent = categories.arrived.length;
+    // Update Counts (Top Stats)
+    if (elements.counts.pending) elements.counts.pending.textContent = categories.pending.length;
+    if (elements.counts.ready) elements.counts.ready.textContent = categories.ready.length;
+    if (elements.counts.shipped) elements.counts.shipped.textContent = categories.shipped.length;
+    if (elements.counts.arrived) elements.counts.arrived.textContent = categories.arrived.length;
+
+    // Update Section Badges
+    if (elements.badges.pending) elements.badges.pending.textContent = categories.pending.length;
+    if (elements.badges.ready) elements.badges.ready.textContent = categories.ready.length;
+    if (elements.badges.shipped) elements.badges.shipped.textContent = categories.shipped.length;
+    if (elements.badges.arrived) elements.badges.arrived.textContent = categories.arrived.length;
 
     // Populate Product Filters
     const populateFilter = (type, items) => {
