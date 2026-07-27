@@ -196,7 +196,10 @@
                     <form id="add-order-form" onsubmit="submitNewOrder(event)">
                         <div class="form-group">
                             <label for="order-client">اسم العميل *</label>
-                            <input type="text" id="order-client" required placeholder="مثال: مينا كمال">
+                            <input type="text" id="order-client" required placeholder="مثال: مينا كمال" list="clients-list">
+                            <datalist id="clients-list">
+                                <!-- سيتم تحميل العملاء هنا -->
+                            </datalist>
                         </div>
                         <div class="form-group">
                             <label for="order-phone">رقم الموبايل</label>
@@ -205,7 +208,9 @@
                         <div style="display: flex; gap: 10px;">
                             <div class="form-group" style="flex: 1;">
                                 <label for="order-gov">المحافظة</label>
-                                <input type="text" id="order-gov" placeholder="القاهرة، الإسكندرية...">
+                                <select id="order-gov" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                                    <option value="">جاري التحميل...</option>
+                                </select>
                             </div>
                             <div class="form-group" style="flex: 1;">
                                 <label for="order-region">المنطقة/العنوان</label>
@@ -220,7 +225,9 @@
                             <div class="product-entry" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;">
                                 <div class="form-group" style="flex: 2; margin-bottom: 0;">
                                     <label>المنتج *</label>
-                                    <input type="text" class="prod-name" required placeholder="اسم المنتج...">
+                                    <select class="prod-name" required onchange="handleProductSelect(this)" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                                        <option value="">جاري التحميل...</option>
+                                    </select>
                                 </div>
                                 <div class="form-group" style="flex: 1; margin-bottom: 0;">
                                     <label>الكمية *</label>

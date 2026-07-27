@@ -4,6 +4,7 @@ const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx
 
 // App State
 let data = [];
+window.appOptions = { products: [], governorates: [] };
 
 // Cache DOM elements
 const elements = {
@@ -30,6 +31,7 @@ const elements = {
 
 // Initialize App
 function init() {
+    fetchFormOptions();
     fetchData();
     // Refresh every 5 minutes (300000 ms)
     setInterval(fetchData, 300000);
@@ -632,24 +634,118 @@ window.sendBulkNext = function() {
     }
 };
 
+window.fetchFormOptions = function() {
+    // Fetch Products
+    const prodScript = document.createElement('script');
+    prodScript.id = 'gviz-products';
+    window.processProductsData = function(json) {
+        if (json.status === 'ok') {
+            try {
+                window.appOptions.products = json.table.rows.map(row => {
+                    return {
+                        name: row.c[0] ? String(row.c[0].v).trim() : '',
+                        price: row.c[3] ? parseFloat(row.c[3].v) || 0 : 0
+                    };
+                }).filter(p => p.name);
+                document.querySelectorAll('.prod-name').forEach(select => {
+                    if (select.tagName.toLowerCase() === 'select') {
+                        populateProductSelect(select);
+                    }
+                });
+            } catch(e) {}
+        }
+        prodScript.remove();
+    };
+    prodScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processProductsData&sheet=Products`;
+    document.body.appendChild(prodScript);
+
+    // Fetch Clients (Governorates and Names)
+    const clientScript = document.createElement('script');
+    clientScript.id = 'gviz-clients';
+    window.processClientsData = function(json) {
+        if (json.status === 'ok') {
+            try {
+                const govSet = {};
+                const clientsSet = {};
+                json.table.rows.forEach(row => {
+                    const name = row.c[0] ? String(row.c[0].v).trim() : ''; // Col A is index 0
+                    if (name) clientsSet[name] = true;
+                    
+                    const gov = row.c[2] ? String(row.c[2].v).trim() : ''; // Col C is index 2
+                    if (gov) govSet[gov] = true;
+                });
+                
+                window.appOptions.governorates = Object.keys(govSet).sort();
+                
+                const clientList = document.getElementById('clients-list');
+                if (clientList) {
+                    clientList.innerHTML = Object.keys(clientsSet).sort().map(c => `<option value="${c}">`).join('');
+                }
+                
+                const govSelect = document.getElementById('order-gov');
+                if (govSelect) {
+                    const currentGov = govSelect.value;
+                    govSelect.innerHTML = '<option value="">اختر المحافظة...</option>' + 
+                        window.appOptions.governorates.map(g => `<option value="${g}">${g}</option>`).join('');
+                    if (currentGov) govSelect.value = currentGov;
+                }
+            } catch(e) {}
+        }
+        clientScript.remove();
+    };
+    clientScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processClientsData&sheet=Clients`;
+    document.body.appendChild(clientScript);
+};
+
+window.populateProductSelect = function(select) {
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">اختر المنتج...</option>' + 
+        window.appOptions.products.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} - ${p.price} ج</option>`).join('');
+    if (currentVal) select.value = currentVal;
+};
+
 window.addProductRow = function() {
     const container = document.getElementById('products-container');
     const row = document.createElement('div');
     row.className = 'product-entry';
     row.style = 'display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;';
+    
+    let optionsHtml = '<option value="">جاري تحميل المنتجات...</option>';
+    if (window.appOptions && window.appOptions.products.length > 0) {
+        optionsHtml = '<option value="">اختر المنتج...</option>' + 
+            window.appOptions.products.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} - ${p.price} ج</option>`).join('');
+    }
+
     row.innerHTML = `
         <div class="form-group" style="flex: 2; margin-bottom: 0;">
-            <input type="text" class="prod-name" required placeholder="اسم المنتج...">
+            <label>المنتج *</label>
+            <select class="prod-name" required onchange="handleProductSelect(this)" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                ${optionsHtml}
+            </select>
         </div>
         <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label>الكمية *</label>
             <input type="number" class="prod-qty" value="1" required min="1" onchange="calculateOrderTotals()">
         </div>
         <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label>السعر</label>
             <input type="number" class="prod-price" value="0" min="0" onchange="calculateOrderTotals()">
         </div>
-        <button type="button" onclick="this.parentElement.remove(); calculateOrderTotals();" style="padding: 10px; background: #e53e3e; color: white; border: none; border-radius: 8px; cursor: pointer;">❌</button>
+        <button type="button" onclick="this.parentElement.remove(); calculateOrderTotals();" style="padding: 10px; background: #e53e3e; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 0px; height: 42px;">❌</button>
     `;
     container.appendChild(row);
+};
+
+window.handleProductSelect = function(select) {
+    const option = select.options[select.selectedIndex];
+    if (option && option.dataset.price !== undefined) {
+        const row = select.closest('.product-entry');
+        if (row) {
+            const priceInput = row.querySelector('.prod-price');
+            if (priceInput) priceInput.value = option.dataset.price;
+        }
+    }
+    calculateOrderTotals();
 };
 
 window.calculateOrderTotals = function() {
