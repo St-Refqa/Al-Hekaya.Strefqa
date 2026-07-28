@@ -55,6 +55,14 @@
                         <div class="stat-title">مطلوبة ولسه متحضرتش</div>
                         <div class="stat-value" id="count-pending" style="color: #48bb78;">0</div>
                     </div>
+                    <div class="stat-card" id="card-designing" onclick="switchCategory('designing')" style="border-left: 4px solid #f6ad55; cursor: pointer;">
+                        <div class="stat-title">جاري التصميم</div>
+                        <div class="stat-value" id="count-designing" style="color: #f6ad55;">0</div>
+                    </div>
+                    <div class="stat-card" id="card-printing" onclick="switchCategory('printing')" style="border-left: 4px solid #f6e05e; cursor: pointer;">
+                        <div class="stat-title">في الطباعة</div>
+                        <div class="stat-value" id="count-printing" style="color: #f6e05e;">0</div>
+                    </div>
                     <div class="stat-card" id="card-ready" onclick="switchCategory('ready')" style="border-left: 4px solid #ed8936; cursor: pointer;">
                         <div class="stat-title">جاهزة وعايزة تتشحن</div>
                         <div class="stat-value" id="count-ready" style="color: #ed8936;">0</div>
@@ -88,6 +96,40 @@
                             <!-- Items will be injected here -->
                             <div class="loading">جاري تحميل الأوردرات...</div>
                         </div>
+                    </div>
+
+                    <!-- Designing -->
+                    <div class="list-section" id="section-designing" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-designing">0</span>
+                                جاري التصميم 🎨
+                            </h3>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-designing" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('designing')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                <select class="filter-select" id="filter-designing" onchange="filterList('designing')">
+                                    <option value="">كل المنتجات</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="accordion-list" id="list-designing"></div>
+                    </div>
+
+                    <!-- Printing -->
+                    <div class="list-section" id="section-printing" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-printing">0</span>
+                                في الطباعة 🖨️
+                            </h3>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-printing" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('printing')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                <select class="filter-select" id="filter-printing" onchange="filterList('printing')">
+                                    <option value="">كل المنتجات</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="accordion-list" id="list-printing"></div>
                     </div>
 
                     <!-- Ready -->

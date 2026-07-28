@@ -123,6 +123,8 @@ function fetchData() {
 function processData() {
     const categories = {
         pending: [],
+        designing: [],
+        printing: [],
         ready: [],
         shipped: [],
         arrived: []
@@ -136,6 +138,8 @@ function processData() {
         const isProcessed = String(row['col_14']).trim().toUpperCase() === 'TRUE';
         const isDelivery = String(row['col_15']).trim().toUpperCase() === 'TRUE';
         const isDone = String(row['col_19']).trim().toUpperCase() === 'TRUE';
+        const isDesigning = String(row['col_21']).trim().toUpperCase() === 'TRUE';
+        const isPrinting = String(row['col_22']).trim().toUpperCase() === 'TRUE';
 
         if (isDone) {
             categories.arrived.push(row);
@@ -143,6 +147,10 @@ function processData() {
             categories.shipped.push(row);
         } else if (isProcessed) {
             categories.ready.push(row);
+        } else if (isPrinting) {
+            categories.printing.push(row);
+        } else if (isDesigning) {
+            categories.designing.push(row);
         } else {
             if (row['Client Name'] || row['Order Details']) {
                 categories.pending.push(row);
@@ -151,11 +159,15 @@ function processData() {
     });
 
     if (elements.counts.pending) elements.counts.pending.textContent = categories.pending.length;
+    if (document.getElementById('count-designing')) document.getElementById('count-designing').textContent = categories.designing.length;
+    if (document.getElementById('count-printing')) document.getElementById('count-printing').textContent = categories.printing.length;
     if (elements.counts.ready) elements.counts.ready.textContent = categories.ready.length;
     if (elements.counts.shipped) elements.counts.shipped.textContent = categories.shipped.length;
     if (elements.counts.arrived) elements.counts.arrived.textContent = categories.arrived.length;
 
     if (elements.badges.pending) elements.badges.pending.textContent = categories.pending.length;
+    if (document.getElementById('badge-designing')) document.getElementById('badge-designing').textContent = categories.designing.length;
+    if (document.getElementById('badge-printing')) document.getElementById('badge-printing').textContent = categories.printing.length;
     if (elements.badges.ready) elements.badges.ready.textContent = categories.ready.length;
     if (elements.badges.shipped) elements.badges.shipped.textContent = categories.shipped.length;
     if (elements.badges.arrived) elements.badges.arrived.textContent = categories.arrived.length;
@@ -187,6 +199,8 @@ function processData() {
     };
     
     populateFilter('pending', categories.pending);
+    populateFilter('designing', categories.designing);
+    populateFilter('printing', categories.printing);
     populateFilter('ready', categories.ready);
     populateFilter('shipped', categories.shipped);
     populateFilter('arrived', categories.arrived);
@@ -278,9 +292,52 @@ function processData() {
                 <p><strong>التاريخ:</strong> ${row['col_1'] || '-'}</p>
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
+                <div class="action-container" style="flex-wrap: wrap; gap: 5px;">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
+                    <button class="btn-action" style="background-color: #f6ad55;" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Designed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">للتصميم 🎨</button>
+                    <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">للطباعة 🖨️</button>
+                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تجهيز فوراً ✅</button>
+                </div>
+            </div>
+        </div>
+    `);
+
+    renderList('designing', categories.designing, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="total-badge" style="background-color: #f6ad55;">جاري التصميم</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التاريخ:</strong> ${row['col_1'] || '-'}</p>
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تجهيز الأوردر</button>
+                    <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم التصميم (للطباعة) 🖨️</button>
+                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تخطي للجاهز ✅</button>
+                </div>
+            </div>
+        </div>
+    `);
+
+    renderList('printing', categories.printing, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="total-badge" style="background-color: #f6e05e; color: #000;">في الطباعة</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التاريخ:</strong> ${row['col_1'] || '-'}</p>
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
+                <div class="action-container">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
+                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم الطباعة (جاهز) ✅</button>
                 </div>
             </div>
         </div>
@@ -860,7 +917,7 @@ window.moveToNextStep = function(orderId, nextStepColumn, clientName, groupedDet
 };
 
 window.switchCategory = function(category) {
-    const sections = ['pending', 'ready', 'shipped', 'arrived'];
+    const sections = ['pending', 'designing', 'printing', 'ready', 'shipped', 'arrived'];
     sections.forEach(sec => {
         const el = document.getElementById('section-' + sec);
         if (el) el.style.display = 'none';
