@@ -978,7 +978,7 @@ window.batchMove = function(nextStep) {
     const sections = ['pending', 'designing', 'printing', 'ready', 'shipped'];
     let activeSec = '';
     sections.forEach(sec => {
-        if (document.getElementById('section-' + sec).style.display === 'block') {
+        if (document.getElementById('section-' + sec).style.display !== 'none') {
             activeSec = sec;
         }
     });
