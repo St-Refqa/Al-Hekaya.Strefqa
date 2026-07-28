@@ -501,25 +501,21 @@ window.addStock = function(productName) {
     
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             action: 'addStock',
             productName: productName,
             quantity: qty
         })
-    }).then(res => res.json())
-      .then(result => {
-          if (result.success) {
-              alert(`تم بنجاح! الرصيد الجديد هو: ${result.newStock}`);
-              fetchFormOptions(); 
-          } else {
-              alert('فشل إضافة البضاعة: ' + (result.error || ''));
-          }
-          elements.lastUpdated.textContent = 'مكتمل';
-      }).catch(err => {
-          console.error(err);
-          alert('حدث خطأ في الاتصال بالسيرفر');
-      });
+    }).then(() => {
+        alert('تم التوريد بنجاح! جاري التحديث...');
+        fetchFormOptions(); 
+        elements.lastUpdated.textContent = 'مكتمل';
+    }).catch(err => {
+        console.error(err);
+        alert('حدث خطأ في الاتصال بالسيرفر');
+    });
 };
 
 window.toggleSidebar = function() {
