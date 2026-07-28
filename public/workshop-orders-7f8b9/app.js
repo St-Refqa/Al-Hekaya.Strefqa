@@ -282,7 +282,7 @@ function processData() {
         <div class="accordion-item ${isDelayed(row['col_1']) ? 'delayed-warning' : ''}" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     ${isDelayed(row['col_1']) ? '<span class="delayed-icon" title="أوردر متأخر">⚠️</span>' : ''}
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge">${row['Total'] || '0'} ج.م</span>
@@ -295,9 +295,9 @@ function processData() {
                 <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
                 <div class="action-container" style="flex-wrap: wrap; gap: 5px;">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" style="background-color: #f6ad55;" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Designed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">للتصميم 🎨</button>
-                    <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">للطباعة 🖨️</button>
-                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تجهيز فوراً ✅</button>
+                    <button class="btn-action" style="background-color: #f6ad55;" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Designed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">للتصميم 🎨</button>
+                    <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">للطباعة 🖨️</button>
+                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تجهيز فوراً ✅</button>
                 </div>
             </div>
         </div>
@@ -307,7 +307,7 @@ function processData() {
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge" style="background-color: #f6ad55;">جاري التصميم</span>
                 </div>
@@ -318,8 +318,8 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم التصميم (للطباعة) 🖨️</button>
-                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تخطي للجاهز ✅</button>
+                    <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم التصميم (للطباعة) 🖨️</button>
+                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تخطي للجاهز ✅</button>
                 </div>
             </div>
         </div>
@@ -329,7 +329,7 @@ function processData() {
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge" style="background-color: #f6e05e; color: #000;">في الطباعة</span>
                 </div>
@@ -340,7 +340,7 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم الطباعة (جاهز) ✅</button>
+                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم الطباعة (جاهز) ✅</button>
                 </div>
             </div>
         </div>
@@ -350,7 +350,7 @@ function processData() {
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="gov-badge">${row['المحافطة'] || '-'}</span>
                 </div>
@@ -361,7 +361,7 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'ready')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Delivery', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تسليم للشحن</button>
+                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Delivery', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تسليم للشحن</button>
                 </div>
             </div>
         </div>
@@ -371,7 +371,7 @@ function processData() {
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge shipped-color">${row['The Rest'] || '0'} ج.م</span>
                 </div>
@@ -382,7 +382,7 @@ function processData() {
                 <p><strong>المحافظة/المنطقة:</strong> ${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'shipped')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Done', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم التوصيل</button>
+                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Done', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم التوصيل</button>
                 </div>
             </div>
         </div>
