@@ -281,7 +281,8 @@ function processData() {
     renderList('pending', categories.pending, row => `
         <div class="accordion-item ${isDelayed(row['col_1']) ? 'delayed-warning' : ''}" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <div class="accordion-title">
+                <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     ${isDelayed(row['col_1']) ? '<span class="delayed-icon" title="أوردر متأخر">⚠️</span>' : ''}
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge">${row['Total'] || '0'} ج.م</span>
@@ -305,7 +306,8 @@ function processData() {
     renderList('designing', categories.designing, row => `
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <div class="accordion-title">
+                <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge" style="background-color: #f6ad55;">جاري التصميم</span>
                 </div>
@@ -326,7 +328,8 @@ function processData() {
     renderList('printing', categories.printing, row => `
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <div class="accordion-title">
+                <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge" style="background-color: #f6e05e; color: #000;">في الطباعة</span>
                 </div>
@@ -346,7 +349,8 @@ function processData() {
     renderList('ready', categories.ready, row => `
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <div class="accordion-title">
+                <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="gov-badge">${row['المحافطة'] || '-'}</span>
                 </div>
@@ -366,7 +370,8 @@ function processData() {
     renderList('shipped', categories.shipped, row => `
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
-                <div class="accordion-title">
+                <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="batch-cb" data-order-id="${(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
                     <span class="client-name">${row['Client Name'] || '-'}</span>
                     <span class="total-badge shipped-color">${row['The Rest'] || '0'} ج.م</span>
                 </div>
@@ -940,6 +945,93 @@ window.switchCategory = function(category) {
         activeCard.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
         activeCard.style.transition = 'all 0.3s ease';
     }
+    
+    // Clear checkboxes when switching
+    document.querySelectorAll('.batch-cb').forEach(cb => cb.checked = false);
+    if(window.updateBatchActions) window.updateBatchActions();
+};
+
+// Batch Actions
+window.updateBatchActions = function() {
+    const sections = ['pending', 'designing', 'printing', 'ready', 'shipped'];
+    sections.forEach(sec => {
+        const sectionEl = document.getElementById('section-' + sec);
+        if (!sectionEl) return;
+        
+        const checkboxes = sectionEl.querySelectorAll('.batch-cb:checked');
+        const count = checkboxes.length;
+        const actionBar = document.getElementById('batch-actions-' + sec);
+        const countSpan = document.getElementById('batch-count-' + sec);
+        
+        if (actionBar && countSpan) {
+            if (count > 0) {
+                actionBar.style.display = 'flex';
+                countSpan.textContent = 'تم تحديد ' + count + ' أوردر';
+            } else {
+                actionBar.style.display = 'none';
+            }
+        }
+    });
+};
+
+window.batchMove = function(nextStep) {
+    const sections = ['pending', 'designing', 'printing', 'ready', 'shipped'];
+    let activeSec = '';
+    sections.forEach(sec => {
+        if (document.getElementById('section-' + sec).style.display === 'block') {
+            activeSec = sec;
+        }
+    });
+    
+    if (!activeSec) return;
+    
+    const checkboxes = document.getElementById('section-' + activeSec).querySelectorAll('.batch-cb:checked');
+    if (checkboxes.length === 0) return;
+    
+    if (!confirm('هل أنت متأكد من نقل ' + checkboxes.length + ' أوردر؟')) return;
+    
+    if (!APPS_SCRIPT_URL) {
+        alert('لم يتم ربط الأزرار بجوجل شيت بعد.');
+        return;
+    }
+    
+    const orders = [];
+    checkboxes.forEach(cb => {
+        orders.push({
+            orderId: cb.getAttribute('data-order-id'),
+            clientName: cb.getAttribute('data-client-name'),
+            orderDetails: cb.getAttribute('data-order-details')
+        });
+    });
+    
+    const actionBar = document.getElementById('batch-actions-' + activeSec);
+    const buttons = actionBar.querySelectorAll('button');
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+    });
+    document.getElementById('batch-count-' + activeSec).textContent = 'جاري الترحيل... يرجى الانتظار';
+    
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            action: 'updateStatusBatch',
+            orders: JSON.stringify(orders),
+            nextStep: nextStep
+        })
+    }).then(() => {
+        setTimeout(() => {
+            refreshData();
+        }, 1500);
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء الترحيل.');
+        refreshData();
+    });
 };
 
 // Run app

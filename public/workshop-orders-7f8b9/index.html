@@ -92,6 +92,12 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="batch-actions" id="batch-actions-pending" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-pending">تم تحديد 0 أوردر</span>
+                            <button class="btn-action" style="background-color: #f6ad55; padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Designed')">للتصميم 🎨</button>
+                            <button class="btn-action" style="background-color: #f6e05e; color: #000; padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Printed')">للطباعة 🖨️</button>
+                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Processed')">تجهيز فوراً ✅</button>
+                        </div>
                         <div class="accordion-list" id="list-pending">
                             <!-- Items will be injected here -->
                             <div class="loading">جاري تحميل الأوردرات...</div>
@@ -112,6 +118,11 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="batch-actions" id="batch-actions-designing" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-designing">تم تحديد 0 أوردر</span>
+                            <button class="btn-action" style="background-color: #f6e05e; color: #000; padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Printed')">للطباعة 🖨️</button>
+                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Processed')">تخطي للجاهز ✅</button>
+                        </div>
                         <div class="accordion-list" id="list-designing"></div>
                     </div>
 
@@ -128,6 +139,10 @@
                                     <option value="">كل المنتجات</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="batch-actions" id="batch-actions-printing" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-printing">تم تحديد 0 أوردر</span>
+                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Processed')">تم الطباعة (جاهز) ✅</button>
                         </div>
                         <div class="accordion-list" id="list-printing"></div>
                     </div>
@@ -147,6 +162,10 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="batch-actions" id="batch-actions-ready" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-ready">تم تحديد 0 أوردر</span>
+                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Delivery')">تسليم للشحن 🚚</button>
+                        </div>
                         <div class="accordion-list" id="list-ready"></div>
                     </div>
 
@@ -164,6 +183,10 @@
                                     <option value="">كل المنتجات</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="batch-actions" id="batch-actions-shipped" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-shipped">تم تحديد 0 أوردر</span>
+                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Done')">تم التوصيل بنجاح ✅</button>
                         </div>
                         <div class="accordion-list" id="list-shipped"></div>
                     </div>
