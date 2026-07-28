@@ -822,7 +822,7 @@ window.submitNewOrder = function(e) {
     });
 };
 
-window.moveToNextStep = function(orderId, nextStepColumn, clientName, orderDetails) {
+window.moveToNextStep = function(orderId, nextStepColumn, clientName, groupedDetails) {
     if (!APPS_SCRIPT_URL) {
         alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
         return;
@@ -830,6 +830,9 @@ window.moveToNextStep = function(orderId, nextStepColumn, clientName, orderDetai
     
     const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
     if (!confirm(confirmMsg)) return;
+
+    // Extract all product names from the grouped details
+    const allProducts = groupedDetails ? groupedDetails.split('<br>').map(p => p.replace(/ \(x\d+\)/, '').trim()).join('|||') : '';
 
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
@@ -839,7 +842,7 @@ window.moveToNextStep = function(orderId, nextStepColumn, clientName, orderDetai
             action: 'updateStatus',
             orderId: orderId || '',
             clientName: clientName || '',
-            orderDetails: orderDetails ? orderDetails.split('<br>')[0].replace(/ \(x\d+\)/, '') : '',
+            orderDetails: allProducts,
             nextStep: nextStepColumn
         })
     }).then(() => {
