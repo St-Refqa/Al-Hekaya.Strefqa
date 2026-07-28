@@ -62,6 +62,34 @@ function fetchData() {
                 return obj;
             });
             
+            // Grouping logic for multiple products in one order
+            const groupedData = [];
+            let currentGroup = null;
+            
+            data.forEach(row => {
+                const client = String(row['Client Name'] || '').trim();
+                const total = parseFloat(row['Total']) || 0;
+                const orderId = row['col_16']; // Column 17 (Q)
+                
+                // Start a new group if it has a Total > 0, or it has a distinct OrderID, or it's the first row for this client
+                if (total > 0 || !currentGroup || (orderId && currentGroup['col_16'] !== orderId) || (!orderId && currentGroup['Client Name'] !== client)) {
+                    if (currentGroup) groupedData.push(currentGroup);
+                    currentGroup = Object.assign({}, row);
+                    currentGroup._allProducts = [ { details: row['Order Details'], qty: row['Quantity'] } ];
+                } else {
+                    currentGroup._allProducts.push( { details: row['Order Details'], qty: row['Quantity'] } );
+                }
+            });
+            if (currentGroup) groupedData.push(currentGroup);
+            
+            // Merge details for display
+            groupedData.forEach(g => {
+               g['Order Details'] = g._allProducts.map(p => `${p.details} (x${p.qty || 1})`).join('<br>');
+               g['Quantity'] = g._allProducts.reduce((sum, p) => sum + (parseFloat(p.qty)||1), 0);
+               g['isGrouped'] = true;
+            });
+            
+            data = groupedData;
             processData();
             
             const now = new Date();
@@ -246,7 +274,7 @@ function processData() {
                 <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Processed', '${row['Quantity'] || 1}')">تجهيز الأوردر</button>
+                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تجهيز الأوردر</button>
                 </div>
             </div>
         </div>
@@ -266,7 +294,7 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'ready')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Delivery')">تسليم للشحن</button>
+                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Delivery', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تسليم للشحن</button>
                 </div>
             </div>
         </div>
@@ -286,7 +314,7 @@ function processData() {
                 <p><strong>المحافظة/المنطقة:</strong> ${row['المحافطة'] || '-'}${row['المنطقة'] ? ' - ' + row['المنطقة'] : ''}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'shipped')}
-                    <button class="btn-action" onclick="moveToNextStep('${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}', 'Done')">تم التوصيل</button>
+                    <button class="btn-action" onclick="moveToNextStep('${(row['col_16'] || '').replace(/'/g, "\\'")}', 'Done', '${(row['Client Name'] || '').replace(/'/g, "\\'")}', '${(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم التوصيل</button>
                 </div>
             </div>
         </div>
@@ -730,17 +758,14 @@ window.submitNewOrder = function(e) {
     btn.disabled = true;
     btn.textContent = 'جاري الحفظ... ⏳';
 
-    let detailsStr = '';
-    let totalQty = 0;
+    const productsArray = [];
     document.querySelectorAll('.product-entry').forEach(row => {
         const name = row.querySelector('.prod-name').value.trim();
         const qty = parseInt(row.querySelector('.prod-qty').value) || 1;
         if (name) {
-            detailsStr += `${name} (x${qty})\n`;
-            totalQty += qty;
+            productsArray.push({ name: name, qty: qty });
         }
     });
-    detailsStr = detailsStr.trim();
 
     const payload = {
         action: 'addOrder',
@@ -748,8 +773,7 @@ window.submitNewOrder = function(e) {
         phone: document.getElementById('order-phone').value,
         gov: document.getElementById('order-gov').value,
         region: document.getElementById('order-region').value,
-        details: detailsStr,
-        qty: totalQty,
+        products: JSON.stringify(productsArray),
         total: document.getElementById('order-total').value,
         discount: document.getElementById('order-discount').value,
         deposit: document.getElementById('order-deposit').value,
@@ -771,7 +795,10 @@ window.submitNewOrder = function(e) {
             <div class="product-entry" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end;">
                 <div class="form-group" style="flex: 2; margin-bottom: 0;">
                     <label>المنتج *</label>
-                    <input type="text" class="prod-name" required placeholder="اسم المنتج...">
+                    <select class="prod-name" required onchange="handleProductSelect(this)" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                        <option value="">اختر المنتج...</option>
+                        ${window.appOptions.products.map(p => `<option value="${p.name}" data-price="${p.price}">${p.name} - ${p.price} ج</option>`).join('')}
+                    </select>
                 </div>
                 <div class="form-group" style="flex: 1; margin-bottom: 0;">
                     <label>الكمية *</label>
@@ -795,9 +822,27 @@ window.submitNewOrder = function(e) {
     });
 };
 
-window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quantity = 1) {
+window.moveToNextStep = function(orderId, nextStepColumn, clientName) {
     if (!APPS_SCRIPT_URL) {
         alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
+        return;
+    }
+    
+    const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
+    if (!confirm(confirmMsg)) return;
+
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'updateStatus',
+            orderId: orderId,
+            nextStep: nextStepColumn
+        })
+    }).then(() => {
+        refreshData();
+    });
         return;
     }
     
