@@ -1,6 +1,7 @@
 // Google Sheets JSONP URL
 const SHEET_ID = '1qLw0Md1-A9x8Vj_FWg_2B4j_cUOGTAmNTsdoASzvx-c';
 const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=&gid=0`;
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 
 
 // App State
 let data = [];
@@ -78,14 +79,12 @@ function fetchData() {
     // Inject script tag for JSONP
     const script = document.createElement('script');
     script.id = 'gviz-script';
-    // Use semicolon to separate tqx options in Google Visualization API
     script.src = GVIZ_URL.replace('out:json', 'out:json;responseHandler:processGvizData');
     script.onerror = function() {
         console.error('Failed to load JSONP script');
         elements.lastUpdated.textContent = 'حدث خطأ في الاتصال بجوجل شيت.';
     };
     
-    // Remove previous script if it got stuck
     const oldScript = document.getElementById('gviz-script');
     if (oldScript) oldScript.remove();
     
@@ -94,7 +93,6 @@ function fetchData() {
 
 // Process and categorize data
 function processData() {
-    // Arrays for each category
     const categories = {
         pending: [],
         ready: [],
@@ -103,58 +101,42 @@ function processData() {
     };
 
     data.forEach(row => {
-        // Skip Rejected Orders if column U is 'Reject'
         if (row['Delivery By'] && row['Delivery By'].trim().toUpperCase() === 'REJECT') {
             return;
         }
 
-        // Parsing booleans using hardcoded column indices (0-based array)
-        // Column O = index 14 (التجهيز)
-        // Column P = index 15 (الشحن)
-        // Column T = index 19 (الوصول)
         const isProcessed = String(row['col_14']).trim().toUpperCase() === 'TRUE';
         const isDelivery = String(row['col_15']).trim().toUpperCase() === 'TRUE';
         const isDone = String(row['col_19']).trim().toUpperCase() === 'TRUE';
 
-        // Categorization Logic
         if (isDone) {
-            // 4. وصلت
             categories.arrived.push(row);
         } else if (isDelivery) {
-            // 3. في شركة الشحن (Delivery = true, Done = false)
             categories.shipped.push(row);
         } else if (isProcessed) {
-            // 2. جاهزة وعايزة تتشحن (Processed = true, Delivery = false, Done = false)
             categories.ready.push(row);
         } else {
-            // 1. مطلوبة ولسه متحضرتش (Processed = false, Delivery = false, Done = false)
-            // Ensure it has at least a Client Name or Number so we don't count empty rows
             if (row['Client Name'] || row['Order Details']) {
                 categories.pending.push(row);
             }
         }
     });
 
-    // Update Counts (Top Stats)
     if (elements.counts.pending) elements.counts.pending.textContent = categories.pending.length;
     if (elements.counts.ready) elements.counts.ready.textContent = categories.ready.length;
     if (elements.counts.shipped) elements.counts.shipped.textContent = categories.shipped.length;
     if (elements.counts.arrived) elements.counts.arrived.textContent = categories.arrived.length;
 
-    // Update Section Badges
     if (elements.badges.pending) elements.badges.pending.textContent = categories.pending.length;
     if (elements.badges.ready) elements.badges.ready.textContent = categories.ready.length;
     if (elements.badges.shipped) elements.badges.shipped.textContent = categories.shipped.length;
     if (elements.badges.arrived) elements.badges.arrived.textContent = categories.arrived.length;
 
-    // Populate Product Filters
     const populateFilter = (type, items) => {
         const select = document.getElementById('filter-' + type);
         if (!select) return;
         
-        // Save current selection if any
         const currentVal = select.value;
-        
         const products = new Set();
         items.forEach(row => {
             const p = row['Order Details'] ? String(row['Order Details']).trim() : '';
@@ -167,9 +149,7 @@ function processData() {
         });
         
         select.innerHTML = html;
-        if (products.has(currentVal)) {
-            select.value = currentVal;
-        }
+        if (products.has(currentVal)) select.value = currentVal;
     };
     
     populateFilter('pending', categories.pending);
@@ -177,7 +157,6 @@ function processData() {
     populateFilter('shipped', categories.shipped);
     populateFilter('arrived', categories.arrived);
 
-    // --- Clients Auto-fill Logic ---
     window.clientsMap = {};
     const clientsList = document.getElementById('clients-list');
     if (clientsList) {
@@ -208,13 +187,9 @@ function processData() {
             }
         });
     }
-    // -------------------------------
 
-
-    // Render Analytics
     renderAnalytics(data);
 
-    // Helper to format WhatsApp link
     const getWhatsAppLink = (phone, name, status) => {
         if (!phone) return '';
         let cleanedPhone = String(phone).replace(/\D/g, '');
@@ -234,15 +209,12 @@ function processData() {
         return `<a href="https://wa.me/${cleanedPhone}?text=${encodedMsg}" target="_blank" class="btn-whatsapp" title="تواصل عبر واتساب">💬 واتساب</a>`;
     };
 
-    // Helper to check if order is delayed (older than 3 days)
     const isDelayed = (dateStr) => {
         if (!dateStr) return false;
-        // Parse "Date" object string if it comes as "Date(2026, 6, 26)" from Google JSON
         let orderDate = null;
         if (String(dateStr).startsWith('Date(')) {
             const parts = String(dateStr).match(/Date\((\d+),\s*(\d+),\s*(\d+)/);
             if (parts) {
-                // Month in JS is 0-indexed, but Google JSON is also 0-indexed for month
                 orderDate = new Date(parseInt(parts[1]), parseInt(parts[2]), parseInt(parts[3]));
             }
         } else {
@@ -258,7 +230,6 @@ function processData() {
         return false;
     };
 
-    // Render Accordion Lists
     renderList('pending', categories.pending, row => `
         <div class="accordion-item ${isDelayed(row['col_1']) ? 'delayed-warning' : ''}" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
@@ -342,10 +313,9 @@ function processData() {
     `);
 }
 
-// Helper to render accordion lists
 function renderList(type, items, rowTemplate) {
     const container = elements.lists[type];
-    container.innerHTML = ''; // clear existing
+    container.innerHTML = ''; 
     
     if (items.length === 0) {
         container.innerHTML = `<div class="empty-state">لا يوجد أوردرات في هذه القائمة حالياً</div>`;
@@ -357,29 +327,24 @@ function renderList(type, items, rowTemplate) {
     });
 }
 
-// Chart Variables
 let govChartInstance = null;
 let productChartInstance = null;
 
 window.switchTab = function(tabId, navItemElement) {
-    // Hide all tabs
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => tab.classList.remove('active-tab'));
     
-    // Show selected tab
     const activeTab = document.getElementById(tabId);
     if (activeTab) {
         activeTab.classList.add('active-tab');
     }
     
-    // Update Sidebar highlighting
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => item.classList.remove('active'));
     if (navItemElement) {
         navItemElement.classList.add('active');
     }
     
-    // If switching to inventory, trigger render
     if (tabId === 'tab-inventory') {
         renderInventory();
     }
@@ -387,10 +352,7 @@ window.switchTab = function(tabId, navItemElement) {
 
 function renderAnalytics(allData) {
     const validData = allData.filter(row => row['Client Name'] && row['Client Name'] !== '');
-    
-    // 1. Governorate Stats
     const govCounts = {};
-    // 2. Product Stats
     const productCounts = {};
 
     validData.forEach(row => {
@@ -401,11 +363,9 @@ function renderAnalytics(allData) {
         productCounts[product] = (productCounts[product] || 0) + 1;
     });
 
-    // Prepare Gov Chart Data
     const govLabels = Object.keys(govCounts).sort((a, b) => govCounts[b] - govCounts[a]).slice(0, 10);
     const govValues = govLabels.map(label => govCounts[label]);
 
-    // Prepare Product Chart Data
     const prodLabels = Object.keys(productCounts).sort((a, b) => productCounts[b] - productCounts[a]).slice(0, 5);
     const prodValues = prodLabels.map(label => productCounts[label]);
 
@@ -451,7 +411,6 @@ function renderAnalytics(allData) {
     });
 }
 
-// Interactivity Functions
 window.scrollToSection = function(sectionId) {
     const section = document.getElementById(sectionId);
     if (section) {
@@ -463,7 +422,6 @@ window.refreshData = function() {
     const btn = document.getElementById('refresh-btn');
     if (btn) btn.disabled = true;
     
-    // Clear search inputs
     document.querySelectorAll('.search-input').forEach(input => input.value = '');
     
     fetchData();
@@ -472,13 +430,11 @@ window.refreshData = function() {
     }, 2000);
 };
 
-// Accordion Toggle Logic
 window.toggleAccordion = function(headerElement) {
     const item = headerElement.parentElement;
     item.classList.toggle('active');
 };
 
-// Search Filter Logic
 window.filterList = function(type) {
     const input = document.getElementById('search-' + type);
     const select = document.getElementById('filter-' + type);
@@ -493,7 +449,6 @@ window.filterList = function(type) {
         const item = items[i];
         const searchData = item.getAttribute('data-search') || '';
         
-        // Exact match for product filter (if selected), fuzzy match for text search
         const matchesText = textFilter === '' || searchData.indexOf(textFilter) > -1;
         const matchesProduct = productFilter === '' || searchData.indexOf(productFilter) > -1;
         
@@ -505,7 +460,6 @@ window.filterList = function(type) {
     }
 };
 
-// Inventory Logic
 window.renderInventory = function() {
     const tbody = document.getElementById('inventory-tbody');
     if (!tbody) return;
@@ -557,7 +511,7 @@ window.addStock = function(productName) {
       .then(result => {
           if (result.success) {
               alert(`تم بنجاح! الرصيد الجديد هو: ${result.newStock}`);
-              fetchFormOptions(); // refresh inventory view
+              fetchFormOptions(); 
           } else {
               alert('فشل إضافة البضاعة: ' + (result.error || ''));
           }
@@ -565,7 +519,10 @@ window.addStock = function(productName) {
       }).catch(err => {
           console.error(err);
           alert('حدث خطأ في الاتصال بالسيرفر');
- window.toggleSidebar = function() {
+      });
+};
+
+window.toggleSidebar = function() {
     const sidebar = document.querySelector('.sidebar');
     if(sidebar) sidebar.classList.toggle('collapsed');
 };
@@ -637,7 +594,6 @@ window.sendBulkNext = function() {
 };
 
 window.fetchFormOptions = function() {
-    // Fetch Products
     const prodScript = document.createElement('script');
     prodScript.id = 'gviz-products';
     window.processProductsData = function(json) {
@@ -657,7 +613,7 @@ window.fetchFormOptions = function() {
                         populateProductSelect(select);
                     }
                 });
-                if (document.getElementById('tab-inventory').style.display === 'block') {
+                if (document.getElementById('tab-inventory').classList.contains('active-tab')) {
                     renderInventory();
                 }
             } catch(e) {}
@@ -667,7 +623,6 @@ window.fetchFormOptions = function() {
     prodScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processProductsData&sheet=Products`;
     document.body.appendChild(prodScript);
 
-    // Fetch Clients (Governorates and Names)
     const clientScript = document.createElement('script');
     clientScript.id = 'gviz-clients';
     window.processClientsData = function(json) {
@@ -676,10 +631,10 @@ window.fetchFormOptions = function() {
                 const govSet = {};
                 const clientsSet = {};
                 json.table.rows.forEach(row => {
-                    const name = row.c[0] ? String(row.c[0].v).trim() : ''; // Col A is index 0
+                    const name = row.c[0] ? String(row.c[0].v).trim() : ''; 
                     if (name) clientsSet[name] = true;
                     
-                    const gov = row.c[2] ? String(row.c[2].v).trim() : ''; // Col C is index 2
+                    const gov = row.c[2] ? String(row.c[2].v).trim() : ''; 
                     if (gov) govSet[gov] = true;
                 });
                 
@@ -844,14 +799,6 @@ window.submitNewOrder = function(e) {
     });
 };
 
-// Run app
-document.addEventListener('DOMContentLoaded', init);
-      });
-};
-
-// This URL will be updated once the user deploys the Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9vHPpskDKhZP5h_59V9PYLVoEaKBHqdj9OYU0Jp8WrXfrtQiBfvqEjXHF-EBuR-VH/exec'; 
-
 window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quantity = 1) {
     if (!APPS_SCRIPT_URL) {
         alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
@@ -861,7 +808,6 @@ window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quant
     const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
     if (!confirm(confirmMsg)) return;
     
-    // Disable all action buttons to prevent double clicks
     document.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
     elements.lastUpdated.textContent = 'جاري ترحيل الأوردر...';
     
@@ -875,7 +821,7 @@ window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quant
             clientName: clientName,
             orderDetails: orderDetails,
             nextStep: nextStepColumn,
-            quantity: quantity // For auto-deduction in inventory
+            quantity: quantity
         })
     }).then(() => {
         refreshData();
@@ -884,9 +830,6 @@ window.moveToNextStep = function(clientName, orderDetails, nextStepColumn, quant
         refreshData();
     });
 };
-
-// Run app
-document.addEventListener('DOMContentLoaded', init);
 
 window.switchCategory = function(category) {
     const sections = ['pending', 'ready', 'shipped', 'arrived'];
@@ -913,3 +856,6 @@ window.switchCategory = function(category) {
         activeCard.style.transition = 'all 0.3s ease';
     }
 };
+
+// Run app
+document.addEventListener('DOMContentLoaded', init);
