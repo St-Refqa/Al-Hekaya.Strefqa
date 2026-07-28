@@ -63,6 +63,10 @@
                         <div class="stat-title">في الطباعة</div>
                         <div class="stat-value" id="count-printing" style="color: #f6e05e;">0</div>
                     </div>
+                    <div class="stat-card" id="card-received" onclick="switchCategory('received')" style="border-left: 4px solid #38b2ac; cursor: pointer;">
+                        <div class="stat-title">تم الاستلام من المطبعة</div>
+                        <div class="stat-value" id="count-received" style="color: #38b2ac;">0</div>
+                    </div>
                     <div class="stat-card" id="card-ready" onclick="switchCategory('ready')" style="border-left: 4px solid #ed8936; cursor: pointer;">
                         <div class="stat-title">جاهزة وعايزة تتشحن</div>
                         <div class="stat-value" id="count-ready" style="color: #ed8936;">0</div>
@@ -142,9 +146,30 @@
                         </div>
                         <div class="batch-actions" id="batch-actions-printing" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
                             <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-printing">تم تحديد 0 أوردر</span>
-                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Processed')">تم الطباعة (جاهز) ✅</button>
+                            <button class="btn-action" style="background-color: #38b2ac; color: white; padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Received')">تم الاستلام 📥</button>
                         </div>
                         <div class="accordion-list" id="list-printing"></div>
+                    </div>
+
+                    <!-- Received -->
+                    <div class="list-section" id="section-received" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" id="badge-received">0</span>
+                                تم الاستلام من المطبعة 📥
+                            </h3>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="search-received" class="search-input" placeholder="🔍 بحث..." onkeyup="filterList('received')" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                <select class="filter-select" id="filter-received" onchange="filterList('received')">
+                                    <option value="">كل المنتجات</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="batch-actions" id="batch-actions-received" style="display: none; padding: 10px; background: #edf2f7; border-radius: 8px; margin-bottom: 15px; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="font-weight: bold; font-size: 0.9rem; color: #2d3748;" id="batch-count-received">تم تحديد 0 أوردر</span>
+                            <button class="btn-action" style="padding: 5px 10px; font-size: 0.8rem;" onclick="batchMove('Processed')">جاهز للشحن ✅</button>
+                        </div>
+                        <div class="accordion-list" id="list-received"></div>
                     </div>
 
                     <!-- Ready -->

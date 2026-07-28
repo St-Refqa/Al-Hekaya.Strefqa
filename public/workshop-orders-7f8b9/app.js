@@ -26,6 +26,7 @@ const elements = {
         pending: document.getElementById('list-pending'),
         designing: document.getElementById('list-designing'),
         printing: document.getElementById('list-printing'),
+        received: document.getElementById('list-received'),
         ready: document.getElementById('list-ready'),
         shipped: document.getElementById('list-shipped'),
         arrived: document.getElementById('list-arrived')
@@ -123,10 +124,11 @@ function fetchData() {
 
 // Process and categorize data
 function processData() {
-    const categories = {
+    let categories = {
         pending: [],
         designing: [],
         printing: [],
+        received: [],
         ready: [],
         shipped: [],
         arrived: []
@@ -142,6 +144,7 @@ function processData() {
         const isDone = String(row['col_19']).trim().toUpperCase() === 'TRUE';
         const isDesigning = String(row['col_21']).trim().toUpperCase() === 'TRUE';
         const isPrinting = String(row['col_22']).trim().toUpperCase() === 'TRUE';
+        const isReceived = String(row['col_23']).trim().toUpperCase() === 'TRUE';
 
         if (isDone) {
             categories.arrived.push(row);
@@ -149,6 +152,8 @@ function processData() {
             categories.shipped.push(row);
         } else if (isProcessed) {
             categories.ready.push(row);
+        } else if (isReceived) {
+            categories.received.push(row);
         } else if (isPrinting) {
             categories.printing.push(row);
         } else if (isDesigning) {
@@ -163,6 +168,7 @@ function processData() {
     if (elements.counts.pending) elements.counts.pending.textContent = categories.pending.length;
     if (document.getElementById('count-designing')) document.getElementById('count-designing').textContent = categories.designing.length;
     if (document.getElementById('count-printing')) document.getElementById('count-printing').textContent = categories.printing.length;
+    if (document.getElementById('count-received')) document.getElementById('count-received').textContent = categories.received.length;
     if (elements.counts.ready) elements.counts.ready.textContent = categories.ready.length;
     if (elements.counts.shipped) elements.counts.shipped.textContent = categories.shipped.length;
     if (elements.counts.arrived) elements.counts.arrived.textContent = categories.arrived.length;
@@ -170,6 +176,7 @@ function processData() {
     if (elements.badges.pending) elements.badges.pending.textContent = categories.pending.length;
     if (document.getElementById('badge-designing')) document.getElementById('badge-designing').textContent = categories.designing.length;
     if (document.getElementById('badge-printing')) document.getElementById('badge-printing').textContent = categories.printing.length;
+    if (document.getElementById('badge-received')) document.getElementById('badge-received').textContent = categories.received.length;
     if (elements.badges.ready) elements.badges.ready.textContent = categories.ready.length;
     if (elements.badges.shipped) elements.badges.shipped.textContent = categories.shipped.length;
     if (elements.badges.arrived) elements.badges.arrived.textContent = categories.arrived.length;
@@ -203,6 +210,7 @@ function processData() {
     populateFilter('pending', categories.pending);
     populateFilter('designing', categories.designing);
     populateFilter('printing', categories.printing);
+    populateFilter('received', categories.received);
     populateFilter('ready', categories.ready);
     populateFilter('shipped', categories.shipped);
     populateFilter('arrived', categories.arrived);
@@ -342,7 +350,28 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
-                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم الطباعة (جاهز) ✅</button>
+                    <button class="btn-action" style="background-color: #38b2ac; color: white;" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Received', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تم الاستلام 📥</button>
+                </div>
+            </div>
+        </div>
+    `);
+
+    renderList('received', categories.received, row => `
+        <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()}">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    <span class="client-name">${row['Client Name'] || '-'}</span>
+                    <span class="total-badge" style="background-color: #38b2ac; color: white;">تم الاستلام من المطبعة</span>
+                </div>
+                <div class="accordion-arrow">🔽</div>
+            </div>
+            <div class="accordion-content">
+                <p><strong>التاريخ:</strong> ${row['col_1'] || '-'}</p>
+                <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
+                <div class="action-container">
+                    ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
+                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Processed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">جاهز للشحن ✅</button>
                 </div>
             </div>
         </div>
@@ -924,7 +953,7 @@ window.moveToNextStep = function(orderId, nextStepColumn, clientName, groupedDet
 };
 
 window.switchCategory = function(category) {
-    const sections = ['pending', 'designing', 'printing', 'ready', 'shipped', 'arrived'];
+    const sections = ['pending', 'designing', 'printing', 'received', 'ready', 'shipped', 'arrived'];
     sections.forEach(sec => {
         const el = document.getElementById('section-' + sec);
         if (el) el.style.display = 'none';
@@ -955,7 +984,7 @@ window.switchCategory = function(category) {
 
 // Batch Actions
 window.updateBatchActions = function() {
-    const sections = ['pending', 'designing', 'printing', 'ready', 'shipped'];
+    const sections = ['pending', 'designing', 'printing', 'received', 'ready', 'shipped'];
     sections.forEach(sec => {
         const sectionEl = document.getElementById('section-' + sec);
         if (!sectionEl) return;
@@ -977,7 +1006,7 @@ window.updateBatchActions = function() {
 };
 
 window.batchMove = function(nextStep) {
-    const sections = ['pending', 'designing', 'printing', 'ready', 'shipped'];
+    const sections = ['pending', 'designing', 'printing', 'received', 'ready', 'shipped'];
     let activeSec = '';
     sections.forEach(sec => {
         if (document.getElementById('section-' + sec).style.display !== 'none') {
