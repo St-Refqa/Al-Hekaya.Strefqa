@@ -24,6 +24,8 @@ const elements = {
     },
     lists: {
         pending: document.getElementById('list-pending'),
+        designing: document.getElementById('list-designing'),
+        printing: document.getElementById('list-printing'),
         ready: document.getElementById('list-ready'),
         shipped: document.getElementById('list-shipped'),
         arrived: document.getElementById('list-arrived')
