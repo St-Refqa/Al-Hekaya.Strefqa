@@ -167,8 +167,14 @@ function processData() {
         const currentVal = select.value;
         const products = new Set();
         items.forEach(row => {
-            const p = row['Order Details'] ? String(row['Order Details']).trim() : '';
-            if (p) products.add(p);
+            if (row._allProducts) {
+                row._allProducts.forEach(p => {
+                    if (p.details) products.add(String(p.details).trim());
+                });
+            } else {
+                const p = row['Order Details'] ? String(row['Order Details']).trim() : '';
+                if (p) products.add(p);
+            }
         });
         
         let html = '<option value="">كل المنتجات</option>';
