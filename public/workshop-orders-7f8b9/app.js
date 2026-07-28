@@ -96,7 +96,7 @@ function fetchData() {
             elements.lastUpdated.textContent = `آخر تحديث: ${now.toLocaleTimeString('ar-EG')}`;
         } catch (e) {
             console.error('Error processing JSONP data:', e);
-            elements.lastUpdated.textContent = 'حدث خطأ أثناء معالجة البيانات.';
+            elements.lastUpdated.textContent = 'حدث خطأ: ' + e.message;
         }
         
         // Cleanup script tag
