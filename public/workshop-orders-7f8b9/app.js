@@ -79,7 +79,7 @@ function fetchData() {
     // Inject script tag for JSONP
     const script = document.createElement('script');
     script.id = 'gviz-script';
-    script.src = GVIZ_URL.replace('out:json', 'out:json;responseHandler:processGvizData');
+    script.src = GVIZ_URL.replace('out:json', 'out:json;responseHandler:processGvizData') + '&_=' + Date.now();
     script.onerror = function() {
         console.error('Failed to load JSONP script');
         elements.lastUpdated.textContent = 'حدث خطأ في الاتصال بجوجل شيت.';
@@ -616,7 +616,7 @@ window.fetchFormOptions = function() {
         }
         prodScript.remove();
     };
-    prodScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processProductsData&sheet=Products`;
+    prodScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processProductsData&sheet=Products&_=${Date.now()}`;
     document.body.appendChild(prodScript);
 
     const clientScript = document.createElement('script');
@@ -652,7 +652,7 @@ window.fetchFormOptions = function() {
         }
         clientScript.remove();
     };
-    clientScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processClientsData&sheet=Clients`;
+    clientScript.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:processClientsData&sheet=Clients&_=${Date.now()}`;
     document.body.appendChild(clientScript);
 };
 
