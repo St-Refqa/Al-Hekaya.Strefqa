@@ -736,11 +736,11 @@ window.submitNewOrder = function(e) {
         const name = row.querySelector('.prod-name').value.trim();
         const qty = parseInt(row.querySelector('.prod-qty').value) || 1;
         if (name) {
-            detailsStr += `${name} (x${qty}), `;
+            detailsStr += `${name} (x${qty})\n`;
             totalQty += qty;
         }
     });
-    detailsStr = detailsStr.replace(/, $/, '');
+    detailsStr = detailsStr.trim();
 
     const payload = {
         action: 'addOrder',
