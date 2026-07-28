@@ -476,7 +476,7 @@ window.renderInventory = function() {
                 <td><strong>${prod.name}</strong></td>
                 <td>${prod.orders}</td>
                 <td>${prod.inbound}</td>
-                <td><span class="total-badge" style="background: ${prod.stock < 10 ? '#fed7d7; color: #c53030' : '#c6f6d5; color: #22543d'}">${prod.stock}</span></td>
+                <td><span class="total-badge" style="background: ${prod.stock > 0 ? '#c6f6d5; color: #22543d' : '#fed7d7; color: #c53030'}">${prod.stock}</span></td>
                 <td>
                     <button class="btn-add-stock" onclick="addStock('${prod.name.replace(/'/g, "\\'")}')">➕ توريد</button>
                 </td>
