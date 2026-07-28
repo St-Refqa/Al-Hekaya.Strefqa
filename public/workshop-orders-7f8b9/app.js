@@ -822,7 +822,7 @@ window.submitNewOrder = function(e) {
     });
 };
 
-window.moveToNextStep = function(orderId, nextStepColumn, clientName) {
+window.moveToNextStep = function(orderId, nextStepColumn, clientName, orderDetails) {
     if (!APPS_SCRIPT_URL) {
         alert('لم يتم ربط الأزرار بجوجل شيت بعد. يرجى إضافة رابط Google Apps Script أولاً في الكود.');
         return;
@@ -837,38 +837,16 @@ window.moveToNextStep = function(orderId, nextStepColumn, clientName) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             action: 'updateStatus',
-            orderId: orderId,
+            orderId: orderId || '',
+            clientName: clientName || '',
+            orderDetails: orderDetails ? orderDetails.split('<br>')[0].replace(/ \(x\d+\)/, '') : '',
             nextStep: nextStepColumn
-        })
-    }).then(() => {
-        refreshData();
-    });
-        return;
-    }
-    
-    const confirmMsg = `هل أنت متأكد من ترحيل الأوردر الخاص بـ "${clientName}"؟`;
-    if (!confirm(confirmMsg)) return;
-    
-    document.querySelectorAll('.btn-action').forEach(b => b.disabled = true);
-    elements.lastUpdated.textContent = 'جاري ترحيل الأوردر...';
-    
-    fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            clientName: clientName,
-            orderDetails: orderDetails,
-            nextStep: nextStepColumn,
-            quantity: quantity
         })
     }).then(() => {
         refreshData();
     }).catch(err => {
         console.error(err);
-        refreshData();
+        alert('حدث خطأ في الاتصال بالسيرفر');
     });
 };
 
