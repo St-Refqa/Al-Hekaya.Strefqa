@@ -356,9 +356,14 @@ export function useAuth() {
 
 
   const logout = async () => {
-    await signOut(auth as any);
-    safeLocalStorage.removeItem('auth_session');
-    setUser(null);
+    try {
+      await signOut(auth as any);
+    } catch (err) {
+      console.warn("SignOut error:", err);
+    } finally {
+      safeLocalStorage.removeItem('auth_session');
+      setUser(null);
+    }
   };
 
   const updateProfile = useCallback(async (updates: Partial<User>): Promise<{ success: boolean; error?: string }> => {
