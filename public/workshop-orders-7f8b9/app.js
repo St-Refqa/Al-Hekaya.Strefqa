@@ -112,9 +112,9 @@ function processData() {
             return;
         }
 
-        const isProcessed = String(row['col_14']).trim().toUpperCase() === 'TRUE';
-        const isDelivery = String(row['col_15']).trim().toUpperCase() === 'TRUE';
-        const isDone = String(row['col_19']).trim().toUpperCase() === 'TRUE';
+        const isDone = String(row['col_14']).trim().toUpperCase() === 'TRUE';
+        const isProcessed = String(row['col_15']).trim().toUpperCase() === 'TRUE';
+        const isDelivery = String(row['col_19']).trim().toUpperCase() === 'TRUE';
         const isDesigning = String(row['col_21']).trim().toUpperCase() === 'TRUE';
         const isPrinting = String(row['col_22']).trim().toUpperCase() === 'TRUE';
         const isReceived = String(row['col_23']).trim().toUpperCase() === 'TRUE';
