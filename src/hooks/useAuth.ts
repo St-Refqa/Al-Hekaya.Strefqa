@@ -356,13 +356,15 @@ export function useAuth() {
 
 
   const logout = async () => {
+    // 1. Clear local session instantly to guarantee UI responds immediately
+    safeLocalStorage.removeItem('auth_session');
+    setUser(null);
+
+    // 2. Attempt Firebase signout in background without blocking
     try {
-      await signOut(auth as any);
+      signOut(auth as any).catch(err => console.warn("Background SignOut error:", err));
     } catch (err) {
       console.warn("SignOut error:", err);
-    } finally {
-      safeLocalStorage.removeItem('auth_session');
-      setUser(null);
     }
   };
 

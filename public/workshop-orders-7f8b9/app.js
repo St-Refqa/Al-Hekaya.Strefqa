@@ -65,34 +65,7 @@ function fetchData() {
                 return obj;
             });
             
-            // Grouping logic for multiple products in one order
-            const groupedData = [];
-            let currentGroup = null;
-            
-            data.forEach(row => {
-                const client = String(row['Client Name'] || '').trim();
-                const total = parseFloat(row['Total']) || 0;
-                const orderId = row['col_16']; // Column 17 (Q)
-                
-                // Start a new group if it has a Total > 0, or it has a distinct OrderID, or it's the first row for this client
-                if (total > 0 || !currentGroup || (orderId && currentGroup['col_16'] !== orderId) || (!orderId && currentGroup['Client Name'] !== client)) {
-                    if (currentGroup) groupedData.push(currentGroup);
-                    currentGroup = Object.assign({}, row);
-                    currentGroup._allProducts = [ { details: row['Order Details'], qty: row['Quantity'] } ];
-                } else {
-                    currentGroup._allProducts.push( { details: row['Order Details'], qty: row['Quantity'] } );
-                }
-            });
-            if (currentGroup) groupedData.push(currentGroup);
-            
-            // Merge details for display
-            groupedData.forEach(g => {
-               g['Order Details'] = g._allProducts.map(p => `${p.details} (x${p.qty || 1})`).join('<br>');
-               g['Quantity'] = g._allProducts.reduce((sum, p) => sum + (parseFloat(p.qty)||1), 0);
-               g['isGrouped'] = true;
-            });
-            
-            data = groupedData;
+            window.allData = data;
             processData();
             
             const now = new Date();
@@ -381,9 +354,9 @@ function processData() {
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
             <div class="accordion-header" onclick="toggleAccordion(this)">
                 <div class="accordion-title" style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">
+                    ${!row._isPartial ? `<input type="checkbox" class="batch-cb" data-order-id="${String(row['col_16'] || '').replace(/'/g, "\\'")}" data-client-name="${String(row['Client Name'] || '').replace(/"/g, '&quot;')}" data-order-details="${String(row['Order Details'] || '').replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); updateBatchActions()">` : ''}
                     <span class="client-name">${row['Client Name'] || '-'}</span>
-                    <span class="gov-badge">${row['المحافطة'] || '-'}</span>
+                    ${row._isPartial ? `<span class="gov-badge" style="background-color: #ed8936; color: white;">⚠️ وصل ${row._readyCount} من ${row._totalCount}</span>` : `<span class="gov-badge" style="background-color: #48bb78; color: white;">✅ مكتمل</span>`}
                 </div>
                 <div class="accordion-arrow">🔽</div>
             </div>
@@ -392,11 +365,12 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <div class="action-container">
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'ready')}
-                    <button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Delivery', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تسليم للشحن</button>
+                    ${!row._isPartial ? `<button class="btn-action" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Delivery', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">تسليم للشحن</button>` : `<div style="color: #ed8936; font-weight: bold; width: 100%; text-align: center; padding: 10px;">⚠️ الأوردر غير مكتمل، باقي منتجات في التصميم أو المطبعة</div>`}
                 </div>
             </div>
         </div>
     `);
+
 
     renderList('shipped', categories.shipped, row => `
         <div class="accordion-item" data-search="${(row['Client Name'] || '').toLowerCase()} ${(row['Order Details'] || '').toLowerCase()} ${(row['المحافطة'] || '').toLowerCase()}">
