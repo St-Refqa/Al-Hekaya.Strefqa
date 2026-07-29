@@ -881,8 +881,9 @@ window.submitNewOrder = function(e) {
     document.querySelectorAll('.product-entry').forEach(row => {
         const name = row.querySelector('.prod-name').value.trim();
         const qty = parseInt(row.querySelector('.prod-qty').value) || 1;
+        const price = parseFloat(row.querySelector('.prod-price').value) || 0;
         if (name) {
-            productsArray.push({ name: name, qty: qty });
+            productsArray.push({ name: name, qty: qty, price: price });
         }
     });
 
