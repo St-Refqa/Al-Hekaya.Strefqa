@@ -138,6 +138,45 @@ function processData() {
         }
     });
 
+    const groupCategory = (catArray, checkPartial = false) => {
+        let grouped = [];
+        let map = {};
+        catArray.forEach(row => {
+            let orderId = row['col_16'];
+            let client = String(row['Client Name'] || '').trim();
+            let key = orderId || client;
+            if (!map[key]) {
+                map[key] = Object.assign({}, row);
+                map[key]._allProducts = [{ details: row['Order Details'], qty: row['Quantity'] }];
+                grouped.push(map[key]);
+            } else {
+                map[key]._allProducts.push({ details: row['Order Details'], qty: row['Quantity'] });
+            }
+        });
+        grouped.forEach(g => {
+            g['Order Details'] = g._allProducts.map(p => `${p.details} (x${p.qty || 1})`).join('<br>');
+            g['Quantity'] = g._allProducts.reduce((sum, p) => sum + (parseFloat(p.qty)||1), 0);
+            g['isGrouped'] = true;
+            if (checkPartial) {
+                let orderId = g['col_16'];
+                let client = String(g['Client Name'] || '').trim();
+                let totalOverall = window.allData.filter(r => (orderId && r['col_16'] === orderId) || (!orderId && String(r['Client Name']||'').trim() === client)).length;
+                g._readyCount = g._allProducts.length;
+                g._totalCount = totalOverall;
+                g._isPartial = (g._readyCount < totalOverall);
+            }
+        });
+        return grouped;
+    };
+
+    categories.pending = groupCategory(categories.pending);
+    categories.designing = groupCategory(categories.designing);
+    categories.printing = groupCategory(categories.printing);
+    categories.received = groupCategory(categories.received);
+    categories.ready = groupCategory(categories.ready, true);
+    categories.shipped = groupCategory(categories.shipped);
+    categories.arrived = groupCategory(categories.arrived);
+
     if (elements.counts.pending) elements.counts.pending.textContent = categories.pending.length;
     if (document.getElementById('count-designing')) document.getElementById('count-designing').textContent = categories.designing.length;
     if (document.getElementById('count-printing')) document.getElementById('count-printing').textContent = categories.printing.length;
@@ -240,7 +279,13 @@ function processData() {
         return `<a href="https://wa.me/${cleanedPhone}?text=${encodedMsg}" target="_blank" class="btn-whatsapp" title="تواصل عبر واتساب">💬 واتساب</a>`;
     };
 
-    const isDelayed = (dateStr) => {
+    
+const getEditDeleteBtns = (row) => `
+    <button class="btn-action" style="background-color: #4299e1; color: white; margin-top: 5px;" onclick="openEditModal('${String(row['col_16'] || '').replace(/'/g, "\\'")}', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}', ${row['Quantity'] || 0}, ${row['Price'] || 0}, ${row['Discount'] || 0}, ${row['Total'] || 0})">✏️ تعديل</button>
+    <button class="btn-action" style="background-color: #e53e3e; color: white; margin-top: 5px;" onclick="deleteOrder('${String(row['col_16'] || '').replace(/'/g, "\\'")}', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">🗑️ حذف</button>
+`;
+
+const isDelayed = (dateStr) => {
         if (!dateStr) return false;
         let orderDate = null;
         if (String(dateStr).startsWith('Date(')) {
@@ -277,6 +322,7 @@ function processData() {
                 <p><strong>التفاصيل:</strong> ${row['Order Details'] || '-'}</p>
                 <p><strong>الكمية:</strong> ${row['Quantity'] || '-'}</p>
                 <div class="action-container" style="flex-wrap: wrap; gap: 5px;">
+                    ${getEditDeleteBtns(row)}
                     ${getWhatsAppLink(row['col_2'], row['Client Name'], 'pending')}
                     <button class="btn-action" style="background-color: #f6ad55;" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Designed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">للتصميم 🎨</button>
                     <button class="btn-action" style="background-color: #f6e05e; color: #000;" onclick="moveToNextStep('${String(row['col_16'] || '').replace(/'/g, "\\'")}', 'Printed', '${String(row['Client Name'] || '').replace(/'/g, "\\'")}', '${String(row['Order Details'] || '').replace(/'/g, "\\'")}')">للطباعة 🖨️</button>
@@ -1041,3 +1087,110 @@ window.batchMove = function(nextStep) {
 
 // Run app
 document.addEventListener('DOMContentLoaded', init);
+
+window.openEditModal = function(orderId, clientName, orderDetails, qty, price, discount, total) {
+    document.getElementById('edit-order-id').value = orderId;
+    document.getElementById('edit-client-name').value = clientName;
+    document.getElementById('edit-order-details').value = orderDetails;
+    document.getElementById('edit-qty').value = qty;
+    document.getElementById('edit-price').value = price;
+    document.getElementById('edit-discount').value = discount;
+    document.getElementById('edit-total').value = total;
+    document.getElementById('edit-modal').style.display = 'flex';
+};
+
+const editForm = document.getElementById('edit-order-form');
+if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!APPS_SCRIPT_URL) return alert('لم يتم ربط الأزرار بجوجل شيت بعد.');
+        
+        const btn = this.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        btn.textContent = 'جاري الحفظ...';
+        btn.disabled = true;
+
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'editOrder',
+                orderId: document.getElementById('edit-order-id').value,
+                clientName: document.getElementById('edit-client-name').value,
+                orderDetails: document.getElementById('edit-order-details').value,
+                qty: document.getElementById('edit-qty').value,
+                price: document.getElementById('edit-price').value,
+                discount: document.getElementById('edit-discount').value,
+                total: document.getElementById('edit-total').value
+            })
+        }).then(() => {
+            document.getElementById('edit-modal').style.display = 'none';
+            btn.textContent = originalText;
+            btn.disabled = false;
+            refreshData();
+        }).catch(err => {
+            console.error(err);
+            alert('حدث خطأ في الاتصال بالسيرفر');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    });
+}
+
+window.deleteOrder = function(orderId, clientName, orderDetails) {
+    if (!APPS_SCRIPT_URL) return alert('لم يتم ربط الأزرار بجوجل شيت بعد.');
+    if (!confirm('هل أنت متأكد من حذف هذا الأوردر نهائياً؟')) return;
+
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'deleteOrder',
+            orderId: orderId,
+            clientName: clientName,
+            orderDetails: orderDetails
+        })
+    }).then(() => {
+        refreshData();
+    }).catch(err => {
+        console.error(err);
+        alert('حدث خطأ في الاتصال بالسيرفر');
+    });
+};
+
+const newProductForm = document.getElementById('new-product-form');
+if (newProductForm) {
+    newProductForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!APPS_SCRIPT_URL) return alert('لم يتم ربط الأزرار بجوجل شيت بعد.');
+        
+        const btn = this.querySelector('button[type="submit"]');
+        const originalText = btn.textContent;
+        btn.textContent = 'جاري الإضافة...';
+        btn.disabled = true;
+
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: 'addProduct',
+                name: document.getElementById('p-name').value,
+                cost: document.getElementById('p-cost').value,
+                price: document.getElementById('p-price').value
+            })
+        }).then(() => {
+            alert('تم إضافة المنتج بنجاح');
+            document.getElementById('new-product-form').reset();
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }).catch(err => {
+            console.error(err);
+            alert('حدث خطأ في الاتصال بالسيرفر');
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    });
+}

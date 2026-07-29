@@ -32,6 +32,9 @@
             <div class="nav-item" onclick="switchTab('tab-add-order', this); if(window.innerWidth<=768) toggleSidebar();">
                 📝 إضافة أوردر
             </div>
+            <div class="nav-item" onclick="switchTab('tab-add-product', this); if(window.innerWidth<=768) toggleSidebar();">
+                ➕ إضافة منتج
+            </div>
             <div class="nav-item" onclick="refreshData(); if(window.innerWidth<=768) toggleSidebar();" style="margin-top: auto; border-top: 1px solid #4a5568;">
                 🔄 تحديث البيانات
             </div>
@@ -369,6 +372,65 @@
                         </div>
 
                         <button type="submit" class="btn-submit" id="btn-submit-order">حفظ الأوردر 💾</button>
+                    </form>
+            </div>
+            
+            <!-- TAB: Add Product -->
+            <div id="tab-add-product" class="tab-content">
+                <form id="new-product-form" class="add-order-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم المنتج *</label>
+                            <input type="text" id="p-name" required placeholder="مثال: كارت حضور">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>سعر التكلفة (اللي علينا) *</label>
+                            <input type="number" id="p-cost" required placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>سعر البيع *</label>
+                            <input type="number" id="p-price" required placeholder="0">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">➕ إضافة المنتج</button>
+                </form>
+            </div>
+            </div>
+
+            <!-- Edit Modal -->
+            <div id="edit-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+                <div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0;">تعديل الأوردر</h3>
+                    <form id="edit-order-form">
+                        <input type="hidden" id="edit-order-id">
+                        <input type="hidden" id="edit-client-name">
+                        <input type="hidden" id="edit-order-details">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الكمية</label>
+                                <input type="number" id="edit-qty">
+                            </div>
+                            <div class="form-group">
+                                <label>السعر للقطعة</label>
+                                <input type="number" id="edit-price">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الخصم</label>
+                                <input type="number" id="edit-discount">
+                            </div>
+                            <div class="form-group">
+                                <label>الإجمالي</label>
+                                <input type="number" id="edit-total">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" class="btn-submit" style="flex: 1;">حفظ التعديلات</button>
+                            <button type="button" class="btn-action" style="flex: 1; background: #e2e8f0; color: #4a5568;" onclick="document.getElementById('edit-modal').style.display='none'">إلغاء</button>
+                        </div>
                     </form>
                 </div>
             </div>
