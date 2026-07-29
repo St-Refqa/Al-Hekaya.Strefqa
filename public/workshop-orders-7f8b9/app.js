@@ -177,21 +177,23 @@ function processData() {
     categories.shipped = groupCategory(categories.shipped);
     categories.arrived = groupCategory(categories.arrived);
 
-    if (elements.counts.pending) elements.counts.pending.textContent = categories.pending.length;
-    if (document.getElementById('count-designing')) document.getElementById('count-designing').textContent = categories.designing.length;
-    if (document.getElementById('count-printing')) document.getElementById('count-printing').textContent = categories.printing.length;
-    if (document.getElementById('count-received')) document.getElementById('count-received').textContent = categories.received.length;
-    if (elements.counts.ready) elements.counts.ready.textContent = categories.ready.length;
-    if (elements.counts.shipped) elements.counts.shipped.textContent = categories.shipped.length;
-    if (elements.counts.arrived) elements.counts.arrived.textContent = categories.arrived.length;
+    const getCount = (catArray) => catArray.reduce((sum, g) => sum + (g._allProducts ? g._allProducts.length : 1), 0);
 
-    if (elements.badges.pending) elements.badges.pending.textContent = categories.pending.length;
-    if (document.getElementById('badge-designing')) document.getElementById('badge-designing').textContent = categories.designing.length;
-    if (document.getElementById('badge-printing')) document.getElementById('badge-printing').textContent = categories.printing.length;
-    if (document.getElementById('badge-received')) document.getElementById('badge-received').textContent = categories.received.length;
-    if (elements.badges.ready) elements.badges.ready.textContent = categories.ready.length;
-    if (elements.badges.shipped) elements.badges.shipped.textContent = categories.shipped.length;
-    if (elements.badges.arrived) elements.badges.arrived.textContent = categories.arrived.length;
+    if (elements.counts.pending) elements.counts.pending.textContent = getCount(categories.pending);
+    if (document.getElementById('count-designing')) document.getElementById('count-designing').textContent = getCount(categories.designing);
+    if (document.getElementById('count-printing')) document.getElementById('count-printing').textContent = getCount(categories.printing);
+    if (document.getElementById('count-received')) document.getElementById('count-received').textContent = getCount(categories.received);
+    if (elements.counts.ready) elements.counts.ready.textContent = getCount(categories.ready);
+    if (elements.counts.shipped) elements.counts.shipped.textContent = getCount(categories.shipped);
+    if (elements.counts.arrived) elements.counts.arrived.textContent = getCount(categories.arrived);
+
+    if (elements.badges.pending) elements.badges.pending.textContent = getCount(categories.pending);
+    if (document.getElementById('badge-designing')) document.getElementById('badge-designing').textContent = getCount(categories.designing);
+    if (document.getElementById('badge-printing')) document.getElementById('badge-printing').textContent = getCount(categories.printing);
+    if (document.getElementById('badge-received')) document.getElementById('badge-received').textContent = getCount(categories.received);
+    if (elements.badges.ready) elements.badges.ready.textContent = getCount(categories.ready);
+    if (elements.badges.shipped) elements.badges.shipped.textContent = getCount(categories.shipped);
+    if (elements.badges.arrived) elements.badges.arrived.textContent = getCount(categories.arrived);
 
     const populateFilter = (type, items) => {
         const select = document.getElementById('filter-' + type);
