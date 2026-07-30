@@ -499,13 +499,47 @@ window.switchTab = function(tabId, navItemElement) {
     }
 }
 
+window.cachedAnalyticsData = { clients: {}, govs: {} };
+
+window.showStatsDetails = function(type) {
+    const titleEl = document.getElementById('stats-details-title');
+    const listEl = document.getElementById('stats-details-list');
+    
+    let dataObj = {};
+    if (type === 'clients') {
+        titleEl.textContent = 'تفاصيل العملاء / الكنائس';
+        dataObj = window.cachedAnalyticsData.clients;
+    } else if (type === 'govs') {
+        titleEl.textContent = 'المحافظات المستفيدة';
+        dataObj = window.cachedAnalyticsData.govs;
+    }
+    
+    const sorted = Object.entries(dataObj).sort((a, b) => b[1] - a[1]);
+    
+    let html = '<table style="width: 100%; text-align: right; border-collapse: collapse;">';
+    html += '<thead><tr style="border-bottom: 2px solid #e2e8f0;"><th style="padding: 10px;">الاسم</th><th style="padding: 10px;">عدد الطلبات</th></tr></thead><tbody>';
+    
+    sorted.forEach(([name, count]) => {
+        html += `<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 10px;">${name}</td><td style="padding: 10px; font-weight: bold; color: #4a5568;">${count}</td></tr>`;
+    });
+    
+    html += '</tbody></table>';
+    
+    if (sorted.length === 0) {
+        html = '<p style="text-align: center; color: #a0aec0; padding: 20px;">لا توجد بيانات</p>';
+    }
+    
+    listEl.innerHTML = html;
+    document.getElementById('stats-details-modal').style.display = 'flex';
+};
+
 function renderAnalytics(allData) {
     const validData = allData.filter(row => row['Client Name'] && row['Client Name'] !== '');
     const govCounts = {};
     const productCounts = {};
     
-    const uniqueClients = new Set();
-    const uniqueGovs = new Set();
+    const clientMap = {};
+    const govMap = {};
     let totalItems = 0;
     let totalMoney = 0;
 
@@ -543,10 +577,12 @@ function renderAnalytics(allData) {
         productCounts[product] = (productCounts[product] || 0) + 1;
         
         const client = String(row['Client Name']).trim();
-        if (client) uniqueClients.add(client);
+        if (client) {
+            clientMap[client] = (clientMap[client] || 0) + 1;
+        }
         
         if (gov !== 'غير محدد' && gov !== 'استلام مباشر' && gov !== 'خارج مصر') {
-            uniqueGovs.add(gov);
+            govMap[gov] = (govMap[gov] || 0) + 1;
         }
         
         const qty = parseFloat(row['Quantity']) || 1;
@@ -556,11 +592,14 @@ function renderAnalytics(allData) {
         totalMoney += total;
     });
     
+    window.cachedAnalyticsData.clients = clientMap;
+    window.cachedAnalyticsData.govs = govMap;
+    
     const statClients = document.getElementById('stat-clients');
-    if(statClients) statClients.textContent = uniqueClients.size;
+    if(statClients) statClients.textContent = Object.keys(clientMap).length;
     
     const statGovs = document.getElementById('stat-govs');
-    if(statGovs) statGovs.textContent = uniqueGovs.size;
+    if(statGovs) statGovs.textContent = Object.keys(govMap).length;
     
     const statOrders = document.getElementById('stat-orders');
     if(statOrders) statOrders.textContent = totalItems;
