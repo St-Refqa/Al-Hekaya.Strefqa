@@ -503,6 +503,11 @@ function renderAnalytics(allData) {
     const validData = allData.filter(row => row['Client Name'] && row['Client Name'] !== '');
     const govCounts = {};
     const productCounts = {};
+    
+    const uniqueClients = new Set();
+    const uniqueGovs = new Set();
+    let totalItems = 0;
+    let totalMoney = 0;
 
     validData.forEach(row => {
         const gov = row['المحافطة'] ? String(row['المحافطة']).trim() : 'غير محدد';
@@ -510,7 +515,30 @@ function renderAnalytics(allData) {
         
         govCounts[gov] = (govCounts[gov] || 0) + 1;
         productCounts[product] = (productCounts[product] || 0) + 1;
+        
+        const client = String(row['Client Name']).trim();
+        if (client) uniqueClients.add(client);
+        
+        if (gov !== 'غير محدد') uniqueGovs.add(gov);
+        
+        const qty = parseFloat(row['Quantity']) || 1;
+        totalItems += qty;
+        
+        const total = parseFloat(row['Total']) || 0;
+        totalMoney += total;
     });
+    
+    const statClients = document.getElementById('stat-clients');
+    if(statClients) statClients.textContent = uniqueClients.size;
+    
+    const statGovs = document.getElementById('stat-govs');
+    if(statGovs) statGovs.textContent = uniqueGovs.size;
+    
+    const statOrders = document.getElementById('stat-orders');
+    if(statOrders) statOrders.textContent = totalItems;
+    
+    const statMoney = document.getElementById('stat-money');
+    if(statMoney) statMoney.textContent = totalMoney.toLocaleString('en-US');
 
     const govLabels = Object.keys(govCounts).sort((a, b) => govCounts[b] - govCounts[a]).slice(0, 10);
     const govValues = govLabels.map(label => govCounts[label]);
