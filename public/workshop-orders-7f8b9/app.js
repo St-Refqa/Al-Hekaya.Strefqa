@@ -509,8 +509,34 @@ function renderAnalytics(allData) {
     let totalItems = 0;
     let totalMoney = 0;
 
+    const normalizeGov = (gov) => {
+        if (!gov) return 'غير محدد';
+        let g = String(gov).trim();
+        if (g === '') return 'غير محدد';
+        let simplified = g.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه');
+        if (simplified.includes('اسكندريه')) return 'الإسكندرية';
+        if (simplified.includes('جيزه') || simplified.includes('جيره')) return 'الجيزة';
+        if (simplified.includes('منوفيه')) return 'المنوفية';
+        if (simplified.includes('دقهليه')) return 'الدقهلية';
+        if (simplified.includes('اسماعيليه')) return 'الإسماعيلية';
+        if (simplified.includes('قاهره')) return 'القاهرة';
+        if (simplified.includes('قليوبيه')) return 'القليوبية';
+        if (simplified.includes('اردن') || simplified.includes('بره مصر')) return 'خارج مصر';
+        if (simplified.includes('اوبر') || simplified.includes('استلام') || simplified.includes('كنيستنا') || simplified.includes('كرنفال') || simplified.includes('مقر')) return 'استلام مباشر';
+        // Add "ال" if missing for some governorates
+        if (g === 'اسيوط') return 'أسيوط';
+        if (g === 'بني سويف') return 'بني سويف';
+        if (g === 'سوهاج') return 'سوهاج';
+        if (g === 'اسوان') return 'أسوان';
+        if (g === 'مطروح') return 'مرسى مطروح';
+        if (g === 'قنا') return 'قنا';
+        return g;
+    };
+
     validData.forEach(row => {
-        const gov = row['المحافطة'] ? String(row['المحافطة']).trim() : 'غير محدد';
+        const rawGov = row['المحافطة'] ? String(row['المحافطة']).trim() : 'غير محدد';
+        const gov = normalizeGov(rawGov);
+        
         const product = row['Order Details'] ? String(row['Order Details']).trim() : 'غير محدد';
         
         govCounts[gov] = (govCounts[gov] || 0) + 1;
@@ -519,7 +545,9 @@ function renderAnalytics(allData) {
         const client = String(row['Client Name']).trim();
         if (client) uniqueClients.add(client);
         
-        if (gov !== 'غير محدد') uniqueGovs.add(gov);
+        if (gov !== 'غير محدد' && gov !== 'استلام مباشر' && gov !== 'خارج مصر') {
+            uniqueGovs.add(gov);
+        }
         
         const qty = parseFloat(row['Quantity']) || 1;
         totalItems += qty;
