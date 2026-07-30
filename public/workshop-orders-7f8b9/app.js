@@ -530,7 +530,7 @@ window.showStatsDetails = function(type) {
     }
     
     listEl.innerHTML = html;
-    document.getElementById('stats-details-modal').style.display = 'flex';
+    window.switchTab('tab-stats-details');
 };
 
 function renderAnalytics(allData) {
