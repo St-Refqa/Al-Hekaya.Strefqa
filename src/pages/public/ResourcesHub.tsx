@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Folder, Image as ImageIcon, ChevronRight, Download, BookOpen, Search, ArrowRight } from 'lucide-react';
+import { Folder, Image as ImageIcon, ChevronRight, Download, BookOpen, Search, ArrowRight, X } from 'lucide-react';
 import { SmartImage } from '../../components/ui/SmartImage';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,7 @@ export default function ResourcesHub() {
   const [view, setView] = useState<'main' | 'workshops'>('main');
   const [workshopImages, setWorkshopImages] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -133,15 +134,13 @@ export default function ResourcesHub() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {filteredImages.map((img, idx) => (
-                  <motion.a
+                  <motion.button
                     key={idx}
-                    href={`/workshops/${img}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    onClick={() => setSelectedImage(img)}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-white rounded-3xl p-3 border border-brand-beige/10 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all group flex flex-col"
+                    className="bg-white rounded-3xl p-3 border border-brand-beige/10 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all group flex flex-col w-full text-right"
                   >
                     <div className="w-full aspect-square rounded-2xl bg-brand-cream/50 overflow-hidden relative shadow-inner">
                       <img 
@@ -152,7 +151,7 @@ export default function ResourcesHub() {
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/30">
-                          <Download className="w-5 h-5" />
+                          <ImageIcon className="w-5 h-5" />
                         </div>
                       </div>
                     </div>
@@ -161,7 +160,7 @@ export default function ResourcesHub() {
                         {img.replace(/\.[^/.]+$/, "")}
                       </p>
                     </div>
-                  </motion.a>
+                  </motion.button>
                 ))}
               </div>
 
@@ -175,6 +174,46 @@ export default function ResourcesHub() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Image Lightbox Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8" onClick={() => setSelectedImage(null)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative max-w-5xl w-full max-h-full flex flex-col"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <button 
+                  onClick={() => setSelectedImage(null)}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                <a 
+                  href={`/workshops/${selectedImage}`}
+                  download={selectedImage}
+                  className="flex items-center gap-2 bg-brand-red hover:bg-red-700 text-white px-5 py-2.5 rounded-full font-black text-sm transition-colors shadow-lg"
+                >
+                  <Download className="w-4 h-4" />
+                  تحميل الصورة
+                </a>
+              </div>
+              <div className="bg-black/50 rounded-3xl overflow-hidden flex-1 relative flex items-center justify-center shadow-2xl border border-white/10">
+                <img 
+                  src={`/workshops/${selectedImage}`} 
+                  alt={selectedImage} 
+                  className="max-w-full max-h-[80vh] object-contain rounded-xl"
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
