@@ -106,11 +106,7 @@ export default function Library() {
       setItems(itemsData);
     });
 
-    const unsubMap = onSnapshot(doc(db, 'library', 'stats_map_paul'), (docSnap) => {
-      if (docSnap.exists()) {
-        setMapViews(docSnap.data().views || 0);
-      }
-    });
+
 
     const fetchSupabaseViews = async () => {
       try {
@@ -134,7 +130,6 @@ export default function Library() {
 
     return () => {
       unsubscribe();
-      unsubMap();
     };
   }, []);
 
