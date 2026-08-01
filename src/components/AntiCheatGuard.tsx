@@ -9,13 +9,12 @@ export function AntiCheatGuard() {
   const [isBlurred, setIsBlurred] = useState(false);
 
   // Determine if check is active
-  // Active on public assessment path or any student paths
+  // Active on public assessment path or any student paths or resources
   const isActive =
-    !isAdmin &&
-    (location.pathname.startsWith("/assessment/") ||
-      location.pathname.startsWith("/student") ||
-      location.pathname.startsWith("/resources") ||
-      location.pathname === "/");
+    location.pathname.startsWith("/assessment/") ||
+    location.pathname.startsWith("/student") ||
+    location.pathname.startsWith("/resources") ||
+    location.pathname === "/";
 
   useEffect(() => {
     if (!isActive) {
