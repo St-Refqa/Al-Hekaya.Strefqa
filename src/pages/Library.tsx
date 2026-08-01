@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDocs, updateDoc, setDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
@@ -35,6 +36,7 @@ export default function Library() {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [qrModalItem, setQrModalItem] = useState<LibraryItem | 'map' | null>(null);
   const [mapViews, setMapViews] = useState(0);
+  const [supabaseViews, setSupabaseViews] = useState<Record<string, number>>({});
   
   // Filters & Modal state
   const [activeAudience, setActiveAudience] = useState<'all' | 'adults' | 'children'>('all');
@@ -109,6 +111,22 @@ export default function Library() {
         setMapViews(docSnap.data().views || 0);
       }
     });
+
+    const fetchSupabaseViews = async () => {
+      try {
+        const { data } = await supabase.from('library').select('id, views');
+        if (data) {
+          const viewsMap: Record<string, number> = {};
+          data.forEach(row => {
+            viewsMap[row.id] = row.views;
+          });
+          setSupabaseViews(viewsMap);
+        }
+      } catch (err) {
+        console.error("Failed to load supabase views", err);
+      }
+    };
+    fetchSupabaseViews();
 
     return () => {
       unsubscribe();
@@ -191,12 +209,30 @@ export default function Library() {
     }
   };
 
-  const handleItemClick = (e: React.MouseEvent, item: LibraryItem) => {
+  const handleItemClick = async (e: React.MouseEvent, item: LibraryItem) => {
     e.stopPropagation();
     
+    // Try firestore for backwards compatibility / admin writes
     setDoc(doc(db, 'library', item.id), {
       views: increment(1)
-    }, { merge: true }).catch(console.error);
+    }, { merge: true }).catch(() => {}); // ignore error if blocked by rules
+
+    // Use Supabase for reliable public view tracking
+    try {
+      const { data } = await supabase.from('library').select('views').eq('id', 'lib_' + item.id).single();
+      const currentViews = data ? (data.views || 0) : 0;
+      const newViews = currentViews + 1;
+      await supabase.from('library').upsert({
+        id: 'lib_' + item.id,
+        views: newViews,
+        title: item.title,
+        type: 'library_item'
+      });
+      // Update local state instantly
+      setSupabaseViews(prev => ({ ...prev, ['lib_' + item.id]: newViews }));
+    } catch (err) {
+      console.error(err);
+    }
 
     window.open(item.contentUrl, '_blank');
   };
@@ -392,7 +428,7 @@ export default function Library() {
             <div className="flex justify-between items-start text-right">
               <div className="flex gap-2 relative z-20" onClick={e => e.stopPropagation()}>
                 <div className="flex gap-1 items-center bg-gray-50 px-2 py-1.5 rounded-lg text-xs text-gray-600 font-bold border border-gray-100">
-                  <span>{item.views || 0} زيارة</span>
+                  <span>{(supabaseViews['lib_' + item.id] || item.views || 0)} زيارة</span>
                 </div>
                 <button 
                   onClick={() => setQrModalItem(item)}

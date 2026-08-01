@@ -4,12 +4,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Folder, Image as ImageIcon, ChevronRight, Download, BookOpen, Search, ArrowRight, X } from 'lucide-react';
 import { SmartImage } from '../../components/ui/SmartImage';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../../lib/supabase';
 
 export default function ResourcesHub() {
   const [view, setView] = useState<'main' | 'workshops'>('main');
   const [workshopImages, setWorkshopImages] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [scans, setScans] = useState<number>(0);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -19,6 +21,26 @@ export default function ResourcesHub() {
       .then(res => res.json())
       .then(data => setWorkshopImages(data))
       .catch(err => console.error("Failed to load workshop index", err));
+
+    // Record QR Scan
+    const recordScan = async () => {
+      try {
+        const { data } = await supabase.from('library').select('views').eq('id', 'system_qr_scans').single();
+        const currentViews = data ? (data.views || 0) : 0;
+        const newViews = currentViews + 1;
+        await supabase.from('library').upsert({
+          id: 'system_qr_scans',
+          views: newViews,
+          title: 'QR Scans',
+          type: 'system',
+          section: 'system'
+        });
+        setScans(newViews);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    recordScan();
   }, []);
 
   const filteredImages = workshopImages.filter(img => 
@@ -62,7 +84,13 @@ export default function ResourcesHub() {
               className="space-y-8"
             >
               <div className="text-right space-y-2 mb-10">
-                <h2 className="text-3xl font-black text-brand-text">أهلاً بك! 👋</h2>
+                <div className="flex justify-between items-start">
+                  <h2 className="text-3xl font-black text-brand-text">أهلاً بك! 👋</h2>
+                  <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-brand-beige/20 shadow-sm">
+                    <span className="text-xs font-bold text-brand-beige">{scans}</span>
+                    <span className="text-xs font-bold text-brand-text">زيارة للـ QR</span>
+                  </div>
+                </div>
                 <p className="text-brand-beige font-semibold">تصفح المكتبة أو حمل حلول الورش التفاعلية بسهولة.</p>
               </div>
 
