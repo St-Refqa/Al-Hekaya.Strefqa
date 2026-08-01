@@ -384,14 +384,7 @@ export default function Library() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={async () => {
-              setIsMapOpen(true);
-              try {
-                await setDoc(doc(db, 'library', 'stats_map_paul'), {
-                  views: increment(1)
-                }, { merge: true });
-              } catch(err) { console.error(err); }
-            }}
+            onClick={openMap}
             className="bg-gradient-to-br from-[#e8d5b5] to-[#fdf5e6] p-6 rounded-[24px] border-2 border-[#d4b483] shadow-md hover:shadow-xl transition-all flex flex-col justify-between min-h-[12rem] h-auto group relative cursor-pointer"
           >
             <div className="flex justify-between items-start text-right">
