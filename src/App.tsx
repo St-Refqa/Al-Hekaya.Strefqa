@@ -15,6 +15,7 @@ import About from './pages/public/About';
 import UnifiedLogin from './pages/public/UnifiedLogin';
 import Register from './pages/public/Register';
 import PublicMap from './pages/public/PublicMap';
+import ResourcesHub from './pages/public/ResourcesHub';
 import StudentDashboard from './pages/student/StudentDashboard';
 import AvailableAssessments from './pages/student/AvailableAssessments';
 import StudentAchievements from './pages/student/Achievements';
@@ -199,6 +200,8 @@ function AnimatedRoutes() {
         <Route path="/register" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Register /></motion.div>} />
         <Route path="/assessment/:id" element={<motion.div {...pageTransition} className="w-full min-h-screen"><PublicAssessment /></motion.div>} />
         <Route path="/map" element={<PublicMap />} />
+        <Route path="/resources" element={<motion.div {...pageTransition} className="w-full min-h-screen"><ResourcesHub /></motion.div>} />
+        <Route path="/library" element={<motion.div {...pageTransition} className="w-full min-h-screen"><Library /></motion.div>} />
         {/* Compatibility link */}
         <Route path="/a/:id" element={<RedirectToAssessment />} />
         
