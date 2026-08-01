@@ -14,6 +14,7 @@ export function AntiCheatGuard() {
     !isAdmin &&
     (location.pathname.startsWith("/assessment/") ||
       location.pathname.startsWith("/student") ||
+      location.pathname.startsWith("/resources") ||
       location.pathname === "/");
 
   useEffect(() => {

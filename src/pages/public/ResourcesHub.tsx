@@ -151,7 +151,7 @@ export default function ResourcesHub() {
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/30">
-                          <ImageIcon className="w-5 h-5" />
+                          <Search className="w-5 h-5" />
                         </div>
                       </div>
                     </div>
@@ -187,27 +187,23 @@ export default function ResourcesHub() {
               className="relative max-w-5xl w-full max-h-full flex flex-col"
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-end items-center mb-4">
                 <button 
                   onClick={() => setSelectedImage(null)}
                   className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
-                <a 
-                  href={`/workshops/${selectedImage}`}
-                  download={selectedImage}
-                  className="flex items-center gap-2 bg-brand-red hover:bg-red-700 text-white px-5 py-2.5 rounded-full font-black text-sm transition-colors shadow-lg"
-                >
-                  <Download className="w-4 h-4" />
-                  تحميل الصورة
-                </a>
               </div>
-              <div className="bg-black/50 rounded-3xl overflow-hidden flex-1 relative flex items-center justify-center shadow-2xl border border-white/10">
+              <div 
+                className="bg-black/50 rounded-3xl overflow-hidden flex-1 relative flex items-center justify-center shadow-2xl border border-white/10"
+                onContextMenu={(e) => e.preventDefault()}
+              >
                 <img 
                   src={`/workshops/${selectedImage}`} 
                   alt={selectedImage} 
-                  className="max-w-full max-h-[80vh] object-contain rounded-xl"
+                  className="max-w-full max-h-[80vh] object-contain rounded-xl pointer-events-none select-none"
+                  draggable="false"
                 />
               </div>
             </motion.div>
