@@ -114,11 +114,15 @@ export default function Library() {
 
     const fetchSupabaseViews = async () => {
       try {
-        const { data } = await supabase.from('library').select('id, views');
+        const { data } = await supabase.from('library').select('id, fileName').in('type', ['library_item', 'system']);
         if (data) {
           const viewsMap: Record<string, number> = {};
           data.forEach(row => {
-            viewsMap[row.id] = row.views;
+            if (row.id === 'stats_map_paul') {
+              setMapViews(parseInt(row.fileName || '0'));
+            } else {
+              viewsMap[row.id] = parseInt(row.fileName || '0');
+            }
           });
           setSupabaseViews(viewsMap);
         }
@@ -209,6 +213,25 @@ export default function Library() {
     }
   };
 
+  const openMap = async () => {
+    setIsMapOpen(true);
+    try {
+      const { data } = await supabase.from('library').select('fileName').eq('id', 'stats_map_paul').single();
+      const currentViews = data ? parseInt(data.fileName || '0') : 0;
+      const newViews = currentViews + 1;
+      await supabase.from('library').upsert({
+        id: 'stats_map_paul',
+        fileName: newViews.toString(),
+        title: 'Paul Journeys Map',
+        type: 'system',
+        section: 'system'
+      });
+      setMapViews(newViews);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleItemClick = async (e: React.MouseEvent, item: LibraryItem) => {
     e.stopPropagation();
     
@@ -219,14 +242,15 @@ export default function Library() {
 
     // Use Supabase for reliable public view tracking
     try {
-      const { data } = await supabase.from('library').select('views').eq('id', 'lib_' + item.id).single();
-      const currentViews = data ? (data.views || 0) : 0;
+      const { data } = await supabase.from('library').select('fileName').eq('id', 'lib_' + item.id).single();
+      const currentViews = data ? parseInt(data.fileName || '0') : 0;
       const newViews = currentViews + 1;
       await supabase.from('library').upsert({
         id: 'lib_' + item.id,
-        views: newViews,
+        fileName: newViews.toString(),
         title: item.title,
-        type: 'library_item'
+        type: 'library_item',
+        section: 'system'
       });
       // Update local state instantly
       setSupabaseViews(prev => ({ ...prev, ['lib_' + item.id]: newViews }));

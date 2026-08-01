@@ -25,12 +25,12 @@ export default function ResourcesHub() {
     // Record QR Scan
     const recordScan = async () => {
       try {
-        const { data } = await supabase.from('library').select('views').eq('id', 'system_qr_scans').single();
-        const currentViews = data ? (data.views || 0) : 0;
+        const { data } = await supabase.from('library').select('fileName').eq('id', 'system_qr_scans').single();
+        const currentViews = data ? parseInt(data.fileName || '0') : 0;
         const newViews = currentViews + 1;
         await supabase.from('library').upsert({
           id: 'system_qr_scans',
-          views: newViews,
+          fileName: newViews.toString(),
           title: 'QR Scans',
           type: 'system',
           section: 'system'
