@@ -30,6 +30,7 @@ export default function Leaderboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<"all" | "OT" | "NT" | "K">("all");
+  const [roundFilter, setRoundFilter] = useState<'round2' | 'round1'>('round2');
   const { isAdmin } = useAuth();
   const { i18n } = useTranslation();
 
@@ -87,7 +88,7 @@ export default function Leaderboard() {
       participants[uid] = {
         name: u.fullName || "بدون اسم",
         id: uid,
-        totalScore: u.cumulativePoints ?? u.totalPoints ?? 0,
+        totalScore: roundFilter === 'round1' ? (u.sidebarSettings?.round1Points ?? u.round1Points ?? 0) : (u.totalPoints ?? 0),
         maxPossibleScore: 0,
         actualScoreSum: 0,
         count: 0,
@@ -98,8 +99,14 @@ export default function Leaderboard() {
       };
     });
 
-    // 2. Aggregate statistics from submissions (but keep Leaderboard points retrieved directly from user profile to respect admin manual edits)
-    submissions.forEach(s => {
+    const filteredSubmissions = submissions.filter(s => {
+      const d = new Date(s.date);
+      const isRound1 = d < new Date("2026-08-01T00:00:00Z");
+      return roundFilter === 'round1' ? isRound1 : !isRound1;
+    });
+
+    // 2. Aggregate statistics from filtered submissions
+    filteredSubmissions.forEach(s => {
       const pId = s.participantId || s.participantPhoneOrId;
       if (participants[pId]) {
         participants[pId].maxPossibleScore += (s.maxScore || 1);
@@ -138,44 +145,71 @@ export default function Leaderboard() {
         if (categoryFilter === "K" && code.startsWith("S")) return true;
         return false;
       })
+      .filter(p => p.totalScore > 0 || p.count > 0 || roundFilter === 'round2') // Hide inactive in round1
       .sort((a, b) => b.totalScore - a.totalScore || b.avgAccuracy - a.avgAccuracy);
-  }, [submissions, searchTerm, userMap, categoryFilter]);
+  }, [submissions, searchTerm, userMap, categoryFilter, roundFilter]);
 
   const top5 = leaderboardData.slice(0, 5);
   const remaining = leaderboardData.slice(5);
 
   return (
     <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 py-12", i18n.language === 'ar' ? 'text-right' : 'text-left')} dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
-        <div className="flex items-center gap-6">
-          <Link
-            to="/admin"
-            className="p-4 bg-white border border-brand-beige/20 rounded-2xl hover:bg-brand-cream transition-all shadow-sm group"
-          >
-            <ArrowLeft className="w-5 h-5 text-brand-beige group-hover:text-brand-red group-hover:-translate-x-1 transition-all" />
-          </Link>
-          <div>
-            <h1 className="text-5xl font-black tracking-tight text-brand-text mb-2">
-              لوحة المتصدرين
-            </h1>
-            <p className="text-brand-beige font-bold text-lg">
-              ترتيب الأبطال بناءً على إجمالي النقاط ودقة الإجابات.
-            </p>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <Link
+              to="/admin"
+              className="p-4 bg-white border border-brand-beige/20 rounded-2xl hover:bg-brand-cream transition-all shadow-sm group"
+            >
+              <ArrowLeft className="w-5 h-5 text-brand-beige group-hover:text-brand-red group-hover:-translate-x-1 transition-all" />
+            </Link>
+            <div>
+              <h1 className="text-5xl font-black tracking-tight text-brand-text mb-2">
+                لوحة المتصدرين
+              </h1>
+              <p className="text-brand-beige font-bold text-lg">
+                ترتيب الأبطال بناءً على إجمالي النقاط ودقة الإجابات.
+              </p>
+            </div>
+          </div>
+          
+          <div className="w-full md:w-96 relative">
+            <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
+            <input
+              type="text"
+              placeholder="ابحث باسم الطالب أو كوده..."
+              value={searchTerm || ''}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pr-14 pl-6 py-5 bg-white border border-brand-beige/10 rounded-[28px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm"
+            />
           </div>
         </div>
 
-        <div className="relative w-full md:max-w-md">
-          <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
-          <input
-            type="text"
-            placeholder="ابحث عن بطل..."
-            value={searchTerm || ''}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-14 pl-6 py-5 bg-white border-2 border-brand-beige/10 rounded-[24px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm"
-          />
+        {/* PROMINENT ROUND FILTER */}
+        <div className="flex p-2 bg-brand-cream/30 border border-brand-beige/20 rounded-[32px] w-full mb-4 shadow-inner">
+          <button
+            onClick={() => setRoundFilter('round2')}
+            className={cn(
+              "flex-1 py-5 rounded-[24px] text-xl font-black transition-all flex items-center justify-center gap-3",
+              roundFilter === 'round2' 
+                ? "bg-brand-red text-white shadow-xl shadow-brand-red/20 scale-[1.02]" 
+                : "text-brand-beige hover:bg-white hover:text-brand-text"
+            )}
+          >
+            المرحلة الثانية (أغسطس)
+          </button>
+          <button
+            onClick={() => setRoundFilter('round1')}
+            className={cn(
+              "flex-1 py-5 rounded-[24px] text-xl font-black transition-all flex items-center justify-center gap-3",
+              roundFilter === 'round1' 
+                ? "bg-brand-text text-white shadow-xl shadow-brand-text/20 scale-[1.02]" 
+                : "text-brand-beige hover:bg-white hover:text-brand-text"
+            )}
+          >
+            المرحلة الأولى
+          </button>
         </div>
-      </div>
-      
+
       <div className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar mb-8">
           {[
             { id: 'all', label: 'الجميع' },
@@ -186,7 +220,7 @@ export default function Leaderboard() {
              <button 
                key={cat.id} 
                onClick={() => setCategoryFilter(cat.id as any)}
-               className={cn("px-6 py-3 rounded-2xl font-bold whitespace-nowrap transition-all", categoryFilter === cat.id ? 'bg-brand-red text-white' : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50')}
+               className={cn("px-6 py-3 rounded-2xl font-black whitespace-nowrap transition-all", categoryFilter === cat.id ? 'bg-brand-red text-white' : 'bg-white text-black border border-gray-200 hover:bg-gray-50')}
              >
                {cat.label}
              </button>
