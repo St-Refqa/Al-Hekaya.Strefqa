@@ -1,5 +1,12 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0"
+echo ====================================================
+echo        🚀 Syncing files and preparing updates...      
+echo ====================================================
+
+node sync_workshops.js
+
 echo ====================================================
 echo        🚀 Uploading updates to the website...      
 echo ====================================================
