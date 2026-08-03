@@ -23,7 +23,8 @@ const resources = {
         "central_control": "نظام التحكم المركزي",
         "story_title": "الحكاية ومافيها",
         "version": "الإصدار",
-        "language": "اللغة"
+        "language": "اللغة",
+        "active_now": "نشط الآن"
       },
       "dashboard": {
         "welcome": "أهلاً بك يا",
