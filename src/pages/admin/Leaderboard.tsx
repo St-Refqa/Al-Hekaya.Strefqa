@@ -156,7 +156,7 @@ export default function Leaderboard() {
 
   return (
     <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 py-12", i18n.language === 'ar' ? 'text-right' : 'text-left')} dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
           <div className="flex items-center gap-6">
             <Link
               to="/admin"
@@ -173,49 +173,55 @@ export default function Leaderboard() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* FILTERS ROW */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 w-full mb-10 bg-brand-cream/50 p-2 md:p-3 rounded-[24px] md:rounded-full border border-brand-beige/20 shadow-sm">
           
-          <div className="w-full md:w-96 relative">
-            <Search className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-beige" />
+          {/* PROMINENT ROUND FILTER */}
+          <div className="w-full lg:w-auto flex bg-white/80 backdrop-blur-sm p-1.5 rounded-2xl md:rounded-full border border-brand-beige/10 shadow-sm relative overflow-hidden shrink-0">
+            <div 
+              className="absolute inset-y-1.5 bg-white shadow-md rounded-xl md:rounded-full transition-all duration-300 ease-out border border-black/5"
+              style={{ 
+                width: 'calc(50% - 6px)', 
+                left: roundFilter === 'round1' ? 'calc(50% + 3px)' : '3px',
+                transform: i18n.language === 'ar' ? (roundFilter === 'round1' ? 'translateX(0%)' : 'translateX(0%)') : undefined
+              }}
+            />
+            <button
+              onClick={() => setRoundFilter('round2')}
+              className={cn(
+                "flex-1 lg:flex-none relative px-4 md:px-10 py-3 md:py-3.5 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
+                roundFilter === 'round2' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
+              )}
+            >
+              <Crown className="w-4 h-4 md:w-5 md:h-5" />
+              المرحلة الثانية (الحالية)
+            </button>
+            <button
+              onClick={() => setRoundFilter('round1')}
+              className={cn(
+                "flex-1 lg:flex-none relative px-4 md:px-10 py-3 md:py-3.5 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
+                roundFilter === 'round1' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
+              )}
+            >
+              <History className="w-4 h-4 md:w-5 md:h-5" />
+              المرحلة الأولى (محفوظة)
+            </button>
+          </div>
+
+          {/* SEARCH BAR */}
+          <div className="relative w-full lg:max-w-lg flex-1">
+            <Search className="absolute right-5 md:right-6 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-brand-beige" />
             <input
               type="text"
               placeholder="ابحث باسم الطالب أو كوده..."
               value={searchTerm || ''}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-14 pl-6 py-5 bg-white border border-brand-beige/10 rounded-[28px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm"
+              className="w-full pr-12 md:pr-14 pl-5 md:pl-6 py-3.5 md:py-4 bg-white border border-brand-beige/10 rounded-xl md:rounded-full focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm text-sm md:text-base placeholder:text-brand-beige/50"
             />
           </div>
-        </div>
 
-        {/* PROMINENT ROUND FILTER */}
-        <div className="w-full md:w-auto flex bg-white/50 backdrop-blur-sm p-1 rounded-2xl md:rounded-full border border-brand-beige/20 shadow-sm relative overflow-hidden mb-6 mt-8">
-          <div 
-            className="absolute inset-y-1 bg-white shadow-md rounded-xl md:rounded-full transition-all duration-300 ease-out border border-black/5"
-            style={{ 
-              width: 'calc(50% - 4px)', 
-              left: roundFilter === 'round1' ? 'calc(50% + 2px)' : '2px',
-              transform: i18n.language === 'ar' ? (roundFilter === 'round1' ? 'translateX(0%)' : 'translateX(0%)') : undefined
-            }}
-          />
-          <button
-            onClick={() => setRoundFilter('round2')}
-            className={cn(
-              "flex-1 md:flex-none relative px-6 md:px-12 py-3 md:py-4 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
-              roundFilter === 'round2' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
-            )}
-          >
-            <Crown className="w-4 h-4 md:w-5 md:h-5" />
-            المرحلة الثانية (الحالية)
-          </button>
-          <button
-            onClick={() => setRoundFilter('round1')}
-            className={cn(
-              "flex-1 md:flex-none relative px-6 md:px-12 py-3 md:py-4 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
-              roundFilter === 'round1' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
-            )}
-          >
-            <History className="w-4 h-4 md:w-5 md:h-5" />
-            المرحلة الأولى (محفوظة)
-          </button>
         </div>
 
       <div className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar mb-8">
