@@ -298,7 +298,7 @@ function AnimatedRoutes() {
           </ProtectedRoute>
         } />
         <Route path="/admin/leaderboard" element={
-          <ProtectedRoute role="admin">
+          <ProtectedRoute role="servant">
             <motion.div {...pageTransition} className="w-full min-h-screen"><AdminLeaderboard /></motion.div>
           </ProtectedRoute>
         } />

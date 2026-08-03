@@ -88,6 +88,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
     }
     if (isLibraryManager || isExamCreator || isAttendanceScanner || isStoreManager || userRole === 'servant') {
       menuItems.push(
+        { icon: Trophy, label: t('sidebar.leaderboard') || 'لوحة المتصدرين', path: '/admin/leaderboard' },
         { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
       );
     }
