@@ -272,8 +272,10 @@ function AnimatedRoutes() {
               <Navigate to="/admin/create" replace />
             ) : (user?.isStoreManager || user?.role?.toLowerCase() === 'store') ? (
               <Navigate to="/admin/store" replace />
-            ) : (
+            ) : (user?.isAttendanceScanner || user?.role?.toLowerCase() === 'attendance') ? (
               <Navigate to="/admin/attendance" replace />
+            ) : (
+              <Navigate to="/admin/leaderboard" replace />
             )}
           </ProtectedRoute>
         } />

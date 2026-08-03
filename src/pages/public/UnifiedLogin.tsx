@@ -36,6 +36,8 @@ export default function UnifiedLogin() {
         navigate("/admin/attendance");
       } else if (user?.isStoreManager || userRole === 'store') {
         navigate("/admin/store");
+      } else if (userRole === 'servant') {
+        navigate("/admin/leaderboard");
       } else if (isStudent || userRole === 'student' || !userRole) {
         navigate("/student");
       } else {
