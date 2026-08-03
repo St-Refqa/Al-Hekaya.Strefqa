@@ -20,6 +20,8 @@ export interface User {
   totalExams: number;
   totalPoints: number;
   cumulativePoints?: number;
+  storePoints?: number;
+  round1Points?: number;
   averageScore: number;
   xp: number;
   level: string;

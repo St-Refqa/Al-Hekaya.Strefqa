@@ -40,6 +40,10 @@ import { useTranslation } from 'react-i18next';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import { PushNotificationBanner } from './components/ui/PushNotificationBanner';
+import Settings from './pages/admin/Settings';
+import AssessmentDetails from './pages/admin/AssessmentDetails';
+import PreparationMeetingsAdmin from './pages/admin/PreparationMeetings';
+import Posters from './pages/admin/Posters';
 
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
@@ -296,6 +300,11 @@ function AnimatedRoutes() {
         <Route path="/admin/leaderboard" element={
           <ProtectedRoute role="admin">
             <motion.div {...pageTransition} className="w-full min-h-screen"><AdminLeaderboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/posters" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><Posters /></motion.div>
           </ProtectedRoute>
         } />
         <Route path="/admin/settings" element={

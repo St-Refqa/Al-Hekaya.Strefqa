@@ -69,6 +69,14 @@ function restoreData(data: any, path: string) {
       data[key] = extras[key];
     }
   }
+  if (path === 'users' && data.sidebarSettings) {
+    if (data.sidebarSettings.storePoints !== undefined) {
+      data.storePoints = data.sidebarSettings.storePoints;
+    }
+    if (data.sidebarSettings.round1Points !== undefined) {
+      data.round1Points = data.sidebarSettings.round1Points;
+    }
+  }
   return data;
 }
 
@@ -133,6 +141,20 @@ function cleanData(data: any, path: string) {
       clone.questions.__extras = { ...(clone.questions.__extras || {}), ...extras };
     }
     return clone;
+  }
+  
+  if (path === 'users') {
+    if (clone.storePoints !== undefined || clone.round1Points !== undefined) {
+      if (!clone.sidebarSettings) clone.sidebarSettings = {};
+      if (clone.storePoints !== undefined) {
+        clone.sidebarSettings.storePoints = clone.storePoints;
+        delete clone.storePoints;
+      }
+      if (clone.round1Points !== undefined) {
+        clone.sidebarSettings.round1Points = clone.round1Points;
+        delete clone.round1Points;
+      }
+    }
   }
 
   if (path === 'submissions') {

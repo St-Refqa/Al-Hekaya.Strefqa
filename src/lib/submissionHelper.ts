@@ -70,10 +70,17 @@ export async function processSubmissionTransaction(payload: ProcessSubmissionPay
       const xpGained = (baseScore * 5) + (streakCount * 5);
       const newXP = (uData.xp || 0) + xpGained;
 
+      const newStorePoints = (uData.storePoints ?? uData.totalPoints ?? 0) + baseScore;
+
       const updatedUser: Partial<User> = {
         streak: streakCount,
         totalExams: newTotalExams,
         totalPoints: newTotalPoints,
+        storePoints: newStorePoints,
+        sidebarSettings: {
+          ...(uData.sidebarSettings || {}),
+          storePoints: newStorePoints,
+        },
         cumulativePoints: (uData.cumulativePoints || uData.totalPoints || 0) + baseScore,
         averageScore: newAverageScore,
         xp: newXP

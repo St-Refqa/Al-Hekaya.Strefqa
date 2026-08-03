@@ -16,8 +16,10 @@ import {
   ArrowLeft,
   Medal,
   Users,
+  Users,
   Target,
-  Crown
+  Crown,
+  History
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
@@ -185,28 +187,34 @@ export default function Leaderboard() {
         </div>
 
         {/* PROMINENT ROUND FILTER */}
-        <div className="flex p-2 bg-brand-cream/30 border border-brand-beige/20 rounded-[32px] w-full mb-4 shadow-inner">
+        <div className="w-full md:w-auto flex bg-white/50 backdrop-blur-sm p-1 rounded-2xl md:rounded-full border border-brand-beige/20 shadow-sm relative overflow-hidden mb-6 mt-8">
+          <div 
+            className="absolute inset-y-1 bg-white shadow-md rounded-xl md:rounded-full transition-all duration-300 ease-out border border-black/5"
+            style={{ 
+              width: 'calc(50% - 4px)', 
+              left: roundFilter === 'round1' ? 'calc(50% + 2px)' : '2px',
+              transform: i18n.language === 'ar' ? (roundFilter === 'round1' ? 'translateX(0%)' : 'translateX(0%)') : undefined
+            }}
+          />
           <button
             onClick={() => setRoundFilter('round2')}
             className={cn(
-              "flex-1 py-5 rounded-[24px] text-xl font-black transition-all flex items-center justify-center gap-3",
-              roundFilter === 'round2' 
-                ? "bg-brand-red text-white shadow-xl shadow-brand-red/20 scale-[1.02]" 
-                : "text-brand-beige hover:bg-white hover:text-brand-text"
+              "flex-1 md:flex-none relative px-6 md:px-12 py-3 md:py-4 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
+              roundFilter === 'round2' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
             )}
           >
-            المرحلة الثانية (أغسطس)
+            <Crown className="w-4 h-4 md:w-5 md:h-5" />
+            المرحلة الثانية (الحالية)
           </button>
           <button
             onClick={() => setRoundFilter('round1')}
             className={cn(
-              "flex-1 py-5 rounded-[24px] text-xl font-black transition-all flex items-center justify-center gap-3",
-              roundFilter === 'round1' 
-                ? "bg-brand-text text-white shadow-xl shadow-brand-text/20 scale-[1.02]" 
-                : "text-brand-beige hover:bg-white hover:text-brand-text"
+              "flex-1 md:flex-none relative px-6 md:px-12 py-3 md:py-4 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
+              roundFilter === 'round1' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
             )}
           >
-            المرحلة الأولى
+            <History className="w-4 h-4 md:w-5 md:h-5" />
+            المرحلة الأولى (محفوظة)
           </button>
         </div>
 

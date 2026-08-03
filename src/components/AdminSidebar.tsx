@@ -23,6 +23,7 @@ import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'motion/react';
 import { SmartImage } from './ui/SmartImage';
 import { useTranslation } from 'react-i18next';
+import { Star } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -56,6 +57,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       { icon: History, label: t('sidebar.submissions') || "نتائج الإجابات", path: '/admin/results' },
       { icon: ShoppingBag, label: t('sidebar.store_manager') || "متجر الهدايا والطلبات", path: '/admin/store' },
       { icon: Trophy, label: t('sidebar.leaderboard') || 'لوحة المتصدرين', path: '/admin/leaderboard' },
+      { icon: Star, label: 'بوسترات الأوائل', path: '/admin/posters' },
       { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
       { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
       { icon: TrendingUp, label: t('sidebar.platform_analytics') || "تحليل المنصة", path: '/admin/analytics' },

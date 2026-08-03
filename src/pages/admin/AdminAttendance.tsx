@@ -76,6 +76,9 @@ interface Student {
   isActive: boolean;
   totalPoints: number;
   xp: number;
+  cumulativePoints?: number;
+  storePoints?: number;
+  sidebarSettings?: Record<string, any>;
 }
 
 interface Lecture {
@@ -225,6 +228,15 @@ export default function AdminAttendance() {
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [cooldownDuration, setCooldownDuration] = useState<number>(1.5); // Customizable delay between scans (Default: 1.5s)
   const [cameraPermissionError, setCameraPermissionError] = useState<boolean>(false);
+  
+  // Session Scan Counter (persists on refresh)
+  const [sessionScanCount, setSessionScanCount] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('attendanceSessionCount');
+      return saved ? parseInt(saved, 10) : 0;
+    }
+    return 0;
+  });
   
   // Manual & Lists States
   const [students, setStudents] = useState<Student[]>([]);
@@ -553,10 +565,19 @@ export default function AdminAttendance() {
 
       // 3. Award points and XP to student
       const studentRef = doc(db, 'users', studentUid);
+      
+      const currentStorePoints = targetStudent.storePoints ?? targetStudent.totalPoints ?? 0;
+      const currentCumulative = targetStudent.cumulativePoints ?? targetStudent.totalPoints ?? 0;
+
       await updateDoc(studentRef, {
-        totalPoints: increment(points),
-        cumulativePoints: increment(points),
-        xp: increment(points)
+        totalPoints: targetStudent.totalPoints + points,
+        cumulativePoints: currentCumulative + points,
+        xp: targetStudent.xp + points,
+        storePoints: currentStorePoints + points,
+        sidebarSettings: {
+          ...(targetStudent.sidebarSettings || {}),
+          storePoints: currentStorePoints + points
+        }
       });
 
       // Distinguish Servant vs Student cleanly
@@ -593,12 +614,23 @@ export default function AdminAttendance() {
     if (!window.confirm(`هل تريد إلغاء الحضور للطالب ${log.studentName}؟ سيتم خصم ${log.points} نقطة من رصيده.`)) return;
 
     try {
+      const student = students.find(s => s.uid === log.studentId);
+      if (!student) throw new Error("Student not found");
+
+      const currentStorePoints = student.storePoints ?? student.totalPoints ?? 0;
+      const currentCumulative = student.cumulativePoints ?? student.totalPoints ?? 0;
+
       // Subtract points from student
       const studentRef = doc(db, 'users', log.studentId);
       await updateDoc(studentRef, {
-        totalPoints: increment(-log.points),
-        cumulativePoints: increment(-log.points),
-        xp: increment(-log.points)
+        totalPoints: student.totalPoints - log.points,
+        cumulativePoints: currentCumulative - log.points,
+        xp: student.xp - log.points,
+        storePoints: currentStorePoints - log.points,
+        sidebarSettings: {
+          ...(student.sidebarSettings || {}),
+          storePoints: currentStorePoints - log.points
+        }
       });
 
       // Delete the log document
@@ -635,11 +667,22 @@ export default function AdminAttendance() {
       });
 
       // 2. Update the student document
+      const student = students.find(s => s.uid === log.studentId);
+      if (!student) throw new Error("Student not found");
+
+      const currentStorePoints = student.storePoints ?? student.totalPoints ?? 0;
+      const currentCumulative = student.cumulativePoints ?? student.totalPoints ?? 0;
+
       const studentRef = doc(db, 'users', log.studentId);
       await updateDoc(studentRef, {
-        totalPoints: increment(pointsDiff),
-        cumulativePoints: increment(pointsDiff),
-        xp: increment(pointsDiff)
+        totalPoints: student.totalPoints + pointsDiff,
+        cumulativePoints: currentCumulative + pointsDiff,
+        xp: student.xp + pointsDiff,
+        storePoints: currentStorePoints + pointsDiff,
+        sidebarSettings: {
+          ...(student.sidebarSettings || {}),
+          storePoints: currentStorePoints + pointsDiff
+        }
       });
 
       triggerSuccessConfetti();
@@ -773,6 +816,14 @@ export default function AdminAttendance() {
                 setScanResult({ success: true, message: result.message, studentName: targetStudent.fullName });
                 setIsCooldown(true);
                 setCooldownSeconds(cooldownDuration);
+                
+                // Increment session counter
+                setSessionScanCount(prev => {
+                  const next = prev + 1;
+                  if (typeof window !== 'undefined') localStorage.setItem('attendanceSessionCount', next.toString());
+                  return next;
+                });
+
                 triggerSuccessConfetti();
                 // Play quick audio synthesized beep
                 try {
@@ -1317,6 +1368,7 @@ export default function AdminAttendance() {
                             );
 
                             if (result.success) {
+                              setSessionScanCount(prev => prev + 1);
                               setScanResult({
                                 success: true,
                                 message: result.message,
@@ -1339,6 +1391,31 @@ export default function AdminAttendance() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Session Counter Widget */}
+              <div className="bg-brand-cream/20 p-5 rounded-3xl border border-brand-beige/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-brand-red text-white flex items-center justify-center font-black text-xl shadow-inner">
+                    {sessionScanCount}
+                  </div>
+                  <div className="text-right">
+                    <h4 className="text-sm font-black text-brand-text">عداد المسح بالجلسة</h4>
+                    <p className="text-[10px] font-bold text-brand-beige">يستمر العد حتى عند إعادة تحميل الصفحة</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    if (window.confirm('هل تريد تصفير العداد؟')) {
+                      setSessionScanCount(0);
+                      localStorage.removeItem('attendanceSessionCount');
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  تصفير العداد
+                </button>
               </div>
 
               {/* Start buttons */}

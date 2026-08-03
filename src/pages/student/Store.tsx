@@ -99,8 +99,9 @@ export default function Store() {
 
       // 2. Update user points
       const userRef = doc(db, "users", user.uid);
+      const currentStorePoints = user.storePoints ?? user.totalPoints ?? 0;
       await updateDoc(userRef, {
-        totalPoints: increment(-totalPrice)
+        storePoints: currentStorePoints - totalPrice
       });
 
       // 3. Update stock
@@ -164,7 +165,7 @@ export default function Store() {
           <div className="flex items-center gap-3 md:gap-6 bg-white p-3 md:p-4 rounded-2xl md:rounded-[32px] border border-brand-beige/10 shadow-sm w-fit">
              <div className="flex flex-col items-end">
                 <span className="text-[9px] md:text-[10px] font-black text-brand-beige uppercase tracking-widest leading-none mb-1">{t('store.balance')}</span>
-                <span className="text-lg md:text-2xl font-black text-brand-text leading-none">{user?.totalPoints || 0} {t('dashboard.points_label')}</span>
+                <span className="text-lg md:text-2xl font-black text-brand-text leading-none">{user?.storePoints ?? 0} {t('dashboard.points_label')}</span>
              </div>
              <div className="w-9 h-9 md:w-12 md:h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
                 <Star className="w-4 h-4 md:w-6 md:h-6 fill-current" />
@@ -301,7 +302,7 @@ export default function Store() {
                 idx={idx} 
                 onPurchase={handlePurchase}
                 isPurchasing={isPurchasing === item.id}
-                userPoints={user?.totalPoints || 0}
+                userPoints={user?.storePoints ?? user?.totalPoints ?? 0}
                 quantity={quantities[item.id!] || 1}
                 setQuantity={(q) => setQuantities(prev => ({ ...prev, [item.id!]: q }))}
               />

@@ -503,8 +503,8 @@ export default function StudentDashboard() {
   const calculatedTotalPoints = Math.max(0, attendancePointsTotal + assessmentsPointsTotal + manualPointsTotal - purchasesTotal);
   const calculatedCumulativePoints = Math.max(0, attendancePointsTotal + assessmentsPointsTotal + manualPointsTotal);
 
-  const finalTotalPoints = typeof user.totalPoints === "number" ? user.totalPoints : calculatedTotalPoints;
-  const finalCumulativePoints = typeof user.cumulativePoints === "number" ? user.cumulativePoints : calculatedCumulativePoints;
+  const finalTotalPoints = typeof user.storePoints === "number" ? user.storePoints : (typeof user.totalPoints === "number" ? user.totalPoints : calculatedTotalPoints);
+  const finalCumulativePoints = typeof user.totalPoints === "number" ? user.totalPoints : calculatedCumulativePoints;
 
   const { currentStreak, maxStreak } = calculateTestStreaks(submissions.map(s => s.date));
 
@@ -531,12 +531,19 @@ export default function StudentDashboard() {
       description: `رصيدك القابل للاستخدام: ${finalTotalPoints} نقطة (يقل عند الشراء)`,
     },
     {
-      label: "النقاط التراكمية (السيزون) 🏆",
+      label: "نقاط المرحلة الثانية 🏆",
       value: finalCumulativePoints,
       icon: Trophy,
       color: "text-amber-600 bg-amber-50",
       path: "/student/achievements",
-      description: `مجموع نقاطك الكلي: ${finalCumulativePoints} (مستواك للترتيب والسيزون)`,
+      description: `مجموع نقاطك في المرحلة الثانية: ${finalCumulativePoints} (مستواك للترتيب)`,
+    },
+    {
+      label: "نقاط المرحلة الأولى 📅",
+      value: user.sidebarSettings?.round1Points || 0,
+      icon: Trophy,
+      color: "text-gray-600 bg-gray-100",
+      description: `درجات المرحلة الأولى محفوظة بأمان 🔒`,
     },
     {
       label: t("dashboard.level"),
@@ -780,7 +787,7 @@ export default function StudentDashboard() {
         )}
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 mb-6 md:mb-10">
+        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6 md:mb-10">
           {stats.map((stat, idx) => (
             <motion.div
               key={idx}

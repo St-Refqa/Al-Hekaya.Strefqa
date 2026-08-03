@@ -16,8 +16,10 @@ import {
   ArrowLeft,
   Medal,
   Users,
+  Users,
   Target,
-  Crown
+  Crown,
+  History
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
@@ -28,6 +30,7 @@ export default function StudentLeaderboard() {
   const [usersList, setUsersList] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [roundFilter, setRoundFilter] = useState<'round2' | 'round1'>('round2');
   const { user } = useAuth();
   const { i18n } = useTranslation();
 
@@ -67,21 +70,24 @@ export default function StudentLeaderboard() {
       .map(u => ({
         id: u.uid,
         name: u.fullName || "بدون اسم",
-        totalScore: u.cumulativePoints ?? u.totalPoints ?? 0,
+        totalScore: roundFilter === 'round1' 
+          ? (u.sidebarSettings?.round1Points ?? u.round1Points ?? 0) 
+          : (u.totalPoints ?? 0),
         streak: u.streak || 0,
         photoUrl: u.photoUrl,
         badgeCount: u.badges?.length || 0
       }))
+      .filter(p => p.totalScore > 0 || roundFilter === 'round2') // hide zeroes in round 1 just in case, but keep all for round 2
       .filter(p => !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort((a, b) => b.totalScore - a.totalScore);
-  }, [usersList, searchTerm, user]);
+  }, [usersList, searchTerm, user, roundFilter]);
 
   const top5 = leaderboardData.slice(0, 5);
   const remaining = leaderboardData.slice(5);
 
   return (
     <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-12", i18n.language === 'ar' ? 'text-right' : 'text-left')} dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 mb-8 md:mb-16">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 mb-6">
         <div className="flex items-center gap-4 md:gap-6">
           <Link
             to="/student/available"
@@ -99,17 +105,49 @@ export default function StudentLeaderboard() {
           </div>
         </div>
 
-        <div className="relative w-full md:max-w-md">
+        <div className="relative w-full md:w-80">
           <Search className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-brand-beige" />
           <input
             type="text"
             placeholder="ابحث عن زميل..."
             value={searchTerm || ''}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-11 md:pr-14 pl-5 md:pl-6 py-3.5 md:py-5 bg-white border border-brand-beige/10 rounded-2xl md:rounded-[24px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm text-sm md:text-base"
+            className="w-full pr-11 md:pr-14 pl-5 md:pl-6 py-3.5 md:py-5 bg-white border border-brand-beige/10 rounded-xl md:rounded-[24px] focus:ring-4 focus:ring-brand-red/5 focus:border-brand-red/20 outline-none transition-all font-bold text-brand-text shadow-sm text-sm md:text-base"
           />
         </div>
       </div>
+
+      {/* PROMINENT ROUND FILTER */}
+      <div className="w-full md:w-auto flex bg-white/50 backdrop-blur-sm p-1 rounded-2xl md:rounded-full border border-brand-beige/20 shadow-sm relative overflow-hidden mb-8">
+          <div 
+            className="absolute inset-y-1 bg-white shadow-md rounded-xl md:rounded-full transition-all duration-300 ease-out border border-black/5"
+            style={{ 
+              width: 'calc(50% - 4px)', 
+              left: roundFilter === 'round1' ? 'calc(50% + 2px)' : '2px',
+              transform: i18n.language === 'ar' ? (roundFilter === 'round1' ? 'translateX(0%)' : 'translateX(0%)') : undefined
+            }}
+          />
+          <button
+            onClick={() => setRoundFilter('round2')}
+            className={cn(
+              "flex-1 md:flex-none relative px-6 md:px-12 py-3 md:py-4 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
+              roundFilter === 'round2' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
+            )}
+          >
+            <Crown className="w-4 h-4 md:w-5 md:h-5" />
+            المرحلة الثانية (الحالية)
+          </button>
+          <button
+            onClick={() => setRoundFilter('round1')}
+            className={cn(
+              "flex-1 md:flex-none relative px-6 md:px-12 py-3 md:py-4 text-xs md:text-sm font-black transition-colors rounded-xl md:rounded-full z-10 flex items-center justify-center gap-2",
+              roundFilter === 'round1' ? "text-brand-red" : "text-brand-beige hover:text-brand-text"
+            )}
+          >
+            <History className="w-4 h-4 md:w-5 md:h-5" />
+            المرحلة الأولى (محفوظة)
+          </button>
+        </div>
 
       {isLoading ? (
         <div className="py-40 text-center">

@@ -156,8 +156,15 @@ export default function AdminAnalytics() {
           </div>
           <button 
              onClick={() => {
-                const data = students.map(s => [s.fullName, s.code, s.totalPoints || 0, s.xp || 0]);
-                exportToCSV('students_report.csv', [['الاسم', 'الكود', 'النقاط', 'الخبرة'], ...data]);
+                const data = students.map(s => [
+                  s.fullName, 
+                  s.code || '', 
+                  s.sidebarSettings?.round1Points || 0,
+                  s.totalPoints || 0,
+                  s.sidebarSettings?.storePoints || 0, 
+                  s.xp || 0
+                ]);
+                exportToCSV('students_report.csv', [['الاسم', 'الكود', 'نقاط راوند 1', 'نقاط راوند 2', 'رصيد المتجر', 'الخبرة'], ...data]);
              }}
              className="flex gap-2 items-center bg-brand-cream px-6 py-4 rounded-[24px] text-sm font-bold text-brand-text hover:bg-brand-red hover:text-white transition-all shadow-sm">
             <Download className="w-5 h-5"/> تصدير بيانات الطلاب (CSV)
@@ -320,6 +327,42 @@ export default function AdminAnalytics() {
                 </div>
               </div>
            </div>
+        </div>
+
+        {/* Full Students List - Rounds breakdown */}
+        <div className="bg-white p-8 rounded-[40px] border border-brand-beige/10 shadow-sm space-y-6 mt-8">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xl font-black text-brand-text flex items-center gap-3">
+              <Users className="w-6 h-6 text-brand-red" />
+              سجل درجات الطلاب (تفصيل راوند 1 و 2)
+            </h4>
+          </div>
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-brand-cream/30 text-brand-beige">
+                <tr>
+                  <th className="p-4 font-black rounded-r-2xl whitespace-nowrap">الاسم</th>
+                  <th className="p-4 font-black whitespace-nowrap">الكود</th>
+                  <th className="p-4 font-black text-brand-text whitespace-nowrap">نقاط راوند 1</th>
+                  <th className="p-4 font-black text-brand-red whitespace-nowrap">نقاط راوند 2 (أغسطس)</th>
+                  <th className="p-4 font-black text-emerald-600 whitespace-nowrap">رصيد المتجر الحالي</th>
+                  <th className="p-4 font-black rounded-l-2xl whitespace-nowrap">الخبرة (XP)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-beige/10">
+                {students.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0)).map((s, idx) => (
+                  <tr key={s.uid} className="hover:bg-brand-cream/10 transition-colors">
+                    <td className="p-4 font-black text-brand-text">{s.fullName}</td>
+                    <td className="p-4 font-bold text-brand-beige">{s.code}</td>
+                    <td className="p-4 font-black text-brand-text bg-slate-50">{s.sidebarSettings?.round1Points || 0}</td>
+                    <td className="p-4 font-black text-brand-red bg-red-50/30">{s.totalPoints || 0}</td>
+                    <td className="p-4 font-black text-emerald-600 bg-emerald-50/30">{s.sidebarSettings?.storePoints || (s.totalPoints || 0) + (s.sidebarSettings?.round1Points || 0)}</td>
+                    <td className="p-4 font-bold text-brand-beige">{s.xp || 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -208,11 +208,42 @@ export default function PublicAssessment() {
 
         if (userRef && userSnap?.exists()) {
           const uData = userSnap.data() as User;
-          const newTotalExams = (uData.totalExams || 0) + 1;
-          const newTotalPoints = (uData.totalPoints || 0) + baseScore;
+          
+          // CRITICAL BUG FIX: Check if the user already submitted this assessment
+          // to prevent score inflation through infinite retries.
+          let pointsToAdd = baseScore;
+          
+          const submissionsRef = collection(db, 'submissions');
+          const q = query(submissionsRef, 
+            where('participantPhoneOrId', '==', participantPhone),
+            where('assessmentId', '==', id || assessment.id)
+          );
+          const previousSubmissions = await getDocs(q);
+          
+          let maxPreviousScore = -1;
+          previousSubmissions.forEach(doc => {
+            const data = doc.data();
+            if (data.finalScore > maxPreviousScore) {
+              maxPreviousScore = data.finalScore;
+            }
+          });
+
+          // Only add points if this is their first time OR they beat their previous high score
+          if (maxPreviousScore >= 0) {
+            if (baseScore > maxPreviousScore) {
+              pointsToAdd = baseScore - maxPreviousScore; // only add the difference
+            } else {
+              pointsToAdd = 0; // they didn't beat their old score, no new points
+            }
+          }
+
+          const newTotalExams = maxPreviousScore >= 0 ? (uData.totalExams || 1) : ((uData.totalExams || 0) + 1);
+          const newTotalPoints = (uData.totalPoints || 0) + pointsToAdd;
           const currentPercentage = Math.round(calculatePercentage(baseScore, examMaxScore));
+          
+          // Re-calculate average safely
           const newAverageScore = uData.averageScore 
-            ? Math.round((uData.averageScore * (newTotalExams - 1) + currentPercentage) / newTotalExams)
+            ? Math.round((uData.averageScore * (newTotalExams - (maxPreviousScore >= 0 ? 0 : 1)) + currentPercentage) / newTotalExams)
             : currentPercentage;
           
           const xpGained = Math.round((baseScore * 5) + (streakCount * 5));
@@ -222,7 +253,7 @@ export default function PublicAssessment() {
             streak: streakCount,
             totalExams: newTotalExams,
             totalPoints: Math.round(newTotalPoints),
-            cumulativePoints: Math.round(Number(uData.cumulativePoints || uData.totalPoints || 0) + baseScore),
+            cumulativePoints: Math.round(Number(uData.cumulativePoints || uData.totalPoints || 0) + pointsToAdd),
             averageScore: newAverageScore,
             xp: newXP
           };
