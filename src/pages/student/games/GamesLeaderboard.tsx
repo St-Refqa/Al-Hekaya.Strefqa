@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { collection, onSnapshot, query } from 'firebase/firestore';
-import { db } from '../../../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../../../lib/firebase';
 import { useAuth } from '../../../hooks/useAuth';
 import { cn } from '../../../lib/utils';
 import { Trophy, Star, ArrowRight, Medal } from 'lucide-react';
@@ -14,11 +14,18 @@ export default function GamesLeaderboard() {
 
   useEffect(() => {
     const q = query(collection(db, 'gameScores'));
-    const unsub = onSnapshot(q, snap => {
-      const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
-      setPlayers(all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      snap => {
+        const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
+        setPlayers(all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)));
+        setLoading(false);
+      },
+      error => {
+        handleFirestoreError(error, OperationType.LIST, 'gameScores');
+        setLoading(false);
+      }
+    );
     return () => unsub();
   }, []);
 

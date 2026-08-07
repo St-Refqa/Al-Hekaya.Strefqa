@@ -49,11 +49,17 @@ export default function GamesHub() {
   // Top leaderboard
   useEffect(() => {
     const q = query(collection(db, 'gameScores'));
-    const unsub = onSnapshot(q, snap => {
-      const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
-      const sorted = all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, 5);
-      setTopPlayers(sorted);
-    });
+    const unsub = onSnapshot(
+      q, 
+      snap => {
+        const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
+        const sorted = all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, 5);
+        setTopPlayers(sorted);
+      },
+      error => {
+        console.error("Error fetching gameScores:", error);
+      }
+    );
     return () => unsub();
   }, []);
 

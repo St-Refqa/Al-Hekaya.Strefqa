@@ -96,5 +96,17 @@ service cloud.firestore {
     match /favorites/{favoriteId} {
       allow read, write: if true;
     }
+
+    match /gameScores/{scoreId} {
+      allow read, write: if true;
+    }
+
+    match /gameRooms/{roomId} {
+      allow read, write: if true;
+    }
+
+    match /dailyChallenges/{challengeId} {
+      allow read, write: if true;
+    }
   }
 }
