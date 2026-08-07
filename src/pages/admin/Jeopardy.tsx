@@ -10,55 +10,46 @@ interface Team {
   name: string;
   score: number;
   color: string;
+  bgColor: string;
+  borderColor: string;
   correctAnswers: number;
   wrongAnswers: number;
 }
 
-const TEAM_COLORS = [
-  'from-blue-500 to-blue-700',
-  'from-purple-500 to-purple-700',
-  'from-pink-500 to-pink-700',
-  'from-teal-500 to-teal-700',
-  'from-orange-500 to-orange-700',
-  'from-cyan-500 to-cyan-700',
-  'from-lime-600 to-green-700',
-  'from-rose-500 to-rose-700',
-  'from-indigo-500 to-indigo-700',
-  'from-amber-500 to-amber-700',
+const TEAM_STYLES = [
+  { color: 'bg-blue-500',   bgColor: 'bg-blue-50',   borderColor: 'border-blue-300',   textColor: 'text-blue-700',   gradient: 'from-blue-500 to-blue-600' },
+  { color: 'bg-purple-500', bgColor: 'bg-purple-50', borderColor: 'border-purple-300', textColor: 'text-purple-700', gradient: 'from-purple-500 to-purple-600' },
+  { color: 'bg-rose-500',   bgColor: 'bg-rose-50',   borderColor: 'border-rose-300',   textColor: 'text-rose-700',   gradient: 'from-rose-500 to-rose-600' },
+  { color: 'bg-teal-500',   bgColor: 'bg-teal-50',   borderColor: 'border-teal-300',   textColor: 'text-teal-700',   gradient: 'from-teal-500 to-teal-600' },
+  { color: 'bg-orange-500', bgColor: 'bg-orange-50', borderColor: 'border-orange-300', textColor: 'text-orange-700', gradient: 'from-orange-500 to-orange-600' },
+  { color: 'bg-cyan-500',   bgColor: 'bg-cyan-50',   borderColor: 'border-cyan-300',   textColor: 'text-cyan-700',   gradient: 'from-cyan-500 to-cyan-600' },
+  { color: 'bg-green-600',  bgColor: 'bg-green-50',  borderColor: 'border-green-300',  textColor: 'text-green-700',  gradient: 'from-green-500 to-green-600' },
+  { color: 'bg-pink-500',   bgColor: 'bg-pink-50',   borderColor: 'border-pink-300',   textColor: 'text-pink-700',   gradient: 'from-pink-500 to-pink-600' },
+  { color: 'bg-indigo-500', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-300', textColor: 'text-indigo-700', gradient: 'from-indigo-500 to-indigo-600' },
+  { color: 'bg-amber-500',  bgColor: 'bg-amber-50',  borderColor: 'border-amber-300',  textColor: 'text-amber-700',  gradient: 'from-amber-500 to-amber-600' },
 ];
 
-const BORDER_COLORS = [
-  'border-blue-500/40',
-  'border-purple-500/40',
-  'border-pink-500/40',
-  'border-teal-500/40',
-  'border-orange-500/40',
-  'border-cyan-500/40',
-  'border-lime-500/40',
-  'border-rose-500/40',
-  'border-indigo-500/40',
-  'border-amber-500/40',
+const LEVEL_STYLES = [
+  { id: 1, title: 'سهل',    emoji: '🟢', points: 100, bg: 'bg-emerald-50', border: 'border-emerald-200', headerBg: 'bg-emerald-500', textColor: 'text-emerald-700', barColor: 'bg-emerald-400', badgeBg: 'bg-emerald-100' },
+  { id: 2, title: 'متوسط', emoji: '🟡', points: 200, bg: 'bg-amber-50',   border: 'border-amber-200',   headerBg: 'bg-amber-500',   textColor: 'text-amber-700',   barColor: 'bg-amber-400',   badgeBg: 'bg-amber-100' },
+  { id: 3, title: 'صعب',   emoji: '🔴', points: 300, bg: 'bg-red-50',     border: 'border-red-200',     headerBg: 'bg-red-500',     textColor: 'text-red-700',     barColor: 'bg-red-400',     badgeBg: 'bg-red-100' },
 ];
 
 export default function Jeopardy() {
   const [setupMode, setSetupMode] = useState(true);
   const [numTeams, setNumTeams] = useState(2);
   const [teams, setTeams] = useState<Team[]>([
-    { id: '1', name: 'فريق 1', score: 0, color: TEAM_COLORS[0], correctAnswers: 0, wrongAnswers: 0 },
-    { id: '2', name: 'فريق 2', score: 0, color: TEAM_COLORS[1], correctAnswers: 0, wrongAnswers: 0 },
+    { id: '1', name: 'فريق 1', score: 0, color: TEAM_STYLES[0].color, bgColor: TEAM_STYLES[0].bgColor, borderColor: TEAM_STYLES[0].borderColor, correctAnswers: 0, wrongAnswers: 0 },
+    { id: '2', name: 'فريق 2', score: 0, color: TEAM_STYLES[1].color, bgColor: TEAM_STYLES[1].bgColor, borderColor: TEAM_STYLES[1].borderColor, correctAnswers: 0, wrongAnswers: 0 },
   ]);
 
-  // Game state
   const [usedQuestionIds, setUsedQuestionIds] = useState<Set<number>>(new Set());
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
-
-  // Answer state
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const [answered, setAnswered] = useState(false); // true once choice clicked
+  const [answered, setAnswered] = useState(false);
   const [resultMessage, setResultMessage] = useState<'correct' | 'wrong' | null>(null);
 
-  // Setup handlers
   const handleNumTeamsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const num = parseInt(e.target.value);
     setNumTeams(num);
@@ -66,7 +57,9 @@ export default function Jeopardy() {
       id: (i + 1).toString(),
       name: teams[i]?.name || `فريق ${i + 1}`,
       score: 0,
-      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      color: TEAM_STYLES[i % TEAM_STYLES.length].color,
+      bgColor: TEAM_STYLES[i % TEAM_STYLES.length].bgColor,
+      borderColor: TEAM_STYLES[i % TEAM_STYLES.length].borderColor,
       correctAnswers: 0,
       wrongAnswers: 0,
     }));
@@ -81,7 +74,6 @@ export default function Jeopardy() {
 
   const startGame = () => setSetupMode(false);
 
-  // Randomly pick a question from a level for current team
   const pickQuestion = useCallback((levelId: number) => {
     const available = questions.filter(q => q.levelId === levelId && !usedQuestionIds.has(q.id));
     if (available.length === 0) return;
@@ -92,15 +84,12 @@ export default function Jeopardy() {
     setResultMessage(null);
   }, [usedQuestionIds]);
 
-  // When team picks an answer
   const handleChoiceClick = (choice: string) => {
     if (answered) return;
     setSelectedChoice(choice);
     setAnswered(true);
-
     const isCorrect = choice === activeQuestion?.answer;
     setResultMessage(isCorrect ? 'correct' : 'wrong');
-
     if (isCorrect) {
       setTeams(prev => prev.map((t, idx) =>
         idx === currentTeamIndex
@@ -109,22 +98,17 @@ export default function Jeopardy() {
       ));
     } else {
       setTeams(prev => prev.map((t, idx) =>
-        idx === currentTeamIndex
-          ? { ...t, wrongAnswers: t.wrongAnswers + 1 }
-          : t
+        idx === currentTeamIndex ? { ...t, wrongAnswers: t.wrongAnswers + 1 } : t
       ));
     }
   };
 
   const closeQuestion = () => {
-    if (activeQuestion) {
-      setUsedQuestionIds(prev => new Set(prev).add(activeQuestion.id));
-    }
+    if (activeQuestion) setUsedQuestionIds(prev => new Set(prev).add(activeQuestion.id));
     setActiveQuestion(null);
     setSelectedChoice(null);
     setAnswered(false);
     setResultMessage(null);
-    // Move to next team
     setCurrentTeamIndex(prev => (prev + 1) % teams.length);
   };
 
@@ -145,51 +129,51 @@ export default function Jeopardy() {
   const totalQuestions = questions.length;
   const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
   const currentTeam = teams[currentTeamIndex];
+  const currentStyle = TEAM_STYLES[currentTeamIndex % TEAM_STYLES.length];
 
   // ── SETUP SCREEN ──────────────────────────────────────────────────
   if (setupMode) {
     return (
-      <div className="min-h-screen bg-brand-text flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-red/10 blur-[100px]" />
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-blue-500/10 blur-[100px]" />
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-red-50 flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-red-100/60 blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-blue-100/50 blur-[80px] pointer-events-none" />
 
-        <div className="max-w-lg w-full bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10">
+        <div className="max-w-lg w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-2xl shadow-gray-200/60 relative z-10">
           <div className="flex flex-col items-center mb-10">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-red to-rose-700 flex items-center justify-center shadow-2xl shadow-brand-red/30 mb-4">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-xl shadow-red-200 mb-4">
               <Trophy className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-3xl font-black text-white text-center tracking-tight">مسابقة إنجيل مارمرقس</h1>
-            <p className="text-white/40 text-sm font-black tracking-widest mt-1 text-center">الأصحاح الأول حتى الرابع</p>
+            <h1 className="text-3xl font-black text-gray-800 text-center tracking-tight">مسابقة إنجيل مارمرقس</h1>
+            <p className="text-gray-400 text-sm font-bold tracking-widest mt-1 text-center">الأصحاح الأول حتى الرابع</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div>
-              <label className="block text-white/60 text-xs font-black mb-2 tracking-widest uppercase">عدد الفرق</label>
+              <label className="block text-gray-500 text-xs font-black mb-2 tracking-widest uppercase">عدد الفرق</label>
               <select
                 value={numTeams}
                 onChange={handleNumTeamsChange}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-brand-red outline-none transition-all font-black text-base cursor-pointer"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-gray-800 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none transition-all font-black text-base cursor-pointer"
               >
                 {[...Array(9)].map((_, i) => (
-                  <option key={i + 2} value={i + 2} className="bg-gray-900">{i + 2} فرق</option>
+                  <option key={i + 2} value={i + 2}>{i + 2} فرق</option>
                 ))}
               </select>
             </div>
 
-            <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-              <label className="block text-white/60 text-xs font-black mb-2 tracking-widest uppercase">أسماء الفرق</label>
+            <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+              <label className="block text-gray-500 text-xs font-black mb-2 tracking-widest uppercase">أسماء الفرق</label>
               {teams.map((team, idx) => (
                 <div key={team.id} className="flex items-center gap-3">
-                  <div className={cn("w-9 h-9 rounded-xl bg-gradient-to-br flex items-center justify-center text-white font-black text-sm shrink-0", team.color)}>
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 shadow-sm", TEAM_STYLES[idx % TEAM_STYLES.length].color)}>
                     {idx + 1}
                   </div>
                   <input
                     type="text"
                     value={team.name}
                     onChange={(e) => handleTeamNameChange(idx, e.target.value)}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-3.5 text-white focus:border-brand-red outline-none transition-all font-black placeholder:text-white/20"
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl p-3.5 text-gray-800 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none transition-all font-black placeholder:text-gray-300"
                     placeholder={`اسم فريق ${idx + 1}`}
                   />
                 </div>
@@ -198,13 +182,13 @@ export default function Jeopardy() {
 
             <button
               onClick={startGame}
-              className="w-full py-5 bg-gradient-to-r from-brand-red to-rose-600 hover:from-rose-600 hover:to-brand-red text-white rounded-2xl font-black text-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-red/30 mt-4"
+              className="w-full py-5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-rose-600 hover:to-red-500 text-white rounded-2xl font-black text-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-red-200 mt-4"
             >
               <Play className="w-6 h-6" />
               ابدأ المسابقة!
             </button>
 
-            <Link to="/admin" className="w-full py-3 flex items-center justify-center gap-2 text-white/30 hover:text-white font-black text-sm transition-colors">
+            <Link to="/admin" className="w-full py-3 flex items-center justify-center gap-2 text-gray-400 hover:text-gray-600 font-black text-sm transition-colors">
               <ArrowRight className="w-4 h-4" />
               رجوع للقائمة الرئيسية
             </Link>
@@ -216,41 +200,39 @@ export default function Jeopardy() {
 
   // ── GAME SCREEN ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0d0d0f] flex flex-col relative overflow-hidden" dir="rtl">
-      {/* Background */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-brand-red/5 to-transparent" />
-        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-      </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col relative" dir="rtl">
+      {/* Subtle background pattern */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-40"
+        style={{ backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
       {/* Header */}
-      <header className="relative z-20 bg-black/60 backdrop-blur-xl border-b border-white/10 px-4 py-3 shadow-2xl">
+      <header className="relative z-20 bg-white border-b border-gray-200 px-5 py-3 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-red flex items-center justify-center shadow-lg shadow-brand-red/30">
-              <Trophy className="w-4 h-4 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-md shadow-red-200">
+              <Trophy className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-black text-white leading-none">مسابقة مارمرقس</h1>
-              <p className="text-[10px] text-white/40 font-black tracking-widest mt-0.5">{totalUsed}/{totalQuestions} سؤال</p>
+              <h1 className="text-base font-black text-gray-800 leading-none">مسابقة مارمرقس</h1>
+              <p className="text-[10px] text-gray-400 font-bold tracking-widest mt-0.5">{totalUsed}/{totalQuestions} سؤال</p>
             </div>
           </div>
 
           {/* Progress */}
-          <div className="hidden sm:flex flex-1 max-w-xs mx-4 items-center gap-3">
-            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="hidden sm:flex flex-1 max-w-xs mx-6 items-center gap-3">
+            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-brand-red to-rose-400 rounded-full"
+                className="h-full bg-gradient-to-r from-red-500 to-rose-400 rounded-full"
                 animate={{ width: `${(totalUsed / totalQuestions) * 100}%` }}
                 transition={{ duration: 0.5 }}
               />
             </div>
-            <span className="text-white/30 text-xs font-black shrink-0">{Math.round((totalUsed / totalQuestions) * 100)}%</span>
+            <span className="text-gray-400 text-xs font-black shrink-0">{Math.round((totalUsed / totalQuestions) * 100)}%</span>
           </div>
 
           <button
             onClick={resetGame}
-            className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white rounded-xl font-black text-xs transition-all"
+            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-500 hover:text-gray-700 rounded-xl font-black text-xs transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             إعادة
@@ -265,32 +247,41 @@ export default function Jeopardy() {
           {/* Current turn banner */}
           <motion.div
             key={currentTeamIndex}
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             className={cn(
-              "rounded-2xl border p-4 flex items-center gap-4",
-              BORDER_COLORS[currentTeamIndex % BORDER_COLORS.length],
-              "bg-black/40 backdrop-blur-sm"
+              "rounded-2xl border-2 p-4 flex items-center gap-4 shadow-sm",
+              currentStyle.bgColor,
+              currentStyle.borderColor
             )}
           >
-            <div className={cn("w-12 h-12 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white font-black text-lg shadow-lg shrink-0", currentTeam?.color)}>
+            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md shrink-0", currentStyle.color)}>
               {currentTeamIndex + 1}
             </div>
             <div>
-              <p className="text-white/50 text-xs font-black tracking-widest uppercase">دور</p>
-              <p className="text-white font-black text-2xl leading-none">{currentTeam?.name}</p>
+              <p className="text-gray-400 text-xs font-black tracking-widest uppercase">دور</p>
+              <p className={cn("font-black text-2xl leading-none", currentStyle.textColor)}>{currentTeam?.name}</p>
             </div>
-            <div className="mr-auto flex items-center gap-2 text-white/40 font-black text-sm">
-              <span className="text-white font-black text-xl">{currentTeam?.score}</span>
-              <span>نقطة</span>
+            <div className="mr-auto flex items-center gap-2">
+              <motion.span
+                key={currentTeam?.score}
+                initial={{ scale: 1.3 }}
+                animate={{ scale: 1 }}
+                className={cn("font-black text-3xl leading-none", currentStyle.textColor)}
+              >
+                {currentTeam?.score}
+              </motion.span>
+              <span className="text-gray-400 font-bold text-sm">نقطة</span>
             </div>
           </motion.div>
 
           {/* Level buttons */}
           <div>
-            <p className="text-white/30 font-black text-xs tracking-widest uppercase mb-3 text-center">اختر مستوى السؤال لـ {currentTeam?.name}</p>
+            <p className="text-gray-400 font-black text-xs tracking-widest uppercase mb-3 text-center">
+              اختر مستوى السؤال لـ {currentTeam?.name}
+            </p>
             <div className="grid grid-cols-3 gap-4">
-              {levels.map((level) => {
+              {LEVEL_STYLES.map((level) => {
                 const available = availableByLevel(level.id);
                 const total = questions.filter(q => q.levelId === level.id).length;
                 return (
@@ -298,40 +289,33 @@ export default function Jeopardy() {
                     key={level.id}
                     onClick={() => pickQuestion(level.id)}
                     disabled={available === 0}
-                    whileHover={available > 0 ? { scale: 1.04, y: -3 } : {}}
+                    whileHover={available > 0 ? { scale: 1.04, y: -4 } : {}}
                     whileTap={available > 0 ? { scale: 0.96 } : {}}
                     className={cn(
-                      "relative group rounded-2xl p-5 sm:p-7 flex flex-col items-center justify-center gap-3 border transition-all duration-300 overflow-hidden",
+                      "relative group rounded-2xl p-5 sm:p-8 flex flex-col items-center justify-center gap-3 border-2 transition-all duration-300 shadow-sm",
                       available === 0
-                        ? "bg-white/3 border-white/5 cursor-not-allowed opacity-30"
-                        : "border-white/10 cursor-pointer bg-black/50 hover:border-white/20"
+                        ? "bg-gray-100 border-gray-200 cursor-not-allowed opacity-40"
+                        : cn(level.bg, level.border, "cursor-pointer hover:shadow-lg")
                     )}
-                    style={available > 0 ? {
-                      boxShadow: `0 0 40px -20px ${level.id === 1 ? '#10b981' : level.id === 2 ? '#f59e0b' : '#ef4444'}50`
-                    } : {}}
                   >
                     {/* Top color bar */}
-                    <div className={cn("absolute top-0 left-0 right-0 h-1 bg-gradient-to-r", level.color)} />
-                    {/* Hover glow */}
-                    {available > 0 && (
-                      <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-gradient-to-br", level.color)} />
-                    )}
+                    <div className={cn("absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl", level.headerBg)} />
 
                     <span className="text-4xl sm:text-5xl">{level.emoji}</span>
                     <div className="text-center">
-                      <p className="text-xl sm:text-2xl font-black text-white">{level.title}</p>
-                      <p className="text-brand-red font-black text-base mt-0.5">{level.points} نقطة</p>
+                      <p className={cn("text-xl sm:text-2xl font-black", level.textColor)}>{level.title}</p>
+                      <p className="text-gray-500 font-black text-base mt-0.5">{level.points} نقطة</p>
                     </div>
 
-                    {/* Remaining bar */}
+                    {/* Remaining progress bar */}
                     <div className="w-full">
-                      <div className="flex justify-between text-[10px] text-white/30 font-black mb-1">
+                      <div className="flex justify-between text-[10px] text-gray-400 font-black mb-1">
                         <span>متبقي</span>
                         <span>{available}/{total}</span>
                       </div>
-                      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className={cn("h-full rounded-full bg-gradient-to-r transition-all", level.color)}
+                          className={cn("h-full rounded-full transition-all", level.barColor)}
                           style={{ width: `${(available / total) * 100}%` }}
                         />
                       </div>
@@ -342,67 +326,70 @@ export default function Jeopardy() {
             </div>
           </div>
 
-          {/* Teams turn order (mini) */}
-          <div className="flex gap-2 flex-wrap">
-            <span className="text-white/20 text-xs font-black self-center">ترتيب الأدوار:</span>
-            {teams.map((team, idx) => (
-              <div key={team.id} className={cn(
-                "px-3 py-1.5 rounded-xl text-xs font-black border transition-all",
-                idx === currentTeamIndex
-                  ? `bg-gradient-to-r ${team.color} text-white border-transparent shadow-lg`
-                  : "bg-white/5 border-white/10 text-white/40"
-              )}>
-                {team.name}
-              </div>
-            ))}
+          {/* Turn order */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <span className="text-gray-300 text-xs font-black">ترتيب الأدوار:</span>
+            {teams.map((team, idx) => {
+              const s = TEAM_STYLES[idx % TEAM_STYLES.length];
+              return (
+                <div key={team.id} className={cn(
+                  "px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all",
+                  idx === currentTeamIndex
+                    ? cn(s.color, 'text-white border-transparent shadow-md')
+                    : cn('bg-white border-gray-200 text-gray-400')
+                )}>
+                  {team.name}
+                </div>
+              );
+            })}
           </div>
         </main>
 
-        {/* ── SCOREBOARD ── */}
-        <aside className="xl:w-72 bg-black/50 backdrop-blur-xl border-t xl:border-t-0 xl:border-r border-white/10 p-4 flex flex-col gap-3">
-          <h3 className="text-white/40 font-black text-xs tracking-[0.3em] uppercase text-center pt-1">النتيجة</h3>
+        {/* ── SCOREBOARD SIDEBAR ── */}
+        <aside className="xl:w-72 bg-white border-t xl:border-t-0 xl:border-r border-gray-200 p-4 flex flex-col gap-3 shadow-sm">
+          <h3 className="text-gray-400 font-black text-xs tracking-[0.3em] uppercase text-center pt-1">النتيجة</h3>
 
           <div className="flex flex-col gap-2.5 flex-1">
             {sortedTeams.map((team, idx) => {
               const originalIdx = teams.findIndex(t => t.id === team.id);
+              const s = TEAM_STYLES[originalIdx % TEAM_STYLES.length];
+              const isActive = originalIdx === currentTeamIndex;
               return (
                 <motion.div
                   key={team.id}
                   layout
                   className={cn(
-                    "relative rounded-2xl p-4 border transition-all",
-                    originalIdx === currentTeamIndex
-                      ? `${BORDER_COLORS[originalIdx % BORDER_COLORS.length]} bg-white/8`
-                      : "border-white/5 bg-white/4"
+                    "relative rounded-2xl p-4 border-2 transition-all",
+                    isActive ? cn(s.bgColor, s.borderColor, 'shadow-md') : 'bg-gray-50 border-gray-100'
                   )}
                 >
-                  {/* Active team pulse indicator */}
-                  {originalIdx === currentTeamIndex && (
-                    <div className="absolute top-2.5 left-2.5 w-2 h-2 rounded-full bg-white animate-pulse" />
+                  {isActive && (
+                    <div className={cn("absolute top-3 left-3 w-2 h-2 rounded-full animate-pulse", s.color)} />
                   )}
-
                   <div className="flex items-center gap-3">
-                    <div className={cn("w-9 h-9 rounded-xl bg-gradient-to-br shrink-0 flex items-center justify-center text-white font-black text-sm shadow-md", team.color)}>
+                    <div className={cn("w-9 h-9 rounded-xl shrink-0 flex items-center justify-center text-white font-black text-sm shadow-sm", s.color)}>
                       {idx + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-sm text-white truncate">{team.name}</p>
+                      <p className={cn("font-black text-sm truncate", isActive ? s.textColor : 'text-gray-700')}>{team.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-emerald-400 text-[10px] font-black">✓{team.correctAnswers}</span>
+                        <span className="text-emerald-500 text-[10px] font-black">✓{team.correctAnswers}</span>
                         <span className="text-red-400 text-[10px] font-black">✗{team.wrongAnswers}</span>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
                       <motion.p
                         key={team.score}
-                        initial={{ scale: 1.4, color: '#fbbf24' }}
-                        animate={{ scale: 1, color: '#ffffff' }}
-                        transition={{ duration: 0.5 }}
-                        className="font-black text-2xl text-white leading-none"
+                        initial={{ scale: 1.4 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className={cn("font-black text-2xl leading-none", isActive ? s.textColor : 'text-gray-700')}
                       >
                         {team.score}
                       </motion.p>
-                      {idx === 0 && <span className="text-yellow-400 text-[10px]">🏆 متصدر</span>}
+                      {idx === 0 && team.score > 0 && (
+                        <span className="text-yellow-500 text-[10px] font-black">🏆 متصدر</span>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -412,7 +399,7 @@ export default function Jeopardy() {
 
           <button
             onClick={() => setSetupMode(true)}
-            className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white/40 hover:text-white rounded-xl font-black text-xs transition-all"
+            className="w-full py-3 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-500 hover:text-gray-700 rounded-xl font-black text-xs transition-all"
           >
             ← تعديل الفرق
           </button>
@@ -426,43 +413,39 @@ export default function Jeopardy() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 30 }}
+              initial={{ scale: 0.92, y: 30 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="w-full max-w-3xl bg-[#111113] border border-white/10 rounded-[2rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden max-h-[95vh] flex flex-col"
+              exit={{ scale: 0.92, y: 30 }}
+              className="w-full max-w-3xl bg-white border border-gray-200 rounded-[2rem] shadow-[0_30px_80px_-10px_rgba(0,0,0,0.2)] overflow-hidden max-h-[95vh] flex flex-col"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-7 py-4 border-b border-white/10 bg-black/30 shrink-0">
+              <div className="flex items-center justify-between px-7 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
                 <div className="flex items-center gap-3">
-                  {/* Level badge */}
                   {(() => {
-                    const lvl = levels.find(l => l.id === activeQuestion.levelId);
+                    const lvl = LEVEL_STYLES.find(l => l.id === activeQuestion.levelId);
                     return (
                       <>
                         <span className="text-xl">{lvl?.emoji}</span>
-                        <span className={cn("font-black text-sm bg-gradient-to-r bg-clip-text text-transparent", lvl?.color)}>
-                          {lvl?.title}
-                        </span>
-                        <span className="text-white/20">•</span>
-                        <span className="text-white/50 font-black text-sm">{activeQuestion.points} نقطة</span>
+                        <span className={cn("font-black text-sm", lvl?.textColor)}>{lvl?.title}</span>
+                        <span className="text-gray-200">•</span>
+                        <span className="text-gray-400 font-black text-sm">{activeQuestion.points} نقطة</span>
+                        <span className="text-gray-200">•</span>
+                        <div className="flex items-center gap-2">
+                          <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center text-white text-[10px] font-black", currentStyle.color)}>
+                            {currentTeamIndex + 1}
+                          </div>
+                          <span className={cn("font-black text-sm", currentStyle.textColor)}>{currentTeam?.name}</span>
+                        </div>
                       </>
                     );
                   })()}
-                  <span className="text-white/20">•</span>
-                  {/* Current team */}
-                  <div className="flex items-center gap-2">
-                    <div className={cn("w-6 h-6 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-black", currentTeam?.color)}>
-                      {currentTeamIndex + 1}
-                    </div>
-                    <span className="text-white font-black text-sm">{currentTeam?.name}</span>
-                  </div>
                 </div>
                 <button
                   onClick={closeQuestion}
-                  className="p-2 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded-xl transition-all"
+                  className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 rounded-xl transition-all"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -470,7 +453,7 @@ export default function Jeopardy() {
 
               {/* Question body */}
               <div className="px-7 pt-9 pb-7 overflow-y-auto flex-1 flex flex-col">
-                <h2 className="text-3xl sm:text-4xl font-black text-white text-center leading-snug mb-9 flex-1 flex items-center justify-center">
+                <h2 className="text-3xl sm:text-4xl font-black text-gray-800 text-center leading-snug mb-9">
                   {activeQuestion.question}
                 </h2>
 
@@ -481,23 +464,23 @@ export default function Jeopardy() {
                     const isSelected = selectedChoice === choice;
                     const letters = ['أ', 'ب', 'ج', 'د'];
 
-                    let btnCls = 'border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-white/25 cursor-pointer';
-                    let badgeCls = 'bg-white/10 text-white/50';
+                    let btnCls = 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:border-gray-300 cursor-pointer';
+                    let badgeCls = 'bg-gray-200 text-gray-500';
 
                     if (answered) {
                       if (isCorrect) {
-                        btnCls = 'border-emerald-500/70 bg-emerald-500/15 text-emerald-200 cursor-default';
-                        badgeCls = 'bg-emerald-500/30 text-emerald-300';
+                        btnCls = 'border-emerald-400 bg-emerald-50 text-emerald-800 cursor-default shadow-sm shadow-emerald-100';
+                        badgeCls = 'bg-emerald-400 text-white';
                       } else if (isSelected) {
-                        btnCls = 'border-red-500/70 bg-red-500/15 text-red-300 cursor-default';
-                        badgeCls = 'bg-red-500/30 text-red-300';
+                        btnCls = 'border-red-300 bg-red-50 text-red-700 cursor-default';
+                        badgeCls = 'bg-red-400 text-white';
                       } else {
-                        btnCls = 'border-white/5 bg-white/3 text-white/25 cursor-default opacity-50';
-                        badgeCls = 'bg-white/5 text-white/20';
+                        btnCls = 'border-gray-100 bg-gray-50 text-gray-300 cursor-default opacity-60';
+                        badgeCls = 'bg-gray-200 text-gray-300';
                       }
                     } else if (isSelected) {
-                      btnCls = 'border-brand-red/60 bg-brand-red/15 text-white cursor-pointer';
-                      badgeCls = 'bg-brand-red/30 text-white';
+                      btnCls = 'border-red-400 bg-red-50 text-red-700 cursor-pointer';
+                      badgeCls = 'bg-red-400 text-white';
                     }
 
                     return (
@@ -508,7 +491,7 @@ export default function Jeopardy() {
                         whileHover={!answered ? { scale: 1.02 } : {}}
                         whileTap={!answered ? { scale: 0.97 } : {}}
                         className={cn(
-                          "flex items-center gap-4 p-4 rounded-2xl border text-right transition-all duration-300 text-base font-black",
+                          "flex items-center gap-4 p-4 rounded-2xl border-2 text-right transition-all duration-300 text-base font-black",
                           btnCls
                         )}
                       >
@@ -526,31 +509,29 @@ export default function Jeopardy() {
                 <AnimatePresence>
                   {resultMessage && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      initial={{ opacity: 0, scale: 0.95, y: 8 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       className={cn(
-                        "rounded-2xl p-5 text-center font-black text-xl mb-4 border",
+                        "rounded-2xl p-5 text-center font-black text-xl mb-4 border-2",
                         resultMessage === 'correct'
-                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                          : 'bg-red-500/10 border-red-500/30 text-red-300'
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                          : 'bg-red-50 border-red-200 text-red-600'
                       )}
                     >
                       {resultMessage === 'correct' ? (
                         <div className="flex items-center justify-center gap-3">
                           <span className="text-3xl">🎉</span>
                           <div>
-                            <p className="text-2xl">إجابة صحيحة!</p>
-                            <p className="text-emerald-400 text-base font-black">+{activeQuestion.points} نقطة لـ {currentTeam?.name}</p>
+                            <p className="text-2xl text-emerald-700">إجابة صحيحة!</p>
+                            <p className="text-emerald-500 text-base font-black mt-1">+{activeQuestion.points} نقطة لـ {currentTeam?.name}</p>
                           </div>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-3">
                           <span className="text-3xl">❌</span>
                           <div>
-                            <p className="text-2xl">إجابة خاطئة</p>
-                            <p className="text-red-400 text-base font-black">
-                              الإجابة الصحيحة: {activeQuestion.answer}
-                            </p>
+                            <p className="text-2xl text-red-600">إجابة خاطئة</p>
+                            <p className="text-red-400 text-base font-black mt-1">الإجابة الصحيحة: {activeQuestion.answer}</p>
                           </div>
                         </div>
                       )}
@@ -558,13 +539,13 @@ export default function Jeopardy() {
                   )}
                 </AnimatePresence>
 
-                {/* Close / Next button */}
+                {/* Next button */}
                 {answered && (
                   <motion.button
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     onClick={closeQuestion}
-                    className="w-full py-4 bg-brand-red hover:bg-brand-red/90 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-95 shadow-lg shadow-brand-red/20"
+                    className="w-full py-4 bg-gradient-to-r from-red-500 to-rose-500 hover:from-rose-500 hover:to-red-500 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-95 shadow-lg shadow-red-100"
                   >
                     <ChevronLeft className="w-5 h-5" />
                     التالي: دور {teams[(currentTeamIndex + 1) % teams.length]?.name}
