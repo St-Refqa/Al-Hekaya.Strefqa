@@ -15,7 +15,9 @@ import {
   Settings,
   Globe,
   Calendar,
-  RefreshCw
+  RefreshCw,
+  Gamepad2,
+  Flame
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -58,6 +60,8 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       { icon: ShoppingBag, label: t('sidebar.store_manager') || "متجر الهدايا والطلبات", path: '/admin/store' },
       { icon: Trophy, label: t('sidebar.leaderboard') || 'لوحة المتصدرين', path: '/admin/leaderboard' },
       { icon: Star, label: 'بوسترات الأوائل', path: '/admin/posters' },
+      { icon: Gamepad2, label: 'ألعاب الكتاب المقدس 🎮', path: '/student/games' },
+      { icon: Flame, label: 'لوحة الـ Streak 🔥', path: '/student/streak' },
       { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
       { icon: Calendar, label: 'مواعيد الاجتماعات', path: '/admin/meetings' },
       { icon: TrendingUp, label: t('sidebar.platform_analytics') || "تحليل المنصة", path: '/admin/analytics' },
@@ -90,6 +94,8 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       menuItems.push(
         { icon: Trophy, label: t('sidebar.leaderboard') || 'لوحة المتصدرين', path: '/admin/leaderboard' },
         { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
+        { icon: Gamepad2, label: 'ألعاب الكتاب المقدس 🎮', path: '/student/games' },
+        { icon: Flame, label: 'لوحة الـ Streak 🔥', path: '/student/streak' },
       );
     }
     if (isMeetingScheduler || isExamCreator || isAttendanceScanner || isStoreManager) {
