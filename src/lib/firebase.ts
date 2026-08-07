@@ -252,15 +252,21 @@ export async function deleteDoc(ref: any) {
   // Do not throw on delete if missing
 }
 
-export function onSnapshot(q: any, cb: (snap: any) => void) {
+export function onSnapshot(q: any, cb: (snap: any) => void, errCb?: (error: any) => void) {
   let isCancelled = false;
   
   const fetchState = () => {
     if (isCancelled) return;
     if (q.id) {
-      getDoc(q).then(s => { if (!isCancelled) cb(s); }).catch(console.error);
+      getDoc(q).then(s => { if (!isCancelled) cb(s); }).catch(e => {
+        console.error(e);
+        if (!isCancelled && errCb) errCb(e);
+      });
     } else {
-      getDocs(q).then(s => { if (!isCancelled) cb(s); }).catch(console.error);
+      getDocs(q).then(s => { if (!isCancelled) cb(s); }).catch(e => {
+        console.error(e);
+        if (!isCancelled && errCb) errCb(e);
+      });
     }
   };
 
