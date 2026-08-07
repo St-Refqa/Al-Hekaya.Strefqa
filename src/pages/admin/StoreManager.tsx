@@ -376,7 +376,7 @@ export default function StoreManager() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {formData.images.filter(img => img.trim() !== "").map((img, idx) => (
                         <div key={idx} className="aspect-square rounded-[24px] overflow-hidden border-2 border-brand-cream relative group shadow-sm bg-brand-cream/30">
-                          <SmartImage src={img} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt={`Preview ${idx + 1}`} />
+                          <SmartImage src={img} className="w-full h-full object-contain transition-transform group-hover:scale-110" alt={`Preview ${idx + 1}`} />
                           
                           <div className="absolute inset-0 bg-brand-text/40 flex flex-col items-center justify-center transition-opacity gap-2 md:opacity-0 md:group-hover:opacity-100 opacity-100">
                              <span className="text-white font-black text-[10px] bg-brand-text/50 px-2 py-0.5 rounded-full">
@@ -467,8 +467,8 @@ export default function StoreManager() {
                 key={item.id}
                 className="bg-white p-4 rounded-[40px] border border-brand-beige/5 shadow-sm hover:shadow-2xl hover:shadow-brand-red/5 transition-all group relative"
               >
-                <div className="relative aspect-[4/3] rounded-[32px] overflow-hidden mb-6 bg-brand-cream/30">
-                  <SmartImage src={item.images?.[0] || (item as any).image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.title} />
+                <div className="relative aspect-square overflow-hidden bg-slate-50 p-2">
+                  <SmartImage src={item.images?.[0] || (item as any).image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt={item.title} />
                   
                   <div className="absolute inset-0 bg-black/20 transition-opacity md:opacity-0 md:group-hover:opacity-100" />
                   

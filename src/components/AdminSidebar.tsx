@@ -61,6 +61,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       { icon: Trophy, label: t('sidebar.leaderboard') || 'لوحة المتصدرين', path: '/admin/leaderboard' },
       { icon: Star, label: 'بوسترات الأوائل', path: '/admin/posters' },
       { icon: Gamepad2, label: 'تقارير الألعاب 📊', path: '/admin/games' },
+      { icon: Trophy, label: 'مسابقة إنجيل مارمرقس', path: '/admin/jeopardy' },
       { icon: Gamepad2, label: 'ألعاب الكتاب المقدس 🎮', path: '/student/games' },
       { icon: Flame, label: 'لوحة الـ Streak 🔥', path: '/student/streak' },
       { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
@@ -96,6 +97,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
         { icon: Trophy, label: t('sidebar.leaderboard') || 'لوحة المتصدرين', path: '/admin/leaderboard' },
         { icon: BookOpen, label: 'المكتبة الكنسية', path: '/admin/library' },
         { icon: Gamepad2, label: 'تقارير الألعاب 📊', path: '/admin/games' },
+        { icon: Trophy, label: 'مسابقة إنجيل مارمرقس', path: '/admin/jeopardy' },
         { icon: Gamepad2, label: 'ألعاب الكتاب المقدس 🎮', path: '/student/games' },
         { icon: Flame, label: 'لوحة الـ Streak 🔥', path: '/student/streak' },
       );

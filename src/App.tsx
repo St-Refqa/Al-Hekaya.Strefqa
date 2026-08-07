@@ -54,6 +54,7 @@ import MultiplayerCreate from './pages/student/games/MultiplayerCreate';
 import MultiplayerJoin from './pages/student/games/MultiplayerJoin';
 import MultiplayerLobby from './pages/student/games/MultiplayerLobby';
 import MultiplayerPlay from './pages/student/games/MultiplayerPlay';
+import Jeopardy from './pages/admin/Jeopardy';
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
   const { isAuthenticated, isLoading, isAdmin, isStudent, user } = useAuth();
@@ -425,6 +426,11 @@ function AnimatedRoutes() {
         <Route path="/admin/games" element={
           <ProtectedRoute role="admin">
             <motion.div {...pageTransition} className="w-full min-h-screen"><AdminGames /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/jeopardy" element={
+          <ProtectedRoute role="servant">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><Jeopardy /></motion.div>
           </ProtectedRoute>
         } />
 
