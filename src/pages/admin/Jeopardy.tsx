@@ -17,16 +17,26 @@ interface Team {
 }
 
 const TEAM_STYLES = [
-  { color: 'bg-blue-500',   bgColor: 'bg-blue-50',   borderColor: 'border-blue-300',   textColor: 'text-blue-700',   gradient: 'from-blue-500 to-blue-600' },
-  { color: 'bg-purple-500', bgColor: 'bg-purple-50', borderColor: 'border-purple-300', textColor: 'text-purple-700', gradient: 'from-purple-500 to-purple-600' },
-  { color: 'bg-rose-500',   bgColor: 'bg-rose-50',   borderColor: 'border-rose-300',   textColor: 'text-rose-700',   gradient: 'from-rose-500 to-rose-600' },
-  { color: 'bg-teal-500',   bgColor: 'bg-teal-50',   borderColor: 'border-teal-300',   textColor: 'text-teal-700',   gradient: 'from-teal-500 to-teal-600' },
-  { color: 'bg-orange-500', bgColor: 'bg-orange-50', borderColor: 'border-orange-300', textColor: 'text-orange-700', gradient: 'from-orange-500 to-orange-600' },
-  { color: 'bg-cyan-500',   bgColor: 'bg-cyan-50',   borderColor: 'border-cyan-300',   textColor: 'text-cyan-700',   gradient: 'from-cyan-500 to-cyan-600' },
-  { color: 'bg-green-600',  bgColor: 'bg-green-50',  borderColor: 'border-green-300',  textColor: 'text-green-700',  gradient: 'from-green-500 to-green-600' },
-  { color: 'bg-pink-500',   bgColor: 'bg-pink-50',   borderColor: 'border-pink-300',   textColor: 'text-pink-700',   gradient: 'from-pink-500 to-pink-600' },
-  { color: 'bg-indigo-500', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-300', textColor: 'text-indigo-700', gradient: 'from-indigo-500 to-indigo-600' },
-  { color: 'bg-amber-500',  bgColor: 'bg-amber-50',  borderColor: 'border-amber-300',  textColor: 'text-amber-700',  gradient: 'from-amber-500 to-amber-600' },
+  { color: 'bg-blue-500',    bgColor: 'bg-blue-50',    borderColor: 'border-blue-300',    textColor: 'text-blue-700',    gradient: 'from-blue-500 to-blue-600' },
+  { color: 'bg-purple-500',  bgColor: 'bg-purple-50',  borderColor: 'border-purple-300',  textColor: 'text-purple-700',  gradient: 'from-purple-500 to-purple-600' },
+  { color: 'bg-rose-500',    bgColor: 'bg-rose-50',    borderColor: 'border-rose-300',    textColor: 'text-rose-700',    gradient: 'from-rose-500 to-rose-600' },
+  { color: 'bg-teal-500',    bgColor: 'bg-teal-50',    borderColor: 'border-teal-300',    textColor: 'text-teal-700',    gradient: 'from-teal-500 to-teal-600' },
+  { color: 'bg-orange-500',  bgColor: 'bg-orange-50',  borderColor: 'border-orange-300',  textColor: 'text-orange-700',  gradient: 'from-orange-500 to-orange-600' },
+  { color: 'bg-cyan-500',    bgColor: 'bg-cyan-50',    borderColor: 'border-cyan-300',    textColor: 'text-cyan-700',    gradient: 'from-cyan-500 to-cyan-600' },
+  { color: 'bg-green-600',   bgColor: 'bg-green-50',   borderColor: 'border-green-300',   textColor: 'text-green-700',   gradient: 'from-green-500 to-green-600' },
+  { color: 'bg-pink-500',    bgColor: 'bg-pink-50',    borderColor: 'border-pink-300',    textColor: 'text-pink-700',    gradient: 'from-pink-500 to-pink-600' },
+  { color: 'bg-indigo-500',  bgColor: 'bg-indigo-50',  borderColor: 'border-indigo-300',  textColor: 'text-indigo-700',  gradient: 'from-indigo-500 to-indigo-600' },
+  { color: 'bg-amber-500',   bgColor: 'bg-amber-50',   borderColor: 'border-amber-300',   textColor: 'text-amber-700',   gradient: 'from-amber-500 to-amber-600' },
+  { color: 'bg-red-600',     bgColor: 'bg-red-50',     borderColor: 'border-red-300',     textColor: 'text-red-700',     gradient: 'from-red-500 to-red-600' },
+  { color: 'bg-violet-500',  bgColor: 'bg-violet-50',  borderColor: 'border-violet-300',  textColor: 'text-violet-700',  gradient: 'from-violet-500 to-violet-600' },
+  { color: 'bg-lime-600',    bgColor: 'bg-lime-50',    borderColor: 'border-lime-300',    textColor: 'text-lime-700',    gradient: 'from-lime-500 to-lime-600' },
+  { color: 'bg-sky-500',     bgColor: 'bg-sky-50',     borderColor: 'border-sky-300',     textColor: 'text-sky-700',     gradient: 'from-sky-500 to-sky-600' },
+  { color: 'bg-fuchsia-500', bgColor: 'bg-fuchsia-50', borderColor: 'border-fuchsia-300', textColor: 'text-fuchsia-700', gradient: 'from-fuchsia-500 to-fuchsia-600' },
+  { color: 'bg-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-300', textColor: 'text-emerald-700', gradient: 'from-emerald-500 to-emerald-600' },
+  { color: 'bg-yellow-500',  bgColor: 'bg-yellow-50',  borderColor: 'border-yellow-300',  textColor: 'text-yellow-700',  gradient: 'from-yellow-500 to-yellow-600' },
+  { color: 'bg-slate-500',   bgColor: 'bg-slate-50',   borderColor: 'border-slate-300',   textColor: 'text-slate-700',   gradient: 'from-slate-500 to-slate-600' },
+  { color: 'bg-pink-600',    bgColor: 'bg-pink-50',    borderColor: 'border-pink-300',    textColor: 'text-pink-800',    gradient: 'from-pink-600 to-pink-700' },
+  { color: 'bg-blue-800',    bgColor: 'bg-blue-50',    borderColor: 'border-blue-400',    textColor: 'text-blue-900',    gradient: 'from-blue-700 to-blue-800' },
 ];
 
 const LEVEL_STYLES = [
@@ -156,7 +166,7 @@ export default function Jeopardy() {
                 onChange={handleNumTeamsChange}
                 className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-gray-800 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none transition-all font-black text-base cursor-pointer"
               >
-                {[...Array(9)].map((_, i) => (
+                {[...Array(19)].map((_, i) => (
                   <option key={i + 2} value={i + 2}>{i + 2} فرق</option>
                 ))}
               </select>
