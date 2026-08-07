@@ -67,7 +67,7 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 
   const isServant = isExamCreator || isAttendanceScanner || isStoreManager || isLibraryManager || isMeetingScheduler || userRole === 'servant';
 
   if (role === 'admin' && !isAdmin) return <Navigate to="/" />;
-  if (role === 'student' && !isStudent) return <Navigate to="/" />;
+  if (role === 'student' && !isStudent && !isAdmin && !isServant) return <Navigate to="/" />;
   if (role === 'creator' && !isAdmin && !isExamCreator) return <Navigate to="/" />;
   if (role === 'attendance' && !isAdmin && !isAttendanceScanner) return <Navigate to="/" />;
   if (role === 'store' && !isAdmin && !isStoreManager) return <Navigate to="/" />;
