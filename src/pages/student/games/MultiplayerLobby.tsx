@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 import { db, supabase } from '../../../lib/firebase';
 import { useAuth } from '../../../hooks/useAuth';
 import { ArrowLeft, Users, Play, Copy, CheckCircle2, User as UserIcon, Globe } from 'lucide-react';
@@ -35,6 +35,37 @@ export default function MultiplayerLobby() {
     if (!roomId || !user) return;
     
     const roomRef = doc(db, 'gameRooms', roomId);
+    
+    // Auto-join if not already in the room
+    const autoJoin = async () => {
+      try {
+        const snap = await getDoc(roomRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          const currentPlayers = data.players || {};
+          if (!currentPlayers[user.uid]) {
+            if (data.status === 'waiting' && Object.keys(currentPlayers).length < 4) {
+              await updateDoc(roomRef, {
+                players: {
+                  ...currentPlayers,
+                  [user.uid]: {
+                    uid: user.uid,
+                    name: user.fullName || 'بدون اسم',
+                    photoUrl: user.photoUrl || null,
+                    score: 0,
+                    completed: false
+                  }
+                }
+              });
+            } else {
+              setError('الغرفة ممتلئة أو اللعبة بدأت بالفعل.');
+            }
+          }
+        }
+      } catch (err) {}
+    };
+    autoJoin();
+
     const unsub = onSnapshot(roomRef, (snap) => {
       if (!snap.exists()) {
         setError('الغرفة تم إغلاقها أو لم تعد موجودة.');
