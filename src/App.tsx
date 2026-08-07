@@ -48,6 +48,7 @@ import GamesHub from './pages/student/Games';
 import GamePlay from './pages/student/games/GamePlay';
 import DailyChallenge from './pages/student/games/DailyChallenge';
 import GamesLeaderboard from './pages/student/games/GamesLeaderboard';
+import StreakLeaderboard from './pages/student/StreakLeaderboard';
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
   const { isAuthenticated, isLoading, isAdmin, isStudent, user } = useAuth();
@@ -284,10 +285,10 @@ function AnimatedRoutes() {
             <motion.div {...pageTransition} className="w-full min-h-screen"><GamesLeaderboard /></motion.div>
           </ProtectedRoute>
         } />
-        {/* Streak Leaderboard — redirects to dashboard which has the streak section */}
+        {/* Streak Leaderboard */}
         <Route path="/student/streak" element={
           <ProtectedRoute role="student">
-            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentDashboard /></motion.div>
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StreakLeaderboard /></motion.div>
           </ProtectedRoute>
         } />
 
