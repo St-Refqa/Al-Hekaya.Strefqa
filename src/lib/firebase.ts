@@ -145,6 +145,12 @@ function cleanData(data: any, path: string) {
     }
     return clone;
   }
+
+  if (path === 'gameScores' || path === 'game_scores') {
+    delete clone.dailyCompleted;
+    delete clone.lastGame;
+    return clone;
+  }
   
   if (path === 'users') {
     if (clone.storePoints !== undefined || clone.round1Points !== undefined) {
