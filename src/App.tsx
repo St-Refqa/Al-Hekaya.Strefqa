@@ -49,6 +49,10 @@ import GamePlay from './pages/student/games/GamePlay';
 import DailyChallenge from './pages/student/games/DailyChallenge';
 import GamesLeaderboard from './pages/student/games/GamesLeaderboard';
 import StreakLeaderboard from './pages/student/StreakLeaderboard';
+import MultiplayerCreate from './pages/student/games/MultiplayerCreate';
+import MultiplayerJoin from './pages/student/games/MultiplayerJoin';
+import MultiplayerLobby from './pages/student/games/MultiplayerLobby';
+import MultiplayerPlay from './pages/student/games/MultiplayerPlay';
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
   const { isAuthenticated, isLoading, isAdmin, isStudent, user } = useAuth();
@@ -280,6 +284,28 @@ function AnimatedRoutes() {
             <motion.div {...pageTransition} className="w-full min-h-screen"><GamePlay /></motion.div>
           </ProtectedRoute>
         } />
+        {/* Multiplayer Games */}
+        <Route path="/student/games/create" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><MultiplayerCreate /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/games/join" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><MultiplayerJoin /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/games/lobby/:roomId" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><MultiplayerLobby /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/games/play-multi/:roomId" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><MultiplayerPlay /></motion.div>
+          </ProtectedRoute>
+        } />
+
         <Route path="/student/games/leaderboard" element={
           <ProtectedRoute role="student">
             <motion.div {...pageTransition} className="w-full min-h-screen"><GamesLeaderboard /></motion.div>
