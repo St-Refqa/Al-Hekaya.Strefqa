@@ -140,6 +140,13 @@ export default function DailyChallenge() {
         dailyCompleted: (data.dailyCompleted || 0) + 1,
       });
     }).catch(() => {});
+
+    // Update global user streak
+    const userRef = doc(db, 'users', user.uid);
+    updateDoc(userRef, {
+      streak: increment(1),
+      lastActive: serverTimestamp()
+    }).catch(() => {});
   }
 
   const pct = (timeLeft / maxTime) * 100;

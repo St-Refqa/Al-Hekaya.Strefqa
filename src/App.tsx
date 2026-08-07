@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminGames from './pages/admin/AdminGames';
 import AssessmentCreator from './pages/admin/AssessmentCreator';
 import ResultsDashboard from './pages/admin/ResultsDashboard';
 import AdminLeaderboard from './pages/admin/Leaderboard';
@@ -419,6 +420,11 @@ function AnimatedRoutes() {
         <Route path="/admin/meetings" element={
           <ProtectedRoute role="servant">
             <motion.div {...pageTransition} className="w-full min-h-screen"><PreparationMeetings /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/games" element={
+          <ProtectedRoute role="admin">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><AdminGames /></motion.div>
           </ProtectedRoute>
         } />
 
