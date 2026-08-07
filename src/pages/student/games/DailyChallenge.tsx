@@ -59,14 +59,24 @@ export default function DailyChallenge() {
   // Timer
   useEffect(() => {
     if (phase !== 'playing') return;
-    setTimeLeft(maxTime);
+    if (selected) return; // Stop timer if an answer is selected
+
     const interval = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) { handleTimeout(); return 0; }
-        return t - 1;
-      });
+      setTimeLeft(t => Math.max(0, t - 1));
     }, 1000);
     return () => clearInterval(interval);
+  }, [qIndex, phase, selected]);
+
+  useEffect(() => {
+    if (phase === 'playing' && timeLeft === 0 && !selected) {
+      handleTimeout();
+    }
+  }, [timeLeft, phase, selected]);
+
+  useEffect(() => {
+    if (phase === 'playing') {
+      setTimeLeft(maxTime);
+    }
   }, [qIndex, phase]);
 
   function handleTimeout() {
@@ -215,6 +225,10 @@ export default function DailyChallenge() {
   }
 
   // Playing
+  if (phase === 'playing' && !currentQ) {
+    return <div className="min-h-screen bg-brand-cream flex items-center justify-center font-black">جاري التحميل...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-brand-cream pb-10" dir="rtl">
       <div className="bg-gradient-to-br from-amber-400 to-orange-500 text-white px-5 pt-8 pb-8">

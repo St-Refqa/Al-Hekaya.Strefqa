@@ -269,15 +269,24 @@ export default function GamePlay() {
   // Timer
   useEffect(() => {
     if (phase !== 'playing') return;
-    setTimeLeft(maxTime);
+    
     timerRef.current = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) { handleAnswer(null); return 0; }
-        return t - 1;
-      });
+      setTimeLeft(t => Math.max(0, t - 1));
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [qIndex, phase]);
+
+  useEffect(() => {
+    if (phase === 'playing' && timeLeft === 0) {
+      handleAnswer(null);
+    }
+  }, [timeLeft, phase]);
+
+  useEffect(() => {
+    if (phase === 'playing') {
+      setTimeLeft(maxTime);
+    }
+  }, [qIndex, phase, maxTime]);
 
   const handleAnswer = useCallback((ans: string | boolean | null) => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -364,6 +373,10 @@ export default function GamePlay() {
         </div>
       </div>
     );
+  }
+
+  if (phase === 'playing' && !currentQ) {
+    return <div className="min-h-screen bg-brand-cream flex items-center justify-center font-black">جاري التحميل...</div>;
   }
 
   return (
