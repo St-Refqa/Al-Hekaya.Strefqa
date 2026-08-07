@@ -33,6 +33,7 @@ export default function GamesHub() {
   }, []);
 
   const [dailyDone, setDailyDone] = useState(false);
+  const [dailyCompletedCount, setDailyCompletedCount] = useState(0);
   const [gameScores, setGameScores] = useState<any>(null);
   const [topPlayers, setTopPlayers] = useState<any[]>([]);
   const today = useMemo(() => getEgyptDate(), []);
@@ -53,7 +54,7 @@ export default function GamesHub() {
             photoUrl: user.photoUrl || null,
             totalScore: (data.totalScore || 0) + 5,
             gamesPlayed: (data.gamesPlayed || 0) + 1,
-            dailyCompleted: (data.dailyCompleted || 0) + 1,
+            // dailyCompleted is tracked via dailyChallenges table
           });
 
           localStorage.setItem('games_hub_fix_s001', 'done');
@@ -65,18 +66,24 @@ export default function GamesHub() {
     }
   }, [user]);
 
-  // Check if user already completed today's daily challenge
+  // Check if user already completed today's daily challenge and get total count
   useEffect(() => {
     if (!user) return;
-    // Check if daily challenge done using the snake_case table and individual document
+    
+    // Check today
     const id = `${user.uid}_${today}`;
     const ref = doc(db, 'dailyChallenges', id);
     getDoc(ref).then(snap => {
-      if (snap.exists()) {
-        const data = snap.data();
-        if (data.completed) setDailyDone(true);
-      }
+      if (snap.exists() && snap.data().completed) setDailyDone(true);
     }).catch(() => {});
+
+    // Get total completed challenges
+    const q = query(collection(db, 'dailyChallenges'), where('uid', '==', user.uid), where('completed', '==', true));
+    import('firebase/firestore').then(({ getDocs }) => {
+      getDocs(q).then(snap => {
+        setDailyCompletedCount(snap.docs.length);
+      }).catch(() => {});
+    });
   }, [user, today]);
 
   // Load user game scores
@@ -89,7 +96,7 @@ export default function GamesHub() {
     return () => unsub();
   }, [user]);
 
-  // Top leaderboard
+
   useEffect(() => {
     const q = query(collection(db, 'gameScores'));
     const unsub = onSnapshot(
@@ -194,7 +201,7 @@ export default function GamesHub() {
               {[
                 { label: 'النقاط', value: gameScores.totalScore || 0, icon: '🏆' },
                 { label: 'ألعاب', value: gameScores.gamesPlayed || 0, icon: '🎮' },
-                { label: 'تحديات', value: gameScores.dailyCompleted || 0, icon: '⚡' },
+                { label: 'تحديات', value: dailyCompletedCount, icon: '⚡' },
               ].map((s, i) => (
                 <div key={i} className="bg-brand-cream/60 rounded-2xl p-3 text-center">
                   <div className="text-2xl mb-1">{s.icon}</div>
