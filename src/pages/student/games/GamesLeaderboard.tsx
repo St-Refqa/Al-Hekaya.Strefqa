@@ -14,15 +14,25 @@ export default function GamesLeaderboard() {
 
   useEffect(() => {
     const q = query(collection(db, 'gameScores'));
+    
+    // First, try a direct fetch to catch errors
+    import('firebase/firestore').then(({ getDocs }) => {
+      getDocs(q).then((snap: any) => {
+        const all = snap.docs.map((d: any) => ({ uid: d.id, ...d.data() })) as any[];
+        setPlayers(all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)));
+        setLoading(false);
+      }).catch((err: any) => {
+        console.error("Direct fetch error:", err);
+        alert(`Error fetching leaderboard: ${err.message || err.toString()}`);
+        setLoading(false);
+      });
+    });
+
     const unsub = onSnapshot(
       q,
       snap => {
         const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
         setPlayers(all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)));
-        setLoading(false);
-      },
-      error => {
-        handleFirestoreError(error, OperationType.LIST, 'gameScores');
         setLoading(false);
       }
     );
