@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { db, supabase } from '../../lib/firebase';
 import { useAuth } from '../../hooks/useAuth';
 import { GAME_META, GameType } from '../../data/markQuestions';
 import {
@@ -10,7 +10,6 @@ import {
   Star, Zap, BookOpen, Calendar, Globe, UserCircle
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useOnlinePresence } from '../../hooks/useOnlinePresence';
 
 const GAME_TYPES: GameType[] = ['fill', 'where', 'who', 'match', 'order', 'speed'];
 
@@ -20,7 +19,19 @@ function getEgyptDate() {
 
 export default function GamesHub() {
   const { user } = useAuth();
-  const { onlineUsers } = useOnlinePresence();
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const channel = supabase.channel('global-online-users');
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const users = Object.values(state).map((pArr: any) => pArr[0]);
+      setOnlineUsers(users);
+    });
+    channel.subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   const [dailyDone, setDailyDone] = useState(false);
   const [gameScores, setGameScores] = useState<any>(null);
   const [topPlayers, setTopPlayers] = useState<any[]>([]);
