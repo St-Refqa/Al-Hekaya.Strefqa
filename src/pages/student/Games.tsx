@@ -37,6 +37,34 @@ export default function GamesHub() {
   const [topPlayers, setTopPlayers] = useState<any[]>([]);
   const today = useMemo(() => getEgyptDate(), []);
 
+  // Temporary fix for S001's stats
+  useEffect(() => {
+    if (user?.uid === 's001' && !localStorage.getItem('games_hub_fix_s001')) {
+      import('firebase/firestore').then(async ({ doc, updateDoc, setDoc, getDoc, increment }) => {
+        try {
+          await updateDoc(doc(db, 'users', 's001'), { streak: increment(1) });
+          
+          const scoreRef = doc(db, 'gameScores', 's001');
+          const snap = await getDoc(scoreRef);
+          const data = snap.exists() ? snap.data() : {};
+          await setDoc(scoreRef, {
+            uid: 's001',
+            fullName: user.fullName || 'Admin',
+            photoUrl: user.photoUrl || null,
+            totalScore: (data.totalScore || 0) + 5,
+            gamesPlayed: (data.gamesPlayed || 0) + 1,
+            dailyCompleted: (data.dailyCompleted || 0) + 1,
+          });
+
+          localStorage.setItem('games_hub_fix_s001', 'done');
+          window.location.reload();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    }
+  }, [user]);
+
   // Check if user already completed today's daily challenge
   useEffect(() => {
     if (!user) return;
