@@ -1387,10 +1387,10 @@ export default function AdminAttendance() {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: 'منتظمون', count: studentReportData.filter(s => s.status === 'present').length, color: 'bg-emerald-50 border-emerald-200', textColor: 'text-emerald-700', dotColor: 'bg-emerald-500' },
-                { label: 'تحذير (أسبوع)', count: studentReportData.filter(s => s.status === 'warning').length, color: 'bg-amber-50 border-amber-200', textColor: 'text-amber-700', dotColor: 'bg-amber-500' },
-                { label: 'غياب (أسبوعين+)', count: studentReportData.filter(s => s.status === 'danger').length, color: 'bg-orange-50 border-orange-200', textColor: 'text-orange-700', dotColor: 'bg-orange-500' },
-                { label: 'حرج (شهر+)', count: studentReportData.filter(s => s.status === 'critical').length, color: 'bg-red-50 border-red-200', textColor: 'text-brand-red', dotColor: 'bg-brand-red' },
+                { label: 'منتظمون', count: filteredReportData.filter(s => s.status === 'present').length, color: 'bg-emerald-50 border-emerald-200', textColor: 'text-emerald-700', dotColor: 'bg-emerald-500' },
+                { label: 'تحذير (أسبوع)', count: filteredReportData.filter(s => s.status === 'warning').length, color: 'bg-amber-50 border-amber-200', textColor: 'text-amber-700', dotColor: 'bg-amber-500' },
+                { label: 'غياب (أسبوعين+)', count: filteredReportData.filter(s => s.status === 'danger').length, color: 'bg-orange-50 border-orange-200', textColor: 'text-orange-700', dotColor: 'bg-orange-500' },
+                { label: 'حرج (شهر+)', count: filteredReportData.filter(s => s.status === 'critical').length, color: 'bg-red-50 border-red-200', textColor: 'text-brand-red', dotColor: 'bg-brand-red' },
               ].map((stat, i) => (
                 <div key={i} className={`rounded-2xl border p-4 ${stat.color} flex flex-col items-center gap-1 text-center`}>
                   <div className={`w-2 h-2 rounded-full ${stat.dotColor}`} />
