@@ -26,8 +26,13 @@ function generateRoomId() {
 
 const MODES = [
   { id: 'mixed', label: 'مختلط (تحدي متنوع)', icon: Dices, color: 'text-violet-500', bg: 'bg-violet-100', border: 'border-violet-500' },
-  ...GAME_META.map(m => ({
-    id: m.id, label: m.label, icon: Brain, color: m.color, bg: m.bg, border: 'border-brand-red' // Simplified for UI
+  ...Object.entries(GAME_META).map(([id, m]) => ({
+    id, 
+    label: m.label, 
+    icon: Brain, 
+    color: m.color, 
+    bg: m.bg, 
+    border: 'border-brand-red' // Simplified for UI
   }))
 ];
 
