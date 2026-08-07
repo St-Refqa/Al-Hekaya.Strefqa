@@ -7,9 +7,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { GAME_META, GameType } from '../../data/markQuestions';
 import {
   Gamepad2, Flame, Trophy, Clock, Users, ChevronRight,
-  Star, Zap, BookOpen, Calendar
+  Star, Zap, BookOpen, Calendar, Globe, UserCircle
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useOnlinePresence } from '../../hooks/useOnlinePresence';
 
 const GAME_TYPES: GameType[] = ['fill', 'where', 'who', 'match', 'order', 'speed'];
 
@@ -19,6 +20,7 @@ function getEgyptDate() {
 
 export default function GamesHub() {
   const { user } = useAuth();
+  const { onlineUsers } = useOnlinePresence();
   const [dailyDone, setDailyDone] = useState(false);
   const [gameScores, setGameScores] = useState<any>(null);
   const [topPlayers, setTopPlayers] = useState<any[]>([]);
@@ -213,6 +215,44 @@ export default function GamesHub() {
               <span className="font-black text-sm">انضم بكود</span>
               <span className="text-[10px] text-brand-beige">ادخل كود الغرفة</span>
             </Link>
+          </div>
+        </div>
+
+        {/* Online Users */}
+        <div className="bg-emerald-50 rounded-3xl p-5 border border-emerald-100 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black text-emerald-800 flex items-center gap-2">
+              <Globe className="w-5 h-5 text-emerald-500" /> متواجدون الآن
+            </h3>
+            <span className="bg-emerald-200 text-emerald-800 px-3 py-1 rounded-full text-xs font-black">
+              {onlineUsers.filter(u => u.uid !== user?.uid).length} أصدقاء
+            </span>
+          </div>
+          
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+            {onlineUsers.filter(u => u.uid !== user?.uid).map(u => (
+              <div key={u.uid} className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-brand-cream overflow-hidden flex items-center justify-center shrink-0">
+                  {u.photoUrl ? (
+                    <img src={u.photoUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircle className="w-6 h-6 text-brand-beige" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-black text-brand-text text-sm">{u.name}</p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-bold text-emerald-600">أونلاين في الموقع</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {onlineUsers.filter(u => u.uid !== user?.uid).length === 0 && (
+              <p className="text-center text-sm font-bold text-emerald-600 py-4 opacity-70">
+                مفيش حد أونلاين دلوقتي غيرك
+              </p>
+            )}
           </div>
         </div>
 
