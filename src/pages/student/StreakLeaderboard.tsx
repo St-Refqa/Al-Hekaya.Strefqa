@@ -23,7 +23,7 @@ export default function StreakLeaderboard() {
   useEffect(() => {
     const q = query(
       collection(db, "users"),
-      where("role", "==", "student")
+      where("role", "in", ["student", "servant", "admin"])
     );
 
     const unsubscribe = onSnapshot(
