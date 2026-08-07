@@ -82,6 +82,9 @@ function restoreData(data: any, path: string) {
 
 function getTableName(path: string): string {
   if (path === 'pointLogs') return 'point_logs';
+  if (path === 'gameRooms') return 'game_rooms';
+  if (path === 'gameScores') return 'game_scores';
+  if (path === 'dailyChallenges') return 'daily_challenges';
   return path;
 }
 
