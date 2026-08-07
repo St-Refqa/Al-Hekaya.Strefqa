@@ -14,7 +14,9 @@ import {
   Calendar,
   RefreshCw,
   BookOpen,
-  Plus
+  Plus,
+  Gamepad2,
+  Flame
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -42,6 +44,8 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
   const menuItems = [
     { icon: Home, label: t('sidebar.dashboard'), path: '/student' },
     { icon: Scroll, label: t('sidebar.assessments'), path: '/student/assessments' },
+    { icon: Gamepad2, label: 'ألعاب الكتاب المقدس 🎮', path: '/student/games' },
+    { icon: Flame, label: 'لوحة الـ Streak 🔥', path: '/student/streak' },
     ...(!isOnlineStudent ? [{ icon: Calendar, label: 'جدول المناهج والاجتماعات', path: '/student/meetings' }] : []),
     { icon: BookOpen, label: 'المكتبة الكنسية', path: '/student/library' },
     { icon: Ticket, label: t('sidebar.store'), path: '/student/store' },

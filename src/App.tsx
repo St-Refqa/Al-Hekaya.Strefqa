@@ -44,7 +44,10 @@ import Settings from './pages/admin/Settings';
 import AssessmentDetails from './pages/admin/AssessmentDetails';
 import PreparationMeetingsAdmin from './pages/admin/PreparationMeetings';
 import Posters from './pages/admin/Posters';
-
+import GamesHub from './pages/student/Games';
+import GamePlay from './pages/student/games/GamePlay';
+import DailyChallenge from './pages/student/games/DailyChallenge';
+import GamesLeaderboard from './pages/student/games/GamesLeaderboard';
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode; role?: 'admin' | 'student' | 'creator' | 'attendance' | 'servant' | 'store' }) {
   const { isAuthenticated, isLoading, isAdmin, isStudent, user } = useAuth();
@@ -260,8 +263,35 @@ function AnimatedRoutes() {
           </ProtectedRoute>
         } />
 
+        {/* Games Routes */}
+        <Route path="/student/games" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><GamesHub /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/games/daily" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><DailyChallenge /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/games/play/:type" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><GamePlay /></motion.div>
+          </ProtectedRoute>
+        } />
+        <Route path="/student/games/leaderboard" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><GamesLeaderboard /></motion.div>
+          </ProtectedRoute>
+        } />
+        {/* Streak Leaderboard — redirects to dashboard which has the streak section */}
+        <Route path="/student/streak" element={
+          <ProtectedRoute role="student">
+            <motion.div {...pageTransition} className="w-full min-h-screen"><StudentDashboard /></motion.div>
+          </ProtectedRoute>
+        } />
 
-        {/* Admin Routes */}
+
         <Route path="/admin/login" element={<Navigate to="/login" replace />} />
         
         <Route path="/admin" element={
