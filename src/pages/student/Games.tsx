@@ -90,27 +90,20 @@ export default function GamesHub() {
   useEffect(() => {
     if (!user) return;
     const ref = doc(db, 'gameScores', user.uid);
-    const unsub = onSnapshot(ref, snap => {
+    getDoc(ref).then(snap => {
       if (snap.exists()) setGameScores(snap.data());
     });
-    return () => unsub();
   }, [user]);
-
 
   useEffect(() => {
     const q = query(collection(db, 'gameScores'));
-    const unsub = onSnapshot(
-      q, 
-      snap => {
-        const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
-        const sorted = all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, 5);
-        setTopPlayers(sorted);
-      },
-      error => {
-        console.error("Error fetching gameScores:", error);
-      }
-    );
-    return () => unsub();
+    getDocs(q).then(snap => {
+      const all = snap.docs.map(d => ({ uid: d.id, ...d.data() })) as any[];
+      const sorted = all.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, 5);
+      setTopPlayers(sorted);
+    }).catch(error => {
+      console.error("Error fetching gameScores:", error);
+    });
   }, []);
 
   const hoursLeft = useMemo(() => {
