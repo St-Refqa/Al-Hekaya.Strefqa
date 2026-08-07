@@ -3,6 +3,7 @@ import { StudentSidebar } from './StudentSidebar';
 import { Menu, User, Bell, Home, Scroll, BookOpen, Trophy } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useOnlinePresence } from '../hooks/useOnlinePresence';
 import NotificationBell from './ui/NotificationBell';
 import { cn } from '../lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,8 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { i18n } = useTranslation();
   const location = useLocation();
+  
+  useOnlinePresence(user);
 
   useEffect(() => {
     const handler = () => setIsProfileModalOpen(true);

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { db } from '../../../lib/firebase';
+import { db, supabase } from '../../../lib/firebase';
 import { useAuth } from '../../../hooks/useAuth';
-import { ArrowLeft, Users, Play, Copy, CheckCircle2, User as UserIcon } from 'lucide-react';
+import { ArrowLeft, Users, Play, Copy, CheckCircle2, User as UserIcon, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../../lib/utils';
 
@@ -15,6 +15,21 @@ export default function MultiplayerLobby() {
   const [room, setRoom] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const channel = supabase.channel('global-online-users');
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const users = Object.values(state).map((presenceArray: any) => presenceArray[0]);
+      setOnlineUsers(users);
+    });
+    channel.subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   useEffect(() => {
     if (!roomId || !user) return;
@@ -184,11 +199,50 @@ export default function MultiplayerLobby() {
               {players.length < 2 ? 'في انتظار لاعبين آخرين...' : 'ابدأ التحدي الآن'}
             </button>
           ) : (
-            <div className="w-full bg-amber-50 border border-amber-200 text-amber-700 py-4 rounded-2xl font-black text-center flex items-center justify-center gap-2">
+            <div className="w-full bg-amber-50 border border-amber-200 text-amber-700 py-4 rounded-2xl font-black text-center flex items-center justify-center gap-2 mb-8">
               <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
               في انتظار المضيف لبدء اللعبة...
             </div>
           )}
+
+          {/* Online Users List */}
+          <div className="mt-8 pt-8 border-t border-brand-beige/10">
+            <h3 className="font-black text-brand-text mb-4 flex items-center gap-2">
+              <Globe className="w-5 h-5 text-emerald-500" />
+              متواجدون الآن
+              <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                {onlineUsers.filter(u => u.uid !== user?.uid && !players.find(p => p.uid === u.uid)).length}
+              </span>
+            </h3>
+            
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+              {onlineUsers
+                .filter(u => u.uid !== user?.uid && !players.find(p => p.uid === u.uid))
+                .map((u, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 bg-brand-cream/50 rounded-xl border border-brand-beige/10">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-brand-beige/20 overflow-hidden flex items-center justify-center shrink-0">
+                      {u.photoUrl ? (
+                        <img src={u.photoUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <UserIcon className="w-5 h-5 text-brand-beige" />
+                      )}
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="font-black text-brand-text text-xs">{u.name}</p>
+                      <p className="text-[10px] font-bold text-emerald-500 flex items-center gap-1 mt-0.5">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                        أونلاين
+                      </p>
+                    </div>
+                  </div>
+              ))}
+              {onlineUsers.filter(u => u.uid !== user?.uid && !players.find(p => p.uid === u.uid)).length === 0 && (
+                <p className="text-center text-sm font-bold text-brand-beige py-4">
+                  مفيش حد أونلاين دلوقتي غيركم
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
