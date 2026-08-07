@@ -264,12 +264,20 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Bottom Actions */}
           <div className="p-6 mt-auto space-y-3 bg-black/20 border-t border-white/5">
-            <div className="flex items-center gap-2 w-full">
+            <div className="flex flex-col items-center gap-2 w-full">
+              <button
+                onClick={() => navigate('/student')}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-brand-red/30 text-white hover:bg-brand-red/20 transition-all font-black text-[11px] uppercase tracking-wider cursor-pointer"
+              >
+                <Users className="w-3.5 h-3.5 text-brand-red" />
+                <span>العودة لصفحة الطلاب</span>
+              </button>
+              
               <button
                 onClick={handleLogout}
-                className="flex-1 flex items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/5 text-white/50 hover:text-white hover:bg-brand-red/20 transition-all font-black text-[11px] uppercase tracking-wider cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/5 text-white/50 hover:text-white hover:bg-white/10 transition-all font-black text-[11px] uppercase tracking-wider cursor-pointer"
               >
-                <LogOut className="w-3.5 h-3.5 text-brand-red" />
+                <LogOut className="w-3.5 h-3.5 text-white/50" />
                 <span>{t('sidebar.logout') || "تسجيل الخروج"}</span>
               </button>
             </div>
