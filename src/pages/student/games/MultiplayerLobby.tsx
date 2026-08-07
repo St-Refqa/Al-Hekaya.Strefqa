@@ -71,6 +71,20 @@ export default function MultiplayerLobby() {
     }
   };
 
+  const handleInvite = async (targetUid: string) => {
+    const channel = supabase.channel('global-online-users');
+    await channel.send({
+      type: 'broadcast',
+      event: 'game-invite',
+      payload: { 
+        to: targetUid, 
+        roomId, 
+        fromName: user?.fullName || 'صديق'
+      }
+    });
+    alert('تم إرسال الدعوة!');
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-brand-cream py-12 px-4 flex items-center justify-center" dir="rtl">
@@ -234,6 +248,14 @@ export default function MultiplayerLobby() {
                         أونلاين
                       </p>
                     </div>
+                    {isHost && !isFull && (
+                      <button 
+                        onClick={() => handleInvite(u.uid)}
+                        className="px-3 py-1.5 bg-brand-red text-white text-[10px] font-black rounded-lg hover:bg-red-700 active:scale-95 transition-all shadow-sm shrink-0"
+                      >
+                        دعوة
+                      </button>
+                    )}
                   </div>
               ))}
               {onlineUsers.filter(u => u.uid !== user?.uid && !players.find(p => p.uid === u.uid)).length === 0 && (

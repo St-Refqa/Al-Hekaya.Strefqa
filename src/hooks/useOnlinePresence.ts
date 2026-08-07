@@ -14,6 +14,14 @@ export function useOnlinePresence(user: User | null) {
       },
     });
 
+    channel.on('broadcast', { event: 'game-invite' }, (payload) => {
+      if (payload.payload.to === user.uid) {
+        if (window.confirm(`${payload.payload.fromName} يدعوك للانضمام إلى اللعب الجماعي! هل توافق؟`)) {
+          window.location.href = `/student/games/lobby/${payload.payload.roomId}`;
+        }
+      }
+    });
+
     channel.subscribe(async (status: string) => {
       if (status === 'SUBSCRIBED') {
         await channel.track({
