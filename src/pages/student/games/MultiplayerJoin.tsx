@@ -56,12 +56,15 @@ export default function MultiplayerJoin() {
 
         // Add player to room
         await updateDoc(roomRef, {
-          [`players.${user.uid}`]: {
-            uid: user.uid,
-            name: user.fullName || 'بدون اسم',
-            photoUrl: user.photoUrl || null,
-            score: 0,
-            completed: false
+          players: {
+            ...currentPlayers,
+            [user.uid]: {
+              uid: user.uid,
+              name: user.fullName || 'بدون اسم',
+              photoUrl: user.photoUrl || null,
+              score: 0,
+              completed: false
+            }
           }
         });
       }
