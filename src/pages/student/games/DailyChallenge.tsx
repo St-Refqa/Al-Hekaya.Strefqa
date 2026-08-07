@@ -44,17 +44,27 @@ export default function DailyChallenge() {
   const maxTime = 20;
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
+    let isMounted = true;
+
     const ref = doc(db, 'dailyChallenges', today);
     getDoc(ref).then(snap => {
-      if (snap.exists() && snap.data()?.completedBy?.[user.uid]) {
-        setPrevScore(snap.data().completedBy[user.uid].score || 0);
-        setPhase('already');
-      } else {
-        setPhase('intro');
-      }
-    }).catch(() => setPhase('intro'));
-  }, [user, today]);
+      if (!isMounted) return;
+      setPhase(p => {
+        if (p !== 'loading') return p; // Don't interrupt if already past loading phase
+        
+        if (snap.exists() && snap.data()?.completedBy?.[user.uid]) {
+          setPrevScore(snap.data().completedBy[user.uid].score || 0);
+          return 'already';
+        }
+        return 'intro';
+      });
+    }).catch(() => {
+      if (isMounted) setPhase(p => p === 'loading' ? 'intro' : p);
+    });
+
+    return () => { isMounted = false; };
+  }, [user?.uid, today]);
 
   // Timer
   useEffect(() => {
