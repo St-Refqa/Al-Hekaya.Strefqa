@@ -128,7 +128,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar Content */}
       <aside 
         className={cn(
-          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-brand-text border-white/5 z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:z-40",
+          "fixed top-0 bottom-0 w-[280px] sm:w-80 bg-brand-text border-white/5 z-[101] shadow-2xl transition-all duration-500 lg:sticky lg:h-screen lg:top-0 lg:z-40",
           isRTL 
             ? "border-l lg:right-0" 
             : "border-r lg:left-0",
