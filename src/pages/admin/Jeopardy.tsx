@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, Play, X, Check, ArrowRight, RefreshCw, ChevronLeft } from 'lucide-react';
+import { Trophy, Play, X, Check, ArrowRight, RefreshCw, ChevronLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { questions, levels, Question } from '../../data/markCompetition';
 import { cn } from '../../lib/utils';
 import { Link } from 'react-router-dom';
@@ -59,6 +59,24 @@ export default function Jeopardy() {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
   const [resultMessage, setResultMessage] = useState<'correct' | 'wrong' | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const gameRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      gameRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleNumTeamsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const num = parseInt(e.target.value);
@@ -210,7 +228,7 @@ export default function Jeopardy() {
 
   // ── GAME SCREEN ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col relative" dir="rtl">
+    <div ref={gameRef} className="min-h-screen bg-gray-50 flex flex-col relative" dir="rtl">
       {/* Subtle background pattern */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-40"
         style={{ backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
@@ -240,13 +258,23 @@ export default function Jeopardy() {
             <span className="text-gray-400 text-xs font-black shrink-0">{Math.round((totalUsed / totalQuestions) * 100)}%</span>
           </div>
 
-          <button
-            onClick={resetGame}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-500 hover:text-gray-700 rounded-xl font-black text-xs transition-all"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            إعادة
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={resetGame}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-500 hover:text-gray-700 rounded-xl font-black text-xs transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              إعادة
+            </button>
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'الخروج من وضع العرض' : 'وضع العرض الكامل'}
+              className="flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-black text-xs transition-all shadow-md shadow-red-200"
+            >
+              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              {isFullscreen ? 'تصغير' : 'عرض كامل'}
+            </button>
+          </div>
         </div>
       </header>
 
