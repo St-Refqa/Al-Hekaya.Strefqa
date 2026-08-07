@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   collection, 
   query, 
@@ -37,7 +37,13 @@ import {
   Clock,
   Edit,
   ExternalLink,
-  Filter
+  Filter,
+  MessageCircle,
+  Phone,
+  TrendingUp,
+  UserX,
+  BarChart3,
+  PhoneCall
 } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import * as XLSX from 'xlsx';
@@ -178,7 +184,12 @@ export default function AdminAttendance() {
   const { user } = useAuth();
   
   // Tab states
-  const [activeTab, setActiveTab] = useState<'scan' | 'manual' | 'lectures' | 'logs' | 'seasons'>('scan');
+  const [activeTab, setActiveTab] = useState<'scan' | 'manual' | 'lectures' | 'logs' | 'seasons' | 'report'>('scan');
+
+  // Report tab state
+  const [reportSearch, setReportSearch] = useState('');
+  const [reportGroupFilter, setReportGroupFilter] = useState<'all' | 'OT' | 'NT' | 'S'>('all');
+  const [reportAbsenceFilter, setReportAbsenceFilter] = useState<'all' | 'present' | 'warning' | 'danger' | 'critical'>('all');
 
   // Seasons States
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -1153,6 +1164,128 @@ export default function AdminAttendance() {
   const servantsAttendedCount = todaysMeetingLogs.filter(l => l.studentCode?.toUpperCase().startsWith('S')).length;
   const studentsAttendedCount = totalAttendedToday - servantsAttendedCount;
 
+  // ── REPORT TAB: compute per-student attendance stats ──────────────────────
+  const totalMeetingsCount = useMemo(() => {
+    const uniqueDates = new Set(attendanceLogs.map(l => l.date));
+    return uniqueDates.size || 1;
+  }, [attendanceLogs]);
+
+  const studentReportData = useMemo(() => {
+    return students
+      .filter(s => s.isActive)
+      .map(student => {
+        const studentLogs = attendanceLogs.filter(l => l.studentId === student.uid);
+        const totalAttended = studentLogs.length;
+
+        // Last attendance date
+        const sortedLogs = [...studentLogs].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+        const lastLog = sortedLogs[0];
+        const lastAttendedDate = lastLog?.date || null;
+
+        // Weeks absent
+        let weeksAbsent = 0;
+        if (lastAttendedDate) {
+          const last = new Date(lastAttendedDate);
+          const today = new Date(todayDateStr);
+          const diffMs = today.getTime() - last.getTime();
+          weeksAbsent = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
+        } else {
+          weeksAbsent = 999; // never attended
+        }
+
+        // Attendance rate
+        const attendanceRate = Math.round((totalAttended / totalMeetingsCount) * 100);
+
+        // Status
+        let status: 'present' | 'warning' | 'danger' | 'critical';
+        if (weeksAbsent === 0) status = 'present';
+        else if (weeksAbsent <= 1) status = 'warning';
+        else if (weeksAbsent <= 3) status = 'danger';
+        else status = 'critical';
+
+        // Detect group
+        const code = (student.code || '').toUpperCase();
+        const group: 'S' | 'OT' | 'NT' | 'H' =
+          code.startsWith('S') ? 'S'
+          : code.startsWith('N') ? 'NT'
+          : code.startsWith('H') ? 'H'
+          : 'OT';
+
+        return {
+          ...student,
+          totalAttended,
+          lastAttendedDate,
+          weeksAbsent,
+          attendanceRate,
+          status,
+          group
+        };
+      })
+      .sort((a, b) => b.weeksAbsent - a.weeksAbsent);
+  }, [students, attendanceLogs, todayDateStr, totalMeetingsCount]);
+
+  const filteredReportData = useMemo(() => {
+    return studentReportData.filter(s => {
+      const matchSearch = !reportSearch ||
+        s.fullName.toLowerCase().includes(reportSearch.toLowerCase()) ||
+        (s.code || '').toLowerCase().includes(reportSearch.toLowerCase());
+      const matchGroup = reportGroupFilter === 'all' ||
+        (reportGroupFilter === 'S' && s.group === 'S') ||
+        (reportGroupFilter === 'OT' && (s.group === 'OT' || s.group === 'H')) ||
+        (reportGroupFilter === 'NT' && s.group === 'NT');
+      const matchAbsence = reportAbsenceFilter === 'all' || s.status === reportAbsenceFilter;
+      return matchSearch && matchGroup && matchAbsence;
+    });
+  }, [studentReportData, reportSearch, reportGroupFilter, reportAbsenceFilter]);
+
+  const formatLastDate = (dateStr: string | null): string => {
+    if (!dateStr) return 'لم يحضر أبداً';
+    try {
+      return new Intl.DateTimeFormat('ar-EG', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      }).format(new Date(dateStr));
+    } catch { return dateStr; }
+  };
+
+  const openWhatsApp = (phone?: string, name?: string) => {
+    const clean = (phone || '').replace(/[^0-9]/g, '');
+    if (!clean) { alert('لا يوجد رقم واتساب مسجل لهذا المخدوم.'); return; }
+    const intl = clean.startsWith('0') ? '2' + clean : clean.startsWith('20') ? clean : '20' + clean;
+    const msg = encodeURIComponent(`السلام عليكم ${name || ''}، 🙏\nاشتقنالك وحنعمل افتقاد معاك..`);
+    window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
+  };
+
+  const callStudent = (phone?: string) => {
+    const clean = (phone || '').replace(/[^0-9]/g, '');
+    if (!clean) { alert('لا يوجد رقم مسجل لهذا المخدوم.'); return; }
+    window.open(`tel:${clean}`);
+  };
+
+  const exportReportToExcel = () => {
+    try {
+      const data = filteredReportData.map((s, i) => ({
+        'م': i + 1,
+        'الاسم': s.fullName,
+        'الكود': s.code || '',
+        'الكنيسة': s.church || '',
+        'الواتساب': s.whatsappNumber || '',
+        'مرات الحضور': s.totalAttended,
+        'نسبة الحضور %': s.attendanceRate,
+        'آخر حضور': formatLastDate(s.lastAttendedDate),
+        'أسابيع غياب': s.weeksAbsent === 999 ? 'لم يحضر' : s.weeksAbsent,
+        'الحالة': s.status === 'present' ? 'منتظم' : s.status === 'warning' ? 'تحذير' : s.status === 'danger' ? 'خطر' : 'حرج'
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      ws['!dir'] = 'rtl';
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'تقرير المخدومين');
+      XLSX.writeFile(wb, `تقرير_الحضور_${activeSeason?.name || 'السيزون'}.xlsx`);
+    } catch (e) {
+      console.error(e);
+      alert('حدث خطأ أثناء التصدير.');
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-10 bg-brand-cream min-h-screen text-[#1C0606] max-w-7xl mx-auto space-y-8">
       {/* Title Header */}
@@ -1195,6 +1328,7 @@ export default function AdminAttendance() {
         {[
           { id: 'scan', label: 'ماسح الـ QR للطلاب', icon: QrCode },
           { id: 'manual', label: 'تسجيل يدوي سريع', icon: Users },
+          { id: 'report', label: 'تقرير المخدومين', icon: BarChart3 },
           { id: 'lectures', label: 'إدارة مواعيد المحاضرات', icon: Clock },
           { id: 'logs', label: 'سجلات الحضور والتقارير', icon: BookOpen },
           { id: 'seasons', label: 'إدارة الفترات (السيزونز)', icon: CalendarRangeIcon }
@@ -1224,7 +1358,206 @@ export default function AdminAttendance() {
 
       {/* ACTIVE TAB VIEW CONTROLLER */}
       <div className="bg-white rounded-[40px] border border-brand-beige/10 p-6 sm:p-10 shadow-sm min-h-[400px]">
-        
+
+        {/* TAB: ATTENDANCE REPORT */}
+        {activeTab === 'report' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-brand-text flex items-center gap-3">
+                  <div className="w-10 h-10 bg-brand-red/10 rounded-2xl flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-brand-red" />
+                  </div>
+                  تقرير حالة المخدومين
+                </h2>
+                <p className="text-xs text-brand-beige font-semibold mt-1 mr-13">
+                  {filteredReportData.length} مخدوم · إجمالي {totalMeetingsCount} اجتماعات في السيزون
+                </p>
+              </div>
+              <button
+                onClick={exportReportToExcel}
+                className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white rounded-2xl font-black text-sm hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/20"
+              >
+                <Download className="w-4 h-4" />
+                تصدير Excel
+              </button>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'منتظمون', count: studentReportData.filter(s => s.status === 'present').length, color: 'bg-emerald-50 border-emerald-200', textColor: 'text-emerald-700', dotColor: 'bg-emerald-500' },
+                { label: 'تحذير (أسبوع)', count: studentReportData.filter(s => s.status === 'warning').length, color: 'bg-amber-50 border-amber-200', textColor: 'text-amber-700', dotColor: 'bg-amber-500' },
+                { label: 'غياب (أسبوعين+)', count: studentReportData.filter(s => s.status === 'danger').length, color: 'bg-orange-50 border-orange-200', textColor: 'text-orange-700', dotColor: 'bg-orange-500' },
+                { label: 'حرج (شهر+)', count: studentReportData.filter(s => s.status === 'critical').length, color: 'bg-red-50 border-red-200', textColor: 'text-brand-red', dotColor: 'bg-brand-red' },
+              ].map((stat, i) => (
+                <div key={i} className={`rounded-2xl border p-4 ${stat.color} flex flex-col items-center gap-1 text-center`}>
+                  <div className={`w-2 h-2 rounded-full ${stat.dotColor}`} />
+                  <span className={`text-3xl font-black ${stat.textColor}`}>{stat.count}</span>
+                  <span className={`text-[10px] font-black uppercase tracking-wide ${stat.textColor} opacity-80`}>{stat.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-beige" />
+                <input
+                  type="text"
+                  value={reportSearch}
+                  onChange={e => setReportSearch(e.target.value)}
+                  placeholder="ابحث باسم أو كود..."
+                  className="w-full pr-11 pl-4 py-3 rounded-2xl bg-brand-cream/40 border border-brand-beige/10 text-sm font-semibold text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-red/20 text-right placeholder:text-brand-beige"
+                />
+              </div>
+              <select
+                value={reportGroupFilter}
+                onChange={e => setReportGroupFilter(e.target.value as any)}
+                className="px-4 py-3 rounded-2xl bg-brand-cream/40 border border-brand-beige/10 text-sm font-black text-brand-text focus:outline-none cursor-pointer"
+              >
+                <option value="all">كل المجموعات</option>
+                <option value="OT">طلاب OT / أونلاين</option>
+                <option value="NT">طلاب NT / الورشة</option>
+                <option value="S">الخدام</option>
+              </select>
+              <select
+                value={reportAbsenceFilter}
+                onChange={e => setReportAbsenceFilter(e.target.value as any)}
+                className="px-4 py-3 rounded-2xl bg-brand-cream/40 border border-brand-beige/10 text-sm font-black text-brand-text focus:outline-none cursor-pointer"
+              >
+                <option value="all">كل الحالات</option>
+                <option value="present">منتظمون ✅</option>
+                <option value="warning">تحذير ⚠️</option>
+                <option value="danger">غياب خطر 🟠</option>
+                <option value="critical">حرج 🔴</option>
+              </select>
+            </div>
+
+            {/* Students Grid */}
+            {filteredReportData.length === 0 ? (
+              <div className="text-center py-20 text-brand-beige font-black">
+                <Users className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                لا يوجد مخدومون مطابقون للفلتر
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {filteredReportData.map(student => {
+                  const statusConfig = {
+                    present:  { bg: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-500', badgeText: 'منتظم ✅', textColor: 'text-emerald-700', barColor: 'bg-emerald-500' },
+                    warning:  { bg: 'bg-amber-50',   border: 'border-amber-200',   badge: 'bg-amber-500',   badgeText: 'تحذير ⚠️',  textColor: 'text-amber-700',   barColor: 'bg-amber-500' },
+                    danger:   { bg: 'bg-orange-50',  border: 'border-orange-200',  badge: 'bg-orange-500',  badgeText: 'غائب 🟠',    textColor: 'text-orange-700',  barColor: 'bg-orange-500' },
+                    critical: { bg: 'bg-red-50',     border: 'border-red-200',     badge: 'bg-brand-red',   badgeText: 'حرج 🔴',     textColor: 'text-brand-red',   barColor: 'bg-brand-red' },
+                  }[student.status];
+
+                  const hasPhone = !!(student.whatsappNumber);
+                  const weeksText = student.weeksAbsent === 999
+                    ? 'لم يحضر أبداً'
+                    : student.weeksAbsent === 0
+                    ? 'حضر مؤخراً 🟢'
+                    : `${student.weeksAbsent} ${student.weeksAbsent === 1 ? 'أسبوع' : 'أسابيع'} غياب`;
+
+                  return (
+                    <div
+                      key={student.uid}
+                      className={`rounded-3xl border-2 ${statusConfig.border} ${statusConfig.bg} p-5 flex flex-col gap-4 transition-all hover:shadow-md`}
+                    >
+                      {/* Top: Name + badge */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-11 h-11 rounded-2xl bg-white border border-brand-beige/20 flex items-center justify-center shrink-0 shadow-sm">
+                            {student.photoUrl ? (
+                              <img src={student.photoUrl} alt="" className="w-full h-full object-cover rounded-2xl" />
+                            ) : (
+                              <span className={`font-black text-lg ${statusConfig.textColor}`}>{student.fullName.charAt(0)}</span>
+                            )}
+                          </div>
+                          <div className="min-w-0 text-right">
+                            <p className="font-black text-brand-text text-sm truncate">{student.fullName}</p>
+                            <p className="text-[10px] font-bold text-brand-beige font-mono">#{student.code}</p>
+                          </div>
+                        </div>
+                        <span className={`shrink-0 text-[10px] font-black text-white px-2.5 py-1 rounded-xl ${statusConfig.badge}`}>
+                          {statusConfig.badgeText}
+                        </span>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="space-y-2">
+                        {/* Attendance Rate Bar */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] font-black text-brand-beige">
+                            <span>نسبة الحضور</span>
+                            <span className={statusConfig.textColor}>{student.attendanceRate}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-brand-beige/10">
+                            <div
+                              className={`h-full rounded-full transition-all ${statusConfig.barColor}`}
+                              style={{ width: `${Math.min(student.attendanceRate, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Info Grid */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-white/70 rounded-xl p-2.5 text-right border border-brand-beige/10">
+                            <p className="text-[9px] font-black text-brand-beige uppercase tracking-wide">مرات الحضور</p>
+                            <p className={`text-xl font-black ${statusConfig.textColor} font-sans`}>{student.totalAttended}</p>
+                          </div>
+                          <div className="bg-white/70 rounded-xl p-2.5 text-right border border-brand-beige/10">
+                            <p className="text-[9px] font-black text-brand-beige uppercase tracking-wide">مدة الغياب</p>
+                            <p className={`text-xs font-black ${statusConfig.textColor} leading-tight mt-0.5`}>{weeksText}</p>
+                          </div>
+                        </div>
+
+                        {/* Last Attendance */}
+                        <div className="bg-white/70 rounded-xl px-3 py-2 flex items-center gap-2 border border-brand-beige/10">
+                          <CalendarDays className="w-3.5 h-3.5 text-brand-beige shrink-0" />
+                          <div className="text-right min-w-0">
+                            <p className="text-[9px] font-black text-brand-beige uppercase tracking-wide">آخر حضور</p>
+                            <p className="text-[11px] font-bold text-brand-text truncate">{formatLastDate(student.lastAttendedDate)}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons: WhatsApp + Call */}
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => openWhatsApp(student.whatsappNumber, student.fullName)}
+                          disabled={!hasPhone}
+                          title={hasPhone ? `واتساب ${student.fullName}` : 'لا يوجد رقم مسجل'}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-2xl font-black text-[11px] transition-all ${
+                            hasPhone
+                              ? 'bg-[#25D366] text-white hover:bg-[#20b858] shadow-md shadow-[#25D366]/25 cursor-pointer'
+                              : 'bg-brand-cream text-brand-beige cursor-not-allowed opacity-50'
+                          }`}
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          واتساب
+                        </button>
+                        <button
+                          onClick={() => callStudent(student.whatsappNumber)}
+                          disabled={!hasPhone}
+                          title={hasPhone ? `اتصل بـ ${student.fullName}` : 'لا يوجد رقم مسجل'}
+                          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-2xl font-black text-[11px] transition-all ${
+                            hasPhone
+                              ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-500/25 cursor-pointer'
+                              : 'bg-brand-cream text-brand-beige cursor-not-allowed opacity-50'
+                          }`}
+                        >
+                          <PhoneCall className="w-4 h-4" />
+                          مكالمة
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* TAB 1: QR CODE LIVE SCANNER */}
         {activeTab === 'scan' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
