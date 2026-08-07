@@ -63,6 +63,8 @@ async function applyQuery(req: any, qObj: any) {
 
 function restoreData(data: any, path: string) {
   if (!data) return data;
+  delete data.uid;
+  delete data.id;
   if (path === 'assessments' && data.questions && data.questions.__extras) {
     const extras = data.questions.__extras;
     for (const key of Object.keys(extras)) {
