@@ -12,7 +12,7 @@ export default function StreakLeaderboard() {
   const [usersList, setUsersList] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<"all" | "OT" | "NT" | "K">("all");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "online" | "workshop" | "servants">("all");
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -41,9 +41,9 @@ export default function StreakLeaderboard() {
       .filter((u) => {
         const code = u.code?.toUpperCase() || "";
         if (categoryFilter === "all") return true;
-        if (categoryFilter === "OT" && code.startsWith("H")) return true;
-        if (categoryFilter === "NT" && code.startsWith("N")) return true;
-        if (categoryFilter === "K" && code.startsWith("S")) return true;
+        if (categoryFilter === "online" && code.startsWith("H")) return true;
+        if (categoryFilter === "workshop" && code.startsWith("N")) return true;
+        if (categoryFilter === "servants" && code.startsWith("S")) return true;
         return false;
       })
       .map((u) => ({
@@ -62,9 +62,9 @@ export default function StreakLeaderboard() {
 
   const categories = [
     { id: "all", label: "الكل" },
-    { id: "OT", label: "العهد القديم" },
-    { id: "NT", label: "العهد الجديد" },
-    { id: "K", label: "الخدام" },
+    { id: "online", label: "طلاب أونلاين" },
+    { id: "workshop", label: "طلاب ورشة" },
+    { id: "servants", label: "خدام" },
   ] as const;
 
   if (isLoading) {
