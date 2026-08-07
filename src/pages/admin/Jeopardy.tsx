@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, Users, Play, X, Check, ChevronRight, ArrowRight } from 'lucide-react';
-import { questions, chapters, Question } from '../../data/markCompetition';
+import { questions, levels, Question } from '../../data/markCompetition';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -168,23 +168,23 @@ export default function Jeopardy() {
       {/* Main Board */}
       <main className="flex-1 p-6 z-10 overflow-auto">
         <div className="max-w-[1600px] mx-auto">
-          <div className="grid grid-cols-4 gap-4 sm:gap-6 min-w-[800px]">
+          <div className="grid grid-cols-3 gap-4 sm:gap-6 min-w-[800px]">
             {/* Column Headers */}
-            {chapters.map(chapter => (
-              <div key={chapter.id} className="bg-brand-red text-white py-4 px-2 rounded-2xl text-center shadow-lg border border-white/20">
-                <h2 className="text-lg sm:text-xl font-black uppercase tracking-widest">{chapter.title}</h2>
+            {levels.map(level => (
+              <div key={level.id} className="bg-brand-red text-white py-4 px-2 rounded-2xl text-center shadow-lg border border-white/20">
+                <h2 className="text-lg sm:text-xl font-black uppercase tracking-widest">{level.title}</h2>
               </div>
             ))}
             
             {/* Questions Grid */}
-            {Array.from({ length: 20 }).map((_, rowIndex) => (
+            {Array.from({ length: 10 }).map((_, rowIndex) => (
               <React.Fragment key={rowIndex}>
-                {chapters.map(chapter => {
-                  // Find the question for this chapter at this row index
-                  // Assuming exactly 20 questions per chapter, ordered by points
-                  const chapterQuestions = questions.filter(q => q.chapterId === chapter.id);
-                  const question = chapterQuestions[rowIndex];
-                  if (!question) return <div key={`empty-${chapter.id}-${rowIndex}`} />;
+                {levels.map(level => {
+                  // Find the question for this level at this row index
+                  // Assuming exactly 10 questions per level, ordered by points
+                  const levelQuestions = questions.filter(q => q.levelId === level.id);
+                  const question = levelQuestions[rowIndex];
+                  if (!question) return <div key={`empty-${level.id}-${rowIndex}`} />;
                   
                   const isAnswered = answeredQuestions.has(question.id);
 
@@ -227,7 +227,7 @@ export default function Jeopardy() {
             >
               <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20">
                 <div className="flex items-center gap-3 text-brand-red font-black text-xl">
-                   <span>الفئة: {chapters.find(c => c.id === activeQuestion.chapterId)?.title}</span>
+                   <span>الفئة: {levels.find(c => c.id === activeQuestion.levelId)?.title}</span>
                    <span className="text-white/30">•</span>
                    <span>النقاط: {activeQuestion.points}</span>
                 </div>
