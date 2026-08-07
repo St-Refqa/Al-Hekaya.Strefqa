@@ -117,19 +117,16 @@ export default function DailyChallenge() {
   function finishGame() {
     setPhase('done');
     if (!user) return;
-    const dailyRef = doc(db, 'dailyChallenges', today);
+    const id = `${user.uid}_${today}`;
+    const dailyRef = doc(db, 'dailyChallenges', id);
     const scoreRef = doc(db, 'gameScores', user.uid);
 
-    getDoc(dailyRef).then(snap => {
-      const base = snap.exists() ? snap.data() : { completedBy: {} };
-      return setDoc(dailyRef, {
-        ...base,
-        date: today,
-        completedBy: {
-          ...(base.completedBy || {}),
-          [user.uid]: { score, completedAt: new Date().toISOString(), fullName: user.fullName },
-        },
-      });
+    setDoc(dailyRef, {
+      id,
+      uid: user.uid,
+      challengeDate: today,
+      completed: true,
+      score: score
     }).catch(() => {});
 
     getDoc(scoreRef).then(snap => {

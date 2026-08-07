@@ -27,11 +27,13 @@ export default function GamesHub() {
   // Check if user already completed today's daily challenge
   useEffect(() => {
     if (!user) return;
-    const ref = doc(db, 'dailyChallenges', today);
+    // Check if daily challenge done using the snake_case table and individual document
+    const id = `${user.uid}_${today}`;
+    const ref = doc(db, 'dailyChallenges', id);
     getDoc(ref).then(snap => {
       if (snap.exists()) {
         const data = snap.data();
-        if (data.completedBy?.[user.uid]) setDailyDone(true);
+        if (data.completed) setDailyDone(true);
       }
     }).catch(() => {});
   }, [user, today]);
@@ -99,12 +101,13 @@ export default function GamesHub() {
 
         {/* Daily Challenge Banner */}
         <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}>
-          <Link to="/student/games/daily"
+          <Link to={dailyDone ? "#" : "/student/games/daily"}
+            onClick={(e) => dailyDone && e.preventDefault()}
             className={cn(
               'block rounded-3xl p-5 border-2 shadow-xl relative overflow-hidden',
               dailyDone
-                ? 'bg-emerald-50 border-emerald-200'
-                : 'bg-gradient-to-br from-amber-400 to-orange-500 border-amber-300 text-white'
+                ? 'bg-emerald-50 border-emerald-200 cursor-default'
+                : 'bg-gradient-to-br from-amber-400 to-orange-500 border-amber-300 text-white hover:scale-[1.02] transition-transform'
             )}>
             {!dailyDone && (
               <motion.div
@@ -133,7 +136,7 @@ export default function GamesHub() {
             {!dailyDone && (
               <div className="mt-3 flex items-center gap-2">
                 <div className="flex-1 h-2 bg-white/30 rounded-full" />
-                <span className="text-xs font-black text-amber-100">+50 نقطة</span>
+                <span className="text-xs font-black text-amber-100">+5 نقط</span>
               </div>
             )}
           </Link>
