@@ -63,23 +63,24 @@ async function applyQuery(req: any, qObj: any) {
 
 function restoreData(data: any, path: string) {
   if (!data) return data;
-  delete data.uid;
-  delete data.id;
-  if (path === 'assessments' && data.questions && data.questions.__extras) {
-    const extras = data.questions.__extras;
+  const clone = { ...data };
+  delete clone.uid;
+  delete clone.id;
+  if (path === 'assessments' && clone.questions && clone.questions.__extras) {
+    const extras = clone.questions.__extras;
     for (const key of Object.keys(extras)) {
-      data[key] = extras[key];
+      clone[key] = extras[key];
     }
   }
-  if (path === 'users' && data.sidebarSettings) {
-    if (data.sidebarSettings.storePoints !== undefined) {
-      data.storePoints = data.sidebarSettings.storePoints;
+  if (path === 'users' && clone.sidebarSettings) {
+    if (clone.sidebarSettings.storePoints !== undefined) {
+      clone.storePoints = clone.sidebarSettings.storePoints;
     }
-    if (data.sidebarSettings.round1Points !== undefined) {
-      data.round1Points = data.sidebarSettings.round1Points;
+    if (clone.sidebarSettings.round1Points !== undefined) {
+      clone.round1Points = clone.sidebarSettings.round1Points;
     }
   }
-  return data;
+  return clone;
 }
 
 function getTableName(path: string): string {
