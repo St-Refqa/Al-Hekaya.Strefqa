@@ -247,7 +247,7 @@ export default function GamesHub() {
         <div className="bg-violet-50 border border-violet-100 rounded-2xl p-4 flex gap-3">
           <BookOpen className="w-5 h-5 text-violet-500 shrink-0 mt-0.5" />
           <p className="text-xs font-bold text-violet-700 leading-relaxed">
-            الأسئلة كلها من إنجيل مارقس. كل إجابة صح = نقاط + bonus سرعة. التحدي اليومي يُحسب في الـ Streak! 🔥
+            الأسئلة كلها من إنجيل مارقس. كل إجابة صحيحة بنقطة واحدة. التحدي اليومي يُحسب في الـ Streak! 🔥
           </p>
         </div>
       </div>

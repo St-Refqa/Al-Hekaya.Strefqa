@@ -45,6 +45,7 @@ export function StudentSidebar({ isOpen, onClose, onOpenProfile }: SidebarProps)
     { icon: Home, label: t('sidebar.dashboard'), path: '/student' },
     { icon: Scroll, label: t('sidebar.assessments'), path: '/student/assessments' },
     { icon: Gamepad2, label: 'ألعاب الكتاب المقدس 🎮', path: '/student/games' },
+    { icon: Trophy, label: 'متصدرين الألعاب 🏆', path: '/student/games/leaderboard' },
     { icon: Flame, label: 'لوحة الـ Streak 🔥', path: '/student/streak' },
     ...(!isOnlineStudent ? [{ icon: Calendar, label: 'جدول المناهج والاجتماعات', path: '/student/meetings' }] : []),
     { icon: BookOpen, label: 'المكتبة الكنسية', path: '/student/library' },

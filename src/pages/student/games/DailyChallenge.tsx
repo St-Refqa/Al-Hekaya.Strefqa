@@ -99,8 +99,7 @@ export default function DailyChallenge() {
     setSelected(opt);
     const isCorrect = opt === currentQ.answer;
     if (isCorrect) {
-      const bonus = Math.floor(timeLeft * GAME_CONFIG.bonusSpeedFactor);
-      setScore(s => s + 20 + bonus);
+      setScore(s => s + 1);
       setCorrect(c => c + 1);
     }
     setTimeout(nextQuestion, 800);
@@ -186,7 +185,7 @@ export default function DailyChallenge() {
         </div>
         <div className="flex items-center gap-3 text-right">
           <span className="text-2xl">⭐</span>
-          <span className="font-bold text-sm">نقاط + bonus سرعة</span>
+          <span className="font-bold text-sm">نقطة واحدة لكل إجابة صحيحة</span>
         </div>
         <div className="flex items-center gap-3 text-right">
           <span className="text-2xl">🔥</span>

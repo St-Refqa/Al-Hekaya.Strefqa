@@ -299,9 +299,7 @@ export default function GamePlay() {
     }
 
     if (isCorrect) {
-      const base = GAME_CONFIG.pointsPerCorrect[gameType];
-      const bonus = Math.floor(timeLeft * GAME_CONFIG.bonusSpeedFactor);
-      setScore(s => s + base + bonus);
+      setScore(s => s + 1);
       setCorrect(c => c + 1);
     }
 
