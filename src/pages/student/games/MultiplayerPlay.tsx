@@ -53,9 +53,22 @@ export default function MultiplayerPlay() {
       
       // Update my score in room
       try {
-        await updateDoc(doc(db, 'gameRooms', roomId), {
-          [`players.${user.uid}.score`]: increment(1)
-        });
+        const roomRef = doc(db, 'gameRooms', roomId);
+        const snap = await getDoc(roomRef);
+        if (snap.exists()) {
+          const roomData = snap.data();
+          const currentPlayers = roomData.players || {};
+          const myPlayer = currentPlayers[user.uid] || {};
+          await updateDoc(roomRef, {
+            players: {
+              ...currentPlayers,
+              [user.uid]: {
+                ...myPlayer,
+                score: (myPlayer.score || 0) + 1
+              }
+            }
+          });
+        }
       } catch (err) {
         console.error("Error updating score:", err);
       }
@@ -66,9 +79,22 @@ export default function MultiplayerPlay() {
         setPhase('done');
         // Mark as completed
         try {
-          await updateDoc(doc(db, 'gameRooms', roomId), {
-            [`players.${user.uid}.completed`]: true
-          });
+          const roomRef = doc(db, 'gameRooms', roomId);
+          const snap = await getDoc(roomRef);
+          if (snap.exists()) {
+            const roomData = snap.data();
+            const currentPlayers = roomData.players || {};
+            const myPlayer = currentPlayers[user.uid] || {};
+            await updateDoc(roomRef, {
+              players: {
+                ...currentPlayers,
+                [user.uid]: {
+                  ...myPlayer,
+                  completed: true
+                }
+              }
+            });
+          }
           
           // Also save score to global profile
           const scoreRef = doc(db, 'gameScores', user.uid);
