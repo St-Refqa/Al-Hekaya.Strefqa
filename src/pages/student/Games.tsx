@@ -221,6 +221,14 @@ export default function GamesHub() {
           <div className="grid grid-cols-2 gap-3">
             {GAME_TYPES.map((type, i) => {
               const meta = GAME_META[type];
+              
+              let playCount = 0;
+              try {
+                const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
+                playCount = logs[`${today}_${type}`] || 0;
+              } catch (e) {}
+              const maxReached = playCount >= 3;
+
               return (
                 <motion.div
                   key={type}
@@ -228,14 +236,19 @@ export default function GamesHub() {
                   animate={{ opacity:1, scale:1 }}
                   transition={{ delay: i * 0.06 }}
                 >
-                  <Link to={`/student/games/play/${type}`}
+                  <Link to={maxReached ? "#" : `/student/games/play/${type}`}
+                    onClick={(e) => maxReached && e.preventDefault()}
                     className={cn(
-                      'flex flex-col items-center gap-2 p-4 rounded-3xl border-2 text-center active:scale-95 transition-all block',
-                      meta.bg
+                      'flex flex-col items-center gap-2 p-4 rounded-3xl border-2 text-center transition-all block',
+                      maxReached ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed' : cn('active:scale-95', meta.bg)
                     )}>
-                    <span className="text-4xl">{meta.emoji}</span>
-                    <span className={cn('font-black text-sm', meta.color)}>{meta.label}</span>
-                    <span className="text-[10px] text-brand-beige font-bold leading-tight">{meta.desc}</span>
+                    <span className={cn("text-4xl", maxReached && "grayscale")}>{meta.emoji}</span>
+                    <span className={cn('font-black text-sm', maxReached ? 'text-gray-500' : meta.color)}>
+                      {meta.label}
+                    </span>
+                    <span className="text-[10px] text-brand-beige font-bold leading-tight">
+                      {maxReached ? 'انتهت المحاولات (3/3)' : `${playCount}/3 مرات اليوم`}
+                    </span>
                   </Link>
                 </motion.div>
               );

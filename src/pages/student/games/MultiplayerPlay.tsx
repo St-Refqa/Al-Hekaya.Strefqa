@@ -96,18 +96,7 @@ export default function MultiplayerPlay() {
             });
           }
           
-          // Also save score to global profile
-          const scoreRef = doc(db, 'gameScores', user.uid);
-          const scoreSnap = await getDoc(scoreRef);
-          const data = scoreSnap.exists() ? scoreSnap.data() : {};
-          await setDoc(scoreRef, {
-            uid: user.uid,
-            fullName: user.fullName,
-            photoUrl: user.photoUrl || null,
-            totalScore: (data.totalScore || 0) + (myScore + (isCorrect ? 1 : 0)),
-            gamesPlayed: (data.gamesPlayed || 0) + 1,
-          });
-          
+          // No points awarded for multiplayer games
         } catch (e) {}
       } else {
         setSelected(null);

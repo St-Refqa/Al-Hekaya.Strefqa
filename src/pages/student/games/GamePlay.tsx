@@ -327,6 +327,15 @@ export default function GamePlay() {
         dailyCompleted: data.dailyCompleted || 0,
         lastGame: new Date().toISOString(),
       });
+    }).then(() => {
+      // Increment local game play limit counter
+      try {
+        const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+        const key = `${today}_${gameType}`;
+        logs[key] = (logs[key] || 0) + 1;
+        localStorage.setItem('gamePlays', JSON.stringify(logs));
+      } catch (e) {}
     }).catch(() => {});
   }, [phase]);
 
