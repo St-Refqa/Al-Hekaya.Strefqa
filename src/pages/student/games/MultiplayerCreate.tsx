@@ -87,8 +87,9 @@ export default function MultiplayerCreate() {
       });
 
       navigate(`/student/games/lobby/${roomId}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating room:", error);
+      alert(`Error creating room: ${error.message || error.toString()}`);
       setIsCreating(false);
     }
   };
