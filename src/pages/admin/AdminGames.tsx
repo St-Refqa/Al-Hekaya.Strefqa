@@ -15,6 +15,37 @@ export default function AdminGames() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'score' | 'games' | 'daily' | 'streak'>('score');
 
+  // Temporary auto-fix for s001 requested by admin
+  useEffect(() => {
+    const fixS001 = async () => {
+      if (localStorage.getItem('fixed_s001_streak')) return;
+      try {
+        const { doc, updateDoc, setDoc, increment } = await import('firebase/firestore');
+        const userRef = doc(db, 'users', 's001');
+        await updateDoc(userRef, {
+          streak: increment(1),
+          lastActive: new Date().toISOString()
+        });
+        
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+        const challengeRef = doc(db, 'daily_challenges', `s001_${today}`);
+        await setDoc(challengeRef, {
+          id: `s001_${today}`,
+          uid: 's001',
+          challengeDate: today,
+          completed: true,
+          score: 5
+        });
+        
+        localStorage.setItem('fixed_s001_streak', 'done');
+        console.log("S001 fixed!");
+      } catch (err) {
+        console.error("Fix failed", err);
+      }
+    };
+    fixS001();
+  }, []);
+
   // Load all students
   useEffect(() => {
     const q = query(collection(db, 'users'));
