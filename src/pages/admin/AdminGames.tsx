@@ -80,7 +80,7 @@ export default function AdminGames() {
         streak: user.streak || 0,
         totalScore: scoreDoc.totalScore || 0,
         gamesPlayed: scoreDoc.gamesPlayed || 0,
-        dailyCompleted: scoreDoc.dailyCompleted || 0,
+        dailyCompleted: Math.max(scoreDoc.dailyCompleted || 0, user.streak || 0),
         lastGame: scoreDoc.lastGame || null,
       };
     }).filter(p => p.gamesPlayed > 0 || p.streak > 0 || p.totalScore > 0); // Only show active players
