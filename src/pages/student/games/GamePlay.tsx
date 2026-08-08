@@ -21,6 +21,17 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function getQuestionsForType(type: GameType): GameQuestion[] {
+  if (type === 'random') {
+    return shuffle([
+      ...shuffle(fillQuestions).slice(0, 2),
+      ...shuffle(whereQuestions).slice(0, 2),
+      ...shuffle(whoQuestions).slice(0, 2),
+      ...shuffle(speedQuestions).slice(0, 2),
+      ...shuffle(matchQuestions).slice(0, 2),
+      ...shuffle(orderQuestions).slice(0, 2),
+    ]);
+  }
+
   const map: Record<GameType, GameQuestion[]> = {
     fill: fillQuestions,
     where: whereQuestions,
@@ -28,6 +39,7 @@ function getQuestionsForType(type: GameType): GameQuestion[] {
     speed: speedQuestions,
     match: matchQuestions,
     order: orderQuestions,
+    random: [], // Handled above
   };
   return shuffle(map[type]).slice(0, GAME_CONFIG.questionsPerRound);
 }
@@ -309,7 +321,7 @@ export default function GamePlay() {
       } else {
         setQIndex(i => i + 1);
       }
-    }, gameType === 'match' || gameType === 'order' ? 0 : 800);
+    }, currentQ.type === 'match' || currentQ.type === 'order' ? 0 : 800);
   }, [timeLeft, qIndex, questions.length, gameType, currentQ]);
 
   // Save score when done
@@ -396,6 +408,7 @@ export default function GamePlay() {
         match: 'bg-gradient-to-br from-violet-500 to-violet-700',
         order: 'bg-gradient-to-br from-rose-500 to-rose-700',
         speed: 'bg-gradient-to-br from-orange-500 to-orange-700',
+        random: 'bg-gradient-to-br from-slate-500 to-slate-700',
       }[gameType])}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
@@ -414,14 +427,15 @@ export default function GamePlay() {
             <span className="text-3xl">{meta.emoji}</span>
             <div>
               <h1 className="font-black text-xl">{meta.label}</h1>
-              <p className="text-white/70 text-xs font-bold">إنجيل مارقس</p>
+              <p className="text-white/70 text-xs font-bold">إنجيل مرقس</p>
             </div>
           </div>
           {/* Progress dots */}
-          <div className="flex gap-1.5 mt-4">
+          <div className="flex gap-1.5 mt-4 flex-wrap">
             {questions.map((_, i) => (
-              <div key={i} className={cn('h-1.5 flex-1 rounded-full transition-all',
-                i < qIndex ? 'bg-white' : i === qIndex ? 'bg-white/70' : 'bg-white/20')} />
+              <div key={i} className={cn('h-1.5 rounded-full transition-all',
+                i < qIndex ? 'bg-white' : i === qIndex ? 'bg-white/70' : 'bg-white/20')} 
+                style={{ flex: '1 1 0%', minWidth: '4px' }} />
             ))}
           </div>
         </div>
@@ -435,13 +449,13 @@ export default function GamePlay() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.25 }}>
-            {(gameType === 'fill' || gameType === 'where' || gameType === 'who' || gameType === 'speed') && (
+            {(currentQ.type === 'fill' || currentQ.type === 'where' || currentQ.type === 'who' || currentQ.type === 'speed') && (
               <MCQGame question={currentQ} onAnswer={handleAnswer} timeLeft={timeLeft} maxTime={maxTime} />
             )}
-            {gameType === 'match' && (
+            {currentQ.type === 'match' && (
               <MatchGame question={currentQ} onAnswer={handleAnswer} timeLeft={timeLeft} maxTime={maxTime} />
             )}
-            {gameType === 'order' && (
+            {currentQ.type === 'order' && (
               <OrderGame question={currentQ} onAnswer={handleAnswer} timeLeft={timeLeft} maxTime={maxTime} />
             )}
           </motion.div>

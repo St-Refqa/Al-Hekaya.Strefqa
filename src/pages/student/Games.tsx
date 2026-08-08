@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-const GAME_TYPES: GameType[] = ['fill', 'where', 'who', 'match', 'order', 'speed'];
+const GAME_TYPES: GameType[] = ['fill', 'where', 'who', 'match', 'order', 'speed', 'random'];
 
 function getEgyptDate() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });

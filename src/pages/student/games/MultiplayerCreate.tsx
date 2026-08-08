@@ -53,7 +53,7 @@ export default function MultiplayerCreate() {
       let selectedQuestions: any[] = [];
       if (selectedMode === 'mixed') {
         const pool = shuffle([...fillQuestions, ...whereQuestions, ...whoQuestions, ...speedQuestions]);
-        selectedQuestions = pool.slice(0, 5);
+        selectedQuestions = pool.slice(0, 10);
       } else {
         let pool: any[] = [];
         if (selectedMode === 'fill') pool = fillQuestions;
@@ -63,7 +63,7 @@ export default function MultiplayerCreate() {
         // matching and order might need special handling, but for now fallback to speed if empty
         if (pool.length === 0) pool = speedQuestions;
         
-        selectedQuestions = shuffle(pool).slice(0, 5);
+        selectedQuestions = shuffle(pool).slice(0, 10);
       }
 
       const roomRef = doc(db, 'gameRooms', roomId);

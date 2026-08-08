@@ -2,7 +2,7 @@
 //  ألعاب الكتاب المقدس — محتوى إنجيل مارقس (السيزون الأول)
 // ═══════════════════════════════════════════════════════════════
 
-export type GameType = 'match' | 'fill' | 'where' | 'who' | 'order' | 'speed';
+export type GameType = 'match' | 'fill' | 'where' | 'who' | 'order' | 'speed' | 'random';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface MatchPair  { right: string; left: string }
@@ -448,7 +448,7 @@ export const whoQuestions: GameQuestion[] = [
     question: '"يَا سَيِّدُ، وَالْكِلاَبُ أَيْضاً تَحْتَ الْمَائِدَةِ تَأْكُلُ مِنْ فُتَاتِ الْبَنِينَ" (مر ٧: ٢٨)',
     options: ['المرأة الفينيقية السورية', 'المرأة نازفة الدم', 'حماة بطرس', 'مريم المجدلية'],
     answer: 'المرأة الفينيقية السورية',
-    hint: 'طلبت إخراج شيطان من ابنتها',
+hint: 'طلبت إخراج شيطان من ابنتها',
   },
   {
     id: 'wh16', type: 'who', difficulty: 'hard', chapter: 12,
@@ -670,6 +670,7 @@ export const GAME_CONFIG = {
     who: 15,
     order: 40,
     speed: 10,
+    random: 20,
   },
   pointsPerCorrect: {
     match: 1,
@@ -678,6 +679,7 @@ export const GAME_CONFIG = {
     who: 1,
     order: 1,
     speed: 1,
+    random: 1,
   },
   bonusSpeedFactor: 0, // No bonus points, strictly 1 point per question
 };
@@ -689,4 +691,5 @@ export const GAME_META: Record<GameType, { label: string; emoji: string; desc: s
   who:    { label: 'مين قال ده؟',  emoji: '🗣️', desc: 'مَن صاحب هذه الكلمات؟',       color: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200' },
   order:  { label: 'رتّب الأحداث', emoji: '🔢', desc: 'رتّب الأحداث حسب حدوثها',     color: 'text-rose-700',   bg: 'bg-rose-50 border-rose-200' },
   speed:  { label: 'سباق الآيات',  emoji: '⚡', desc: '١٠ ثواني لكل سؤال — أسرع!',   color: 'text-orange-700', bg: 'bg-orange-50 border-orange-200' },
+  random: { label: 'عشوائي',       emoji: '🎲', desc: 'سؤالين من كل نوع',          color: 'text-slate-700', bg: 'bg-slate-50 border-slate-200' },
 };
