@@ -78,12 +78,11 @@ export default function GamesHub() {
     }).catch(() => {});
 
     // Get total completed challenges
-    const q = query(collection(db, 'dailyChallenges'), where('uid', '==', user.uid), where('completed', '==', true));
-    import('firebase/firestore').then(({ getDocs }) => {
-      getDocs(q).then(snap => {
-        setDailyCompletedCount(snap.docs.length);
-      }).catch(() => {});
-    });
+    const q = query(collection(db, 'dailyChallenges'), where('uid', '==', user.uid));
+    getDocs(q).then(snap => {
+      const count = snap.docs.filter(d => d.data().completed === true).length;
+      setDailyCompletedCount(count);
+    }).catch(e => console.error("Challenges query error:", e));
   }, [user, today]);
 
   // Load user game scores
