@@ -97,7 +97,20 @@ export function useAuth() {
             } else if (userData.role === "student" && userData.uid) {
               // SECURITY: Verify session against Firestore to check for disabled status or password changes
               try {
+                let isResolved = false;
+                
+                // Fallback timeout in case Firebase is stuck (e.g. quota exceeded)
+                const timeoutId = setTimeout(() => {
+                  if (!isResolved) {
+                    console.warn("Firebase onSnapshot timed out. Falling back to cached session.");
+                    setUser(userData);
+                    setIsLoading(false);
+                  }
+                }, 4000);
+
                 unsubscribeUser = onSnapshot(doc(db, "users", userData.uid), (docSnap) => {
+                  isResolved = true;
+                  clearTimeout(timeoutId);
                   if (docSnap.exists()) {
                     const latestData = docSnap.data() as User;
                     if (
@@ -117,6 +130,8 @@ export function useAuth() {
                   }
                   setIsLoading(false);
                 }, (err) => {
+                  isResolved = true;
+                  clearTimeout(timeoutId);
                   console.warn("Session verification error:", err);
                   if (err?.code === 'resource-exhausted' || String(err?.message || '').includes('quota')) {
                     if (typeof window !== 'undefined') {
