@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-const GAME_TYPES: GameType[] = ['fill', 'where', 'who', 'match', 'order', 'speed', 'random'];
+const GAME_TYPES: GameType[] = ['random', 'fill', 'where', 'who', 'match', 'order', 'speed'];
 
 function getEgyptDate() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
@@ -227,11 +227,12 @@ export default function GamesHub() {
                   initial={{ opacity:0, scale:0.9 }}
                   animate={{ opacity:1, scale:1 }}
                   transition={{ delay: i * 0.06 }}
+                  className={type === 'random' ? 'col-span-2' : ''}
                 >
                   <Link to={maxReached ? "#" : `/student/games/play/${type}`}
                     onClick={(e) => maxReached && e.preventDefault()}
                     className={cn(
-                      'flex flex-col items-center gap-2 p-4 rounded-3xl border-2 text-center transition-all block',
+                      'flex flex-col items-center gap-2 p-4 rounded-3xl border-2 text-center transition-all block w-full h-full',
                       maxReached ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed' : cn('active:scale-95', meta.bg)
                     )}>
                     <span className={cn("text-4xl", maxReached && "grayscale")}>{meta.emoji}</span>
