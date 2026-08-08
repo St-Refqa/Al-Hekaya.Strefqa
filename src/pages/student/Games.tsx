@@ -193,7 +193,7 @@ export default function GamesHub() {
               {[
                 { label: 'النقاط', value: gameScores.totalScore || 0, icon: '🏆' },
                 { label: 'ألعاب', value: gameScores.gamesPlayed || 0, icon: '🎮' },
-                { label: 'تحديات', value: Math.max(dailyCompletedCount, gameScores.dailyCompleted || 0), icon: '⚡' },
+                { label: 'تحديات', value: Math.max(dailyCompletedCount, gameScores?.dailyCompleted || 0, user?.streak || 0), icon: '⚡' },
               ].map((s, i) => (
                 <div key={i} className="bg-brand-cream/60 rounded-2xl p-3 text-center">
                   <div className="text-2xl mb-1">{s.icon}</div>
