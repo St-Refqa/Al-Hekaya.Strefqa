@@ -435,7 +435,7 @@ function AnimatedRoutes() {
           </ProtectedRoute>
         } />
         <Route path="/admin/mark4" element={
-          <ProtectedRoute role="admin">
+          <ProtectedRoute role="servant">
             <motion.div {...pageTransition} className="w-full min-h-screen"><Mark4Jeopardy /></motion.div>
           </ProtectedRoute>
         } />
