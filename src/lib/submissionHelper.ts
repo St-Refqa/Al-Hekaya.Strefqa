@@ -25,7 +25,7 @@ export async function processSubmissionTransaction(payload: ProcessSubmissionPay
     const userSnap = userRef ? await transaction.get(userRef) : null;
     const participantSnap = await transaction.get(participantRef);
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
     const today = parseISO(todayStr);
     
     let streakCount = 1;
@@ -74,6 +74,7 @@ export async function processSubmissionTransaction(payload: ProcessSubmissionPay
 
       const updatedUser: Partial<User> = {
         streak: streakCount,
+        lastActive: todayStr,
         totalExams: newTotalExams,
         totalPoints: newTotalPoints,
         storePoints: newStorePoints,

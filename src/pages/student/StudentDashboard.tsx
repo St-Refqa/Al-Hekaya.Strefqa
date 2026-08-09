@@ -57,6 +57,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { parseISO, differenceInDays } from "date-fns";
 import { calculateLevel, checkNewBadges, BADGES, calculateTestStreaks } from "../../lib/gamification";
 import { SmartImage } from "../../components/ui/SmartImage";
 import NotificationBell from "../../components/ui/NotificationBell";
@@ -297,6 +298,18 @@ export default function StudentDashboard() {
           if (userPrefix === 'S' && code.startsWith('S')) return true;
           if (!['H', 'N', 'S'].includes(userPrefix)) return true;
           return false;
+        })
+        .map((u: any) => {
+          let trueStreak = u.streak || 0;
+          if (trueStreak > 0 && u.lastActive) {
+            const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+            const today = parseISO(todayStr);
+            const lastActiveDate = parseISO(u.lastActive);
+            if (differenceInDays(today, lastActiveDate) > 1) {
+              trueStreak = 0;
+            }
+          }
+          return { ...u, streak: trueStreak };
         })
         .filter((u: any) => (u.streak || 0) > 0)
         .sort((a: any, b: any) => (b.streak || 0) - (a.streak || 0))
@@ -539,7 +552,17 @@ export default function StudentDashboard() {
   const finalTotalPoints = typeof user.storePoints === "number" ? user.storePoints : (typeof user.totalPoints === "number" ? user.totalPoints : calculatedTotalPoints);
   const finalCumulativePoints = typeof user.totalPoints === "number" ? user.totalPoints : calculatedCumulativePoints;
 
-  const { currentStreak, maxStreak } = calculateTestStreaks(submissions.map(s => s.date));
+  const { maxStreak } = calculateTestStreaks(submissions.map(s => s.date));
+  
+  let currentStreak = user.streak || 0;
+  if (currentStreak > 0 && user.lastActive) {
+    const todayStrDashboard = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    const today = parseISO(todayStrDashboard);
+    const lastActiveDate = parseISO(user.lastActive);
+    if (differenceInDays(today, lastActiveDate) > 1) {
+      currentStreak = 0;
+    }
+  }
 
   const stats = [
     {

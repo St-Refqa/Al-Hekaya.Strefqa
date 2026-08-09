@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { collection, query, onSnapshot, where } from "firebase/firestore";
+import { parseISO, differenceInDays } from "date-fns";
 import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
 import { User } from "../../types";
 import { Flame, ArrowLeft, Search, Target } from "lucide-react";
@@ -42,6 +43,9 @@ export default function StreakLeaderboard() {
   }, []);
 
   const leaderboardData = useMemo(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    const today = parseISO(todayStr);
+
     return usersList
       .filter((u) => {
         const code = u.code?.toUpperCase() || "";
@@ -55,12 +59,26 @@ export default function StreakLeaderboard() {
         if (categoryFilter === "servants" && code.startsWith("S")) return true;
         return false;
       })
-      .map((u) => ({
-        id: u.uid,
-        name: u.fullName || "بدون اسم",
-        streak: u.streak || 0,
-        photoUrl: u.photoUrl,
-      }))
+      .map((u) => {
+        let trueStreak = u.streak || 0;
+        if (trueStreak > 0 && u.lastActive) {
+           const lastActiveDate = parseISO(u.lastActive);
+           if (differenceInDays(today, lastActiveDate) > 1) {
+             trueStreak = 0;
+           }
+        } else if (trueStreak > 0 && !u.lastActive) {
+           // Fallback for old users without lastActive, assume 0 to be safe or keep it? 
+           // If they have no lastActive, their streak hasn't been updated with the new system.
+           // We'll keep it for now but it will reset once they play.
+        }
+
+        return {
+          id: u.uid,
+          name: u.fullName || "بدون اسم",
+          streak: trueStreak,
+          photoUrl: u.photoUrl,
+        };
+      })
       .filter((p) => p.streak > 0) // Only show users with an active streak
       .filter((p) => !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort((a, b) => b.streak - a.streak);

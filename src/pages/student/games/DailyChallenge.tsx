@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   doc, getDoc, setDoc, updateDoc, increment, serverTimestamp,
 } from 'firebase/firestore';
+import { runTransaction } from 'firebase/firestore';
+import { parseISO, differenceInDays } from "date-fns";
 import { db } from '../../../lib/firebase';
 import { useAuth } from '../../../hooks/useAuth';
 import {
@@ -129,24 +131,51 @@ export default function DailyChallenge() {
       score: score
     }).catch(() => {});
 
-    getDoc(scoreRef).then(snap => {
-      const data = snap.exists() ? snap.data() : {};
-      return setDoc(scoreRef, {
-        uid: user.uid,
-        fullName: user.fullName,
-        photoUrl: user.photoUrl || null,
-        totalScore: (data.totalScore || 0) + score,
-        gamesPlayed: (data.gamesPlayed || 0) + 1,
-        dailyCompleted: (data.dailyCompleted || 0) + 1,
-      });
-    }).catch(() => {});
+    setDoc(scoreRef, {
+      uid: user.uid,
+      fullName: user.fullName,
+      photoUrl: user.photoUrl || null,
+      totalScore: increment(score),
+      gamesPlayed: increment(1),
+      dailyCompleted: increment(1),
+      lastGame: new Date().toISOString(),
+    }, { merge: true }).catch(() => {});
 
-    // Update global user streak
+    // Update global user streak using unified logic
+    const participantPhone = user.code || user.uid;
     const userRef = doc(db, 'users', user.uid);
-    updateDoc(userRef, {
-      streak: increment(1),
-      lastActive: serverTimestamp()
-    }).catch(() => {});
+    const participantRef = doc(db, "participants", participantPhone);
+
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    const todayDate = parseISO(todayStr);
+
+    runTransaction(db, async (transaction) => {
+      const participantSnap = await transaction.get(participantRef);
+      let streakCount = 1;
+      
+      if (participantSnap.exists()) {
+        const pData = participantSnap.data() as any;
+        const lastDate = pData.lastCompletedDate ? parseISO(pData.lastCompletedDate) : null;
+        const isConsecutive = lastDate && (differenceInDays(todayDate, lastDate) === 1);
+        const isSameDay = lastDate && differenceInDays(todayDate, lastDate) === 0;
+        
+        streakCount = pData.streakCount || 0;
+        if (isConsecutive) streakCount += 1;
+        else if (!isSameDay) streakCount = 1;
+      }
+
+      transaction.set(participantRef, {
+        name: user.fullName || "",
+        phoneOrId: participantPhone,
+        streakCount,
+        lastCompletedDate: todayStr,
+      }, { merge: true });
+
+      transaction.update(userRef, {
+        streak: streakCount,
+        lastActive: todayStr
+      });
+    }).catch(console.error);
   }
 
   const pct = (timeLeft / maxTime) * 100;

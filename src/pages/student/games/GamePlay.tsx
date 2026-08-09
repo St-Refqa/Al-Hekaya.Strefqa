@@ -328,18 +328,14 @@ export default function GamePlay() {
   useEffect(() => {
     if (phase !== 'done' || !user) return;
     const ref = doc(db, 'gameScores', user.uid);
-    getDoc(ref).then(snap => {
-      const data = snap.exists() ? snap.data() : {};
-      return setDoc(ref, {
-        uid: user.uid,
-        fullName: user.fullName,
-        photoUrl: user.photoUrl || null,
-        totalScore: (data.totalScore || 0) + score,
-        gamesPlayed: (data.gamesPlayed || 0) + 1,
-        dailyCompleted: data.dailyCompleted || 0,
-        lastGame: new Date().toISOString(),
-      });
-    }).then(() => {
+    setDoc(ref, {
+      uid: user.uid,
+      fullName: user.fullName,
+      photoUrl: user.photoUrl || null,
+      totalScore: increment(score),
+      gamesPlayed: increment(1),
+      lastGame: new Date().toISOString(),
+    }, { merge: true }).then(() => {
       // Increment local game play limit counter
       try {
         const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');

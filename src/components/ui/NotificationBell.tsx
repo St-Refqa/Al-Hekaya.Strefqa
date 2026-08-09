@@ -260,7 +260,7 @@ export default function NotificationBell({ userId, userRole, notificationPrefs }
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="fixed left-4 right-4 top-20 sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-4 w-auto sm:w-[400px] bg-white rounded-3xl shadow-2xl border border-brand-beige/10 overflow-hidden z-[210] origin-top font-sans"
+              className="fixed left-4 right-4 top-20 sm:absolute sm:right-0 sm:left-auto sm:top-full sm:mt-4 w-auto sm:w-[400px] bg-white rounded-3xl shadow-2xl border border-brand-beige/10 overflow-hidden z-[210] origin-top font-sans"
               dir="rtl"
             >
               <div className="p-6 border-b border-brand-cream/50 flex items-center justify-between bg-brand-cream/10">

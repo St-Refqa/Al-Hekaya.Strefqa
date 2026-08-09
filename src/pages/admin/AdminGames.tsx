@@ -5,6 +5,7 @@ import { Gamepad2, Trophy, Flame, Search, Star, Zap, Clock } from 'lucide-react'
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
+import { parseISO, differenceInDays } from 'date-fns';
 
 export default function AdminGames() {
   const { t, i18n } = useTranslation();
@@ -70,14 +71,26 @@ export default function AdminGames() {
 
   // Combine data
   const players = useMemo(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+    const today = parseISO(todayStr);
+
     return users.map(user => {
       const scoreDoc = scores.find(s => s.uid === user.uid) || {};
+      
+      let trueStreak = user.streak || 0;
+      if (trueStreak > 0 && user.lastActive) {
+        const lastActiveDate = parseISO(user.lastActive);
+        if (differenceInDays(today, lastActiveDate) > 1) {
+          trueStreak = 0;
+        }
+      }
+
       return {
         uid: user.uid,
         name: user.fullName || 'بدون اسم',
         code: user.code || '-',
         photoUrl: user.photoUrl,
-        streak: user.streak || 0,
+        streak: trueStreak,
         totalScore: scoreDoc.totalScore || 0,
         gamesPlayed: scoreDoc.gamesPlayed || 0,
         dailyCompleted: scoreDoc.dailyCompleted || 0,
@@ -201,7 +214,7 @@ export default function AdminGames() {
                 <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase w-16 text-center">#</th>
                 <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase">الطالب</th>
                 <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase text-center">الكود</th>
-                <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase text-center">النقاط 🏆</th>
+                <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase text-center">النقاط 🏆 (النسبة)</th>
                 <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase text-center">الألعاب 🎮</th>
                 <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase text-center">التحديات ⚡</th>
                 <th className="py-4 px-6 font-black text-brand-beige text-xs uppercase text-center">ستريك 🔥</th>
@@ -256,9 +269,14 @@ export default function AdminGames() {
                       </span>
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span className="font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm">
-                        {p.totalScore}
-                      </span>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm">
+                          {p.totalScore}
+                        </span>
+                        <span className="text-[10px] font-black text-brand-beige" dir="ltr">
+                          {p.gamesPlayed > 0 ? (p.totalScore / p.gamesPlayed * 10).toFixed(1) : 0}%
+                        </span>
+                      </div>
                     </td>
                     <td className="py-4 px-6 text-center font-black text-brand-text text-sm">
                       {p.gamesPlayed}
