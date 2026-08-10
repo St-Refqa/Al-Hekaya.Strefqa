@@ -333,7 +333,6 @@ export default function GamePlay() {
       fullName: user.fullName,
       photoUrl: user.photoUrl || null,
       totalScore: increment(score),
-      syncedScore: increment(score),
       gamesPlayed: increment(1),
       lastGame: new Date().toISOString(),
     }, { merge: true }).then(() => {

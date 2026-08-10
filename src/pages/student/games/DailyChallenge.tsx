@@ -140,7 +140,6 @@ export default function DailyChallenge() {
       fullName: user.fullName,
       photoUrl: user.photoUrl || null,
       totalScore: increment(score),
-      syncedScore: increment(score),
       gamesPlayed: increment(1),
       dailyCompleted: increment(1),
       lastGame: new Date().toISOString(),
