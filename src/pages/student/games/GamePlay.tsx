@@ -333,9 +333,19 @@ export default function GamePlay() {
       fullName: user.fullName,
       photoUrl: user.photoUrl || null,
       totalScore: increment(score),
+      syncedScore: increment(score),
       gamesPlayed: increment(1),
       lastGame: new Date().toISOString(),
     }, { merge: true }).then(() => {
+      // Update global user points
+      if (score > 0) {
+        const userRef = doc(db, 'users', user.uid);
+        return updateDoc(userRef, {
+          storePoints: increment(score),
+          totalPoints: increment(score)
+        });
+      }
+    }).then(() => {
       // Increment local game play limit counter
       try {
         const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');

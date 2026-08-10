@@ -49,14 +49,15 @@ export default function DailyChallenge() {
     if (!user?.uid) return;
     let isMounted = true;
 
-    const ref = doc(db, 'dailyChallenges', today);
+    const id = `${user.uid}_${today}`;
+    const ref = doc(db, 'dailyChallenges', id);
     getDoc(ref).then(snap => {
       if (!isMounted) return;
       setPhase(p => {
         if (p !== 'loading') return p; // Don't interrupt if already past loading phase
         
-        if (snap.exists() && snap.data()?.completedBy?.[user.uid]) {
-          setPrevScore(snap.data().completedBy[user.uid].score || 0);
+        if (snap.exists() && snap.data()?.completed) {
+          setPrevScore(snap.data().score || 0);
           return 'already';
         }
         return 'intro';
@@ -118,7 +119,10 @@ export default function DailyChallenge() {
 
   function finishGame() {
     setPhase('done');
-    if (!user) return;
+  }
+
+  useEffect(() => {
+    if (phase !== 'done' || !user) return;
     const id = `${user.uid}_${today}`;
     const dailyRef = doc(db, 'dailyChallenges', id);
     const scoreRef = doc(db, 'gameScores', user.uid);
@@ -136,6 +140,7 @@ export default function DailyChallenge() {
       fullName: user.fullName,
       photoUrl: user.photoUrl || null,
       totalScore: increment(score),
+      syncedScore: increment(score),
       gamesPlayed: increment(1),
       dailyCompleted: increment(1),
       lastGame: new Date().toISOString(),
@@ -173,10 +178,14 @@ export default function DailyChallenge() {
 
       transaction.update(userRef, {
         streak: streakCount,
-        lastActive: todayStr
+        lastActive: todayStr,
+        ...(score > 0 && {
+          storePoints: increment(score),
+          totalPoints: increment(score)
+        })
       });
     }).catch(console.error);
-  }
+  }, [phase]);
 
   const pct = (timeLeft / maxTime) * 100;
   const timerColor = pct > 60 ? 'bg-emerald-500' : pct > 30 ? 'bg-amber-500' : 'bg-red-500';

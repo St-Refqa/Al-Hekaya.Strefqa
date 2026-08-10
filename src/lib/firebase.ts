@@ -238,19 +238,35 @@ export async function setDoc(ref: any, data: any, opts?: any) {
 }
 
 export async function updateDoc(ref: any, data: any) {
-  const parsedData = { ...data };
   const path = getTableName(ref._path);
+  
+  const { data: existingRow, error: fetchErr } = await supabase.from(path).select('*').eq('id', ref.id).single();
+  
+  const parsedData = { ...data };
   for(const k of Object.keys(parsedData)) {
     if (parsedData[k] && parsedData[k]._isMockIncrement) {
-      const { data: current, error } = await supabase.from(path).select(k).eq('id', ref.id).single();
-      if(!error && current) {
-         parsedData[k] = (current[k] || 0) + parsedData[k].amount;
+      if (!fetchErr && existingRow) {
+        if (path === 'users' && k === 'storePoints') {
+          const currentStore = existingRow.sidebarSettings?.storePoints ?? existingRow.totalPoints ?? 0;
+          parsedData[k] = currentStore + parsedData[k].amount;
+        } else {
+          parsedData[k] = (existingRow[k] || 0) + parsedData[k].amount;
+        }
       } else {
          parsedData[k] = parsedData[k].amount;
       }
     }
   }
-  const cleanedData = cleanData(parsedData, ref._path);
+  
+  let cleanedData = cleanData(parsedData, ref._path);
+  
+  if (path === 'users' && cleanedData.sidebarSettings && !fetchErr && existingRow && existingRow.sidebarSettings) {
+    cleanedData.sidebarSettings = {
+      ...existingRow.sidebarSettings,
+      ...cleanedData.sidebarSettings
+    };
+  }
+
   const { error: err2 } = await supabase.from(path).update(cleanedData).eq('id', ref.id);
   if (err2) throw err2;
 }
