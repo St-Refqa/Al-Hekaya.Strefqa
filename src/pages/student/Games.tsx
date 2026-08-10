@@ -219,7 +219,7 @@ export default function GamesHub() {
                 const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
                 playCount = logs[`${today}_${type}`] || 0;
               } catch (e) {}
-              const maxReached = playCount >= 3;
+              const maxReached = playCount >= 2;
 
               return (
                 <motion.div
