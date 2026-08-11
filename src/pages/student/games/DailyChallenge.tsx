@@ -137,7 +137,7 @@ export default function DailyChallenge() {
 
     setDoc(scoreRef, {
       uid: user.uid,
-      fullName: user.fullName,
+      fullName: user.fullName || 'لاعب',
       photoUrl: user.photoUrl || null,
       totalScore: increment(score),
       gamesPlayed: increment(1),

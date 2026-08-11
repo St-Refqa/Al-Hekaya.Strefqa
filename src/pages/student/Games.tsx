@@ -240,7 +240,7 @@ export default function GamesHub() {
                       {meta.label}
                     </span>
                     <span className="text-[10px] text-brand-beige font-bold leading-tight">
-                      {maxReached ? 'انتهت المحاولات (3/3)' : `${playCount}/3 مرات اليوم`}
+                      {maxReached ? 'انتهت المحاولات (2/2)' : `${playCount}/2 مرات اليوم`}
                     </span>
                   </Link>
                 </motion.div>

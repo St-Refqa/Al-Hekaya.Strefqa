@@ -330,7 +330,7 @@ export default function GamePlay() {
     const ref = doc(db, 'gameScores', user.uid);
     setDoc(ref, {
       uid: user.uid,
-      fullName: user.fullName,
+      fullName: user.fullName || 'لاعب',
       photoUrl: user.photoUrl || null,
       totalScore: increment(score),
       gamesPlayed: increment(1),
