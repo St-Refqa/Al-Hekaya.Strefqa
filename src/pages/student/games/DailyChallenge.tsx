@@ -143,7 +143,7 @@ export default function DailyChallenge() {
       gamesPlayed: increment(1),
       dailyCompleted: increment(1),
       lastGame: new Date().toISOString(),
-    }, { merge: true }).catch(() => {});
+    }, { merge: true }).catch(e => console.error('Error saving score:', e));
 
     // Update global user streak using unified logic
     const participantPhone = user.code || user.uid;
@@ -175,14 +175,14 @@ export default function DailyChallenge() {
         lastCompletedDate: todayStr,
       }, { merge: true });
 
-      transaction.update(userRef, {
+      transaction.set(userRef, {
         streak: streakCount,
         lastActive: todayStr,
         ...(score > 0 && {
           storePoints: increment(score),
           totalPoints: increment(score)
         })
-      });
+      }, { merge: true });
     }).catch(console.error);
   }, [phase]);
 

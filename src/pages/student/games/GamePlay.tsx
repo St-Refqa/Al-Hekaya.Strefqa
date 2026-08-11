@@ -327,6 +327,19 @@ export default function GamePlay() {
   // Save score when done
   useEffect(() => {
     if (phase !== 'done' || !user) return;
+
+    // 1. Increment local game play limit counter immediately
+    try {
+      const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+      const key = `${today}_${gameType}`;
+      logs[key] = (logs[key] || 0) + 1;
+      localStorage.setItem('gamePlays', JSON.stringify(logs));
+    } catch (e) {
+      console.error('Error saving local limit:', e);
+    }
+
+    // 2. Save score to database
     const ref = doc(db, 'gameScores', user.uid);
     setDoc(ref, {
       uid: user.uid,
@@ -336,24 +349,17 @@ export default function GamePlay() {
       gamesPlayed: increment(1),
       lastGame: new Date().toISOString(),
     }, { merge: true }).then(() => {
-      // Update global user points
+      // 3. Update global user points safely
       if (score > 0) {
         const userRef = doc(db, 'users', user.uid);
-        return updateDoc(userRef, {
+        return setDoc(userRef, {
           storePoints: increment(score),
           totalPoints: increment(score)
-        });
+        }, { merge: true });
       }
-    }).then(() => {
-      // Increment local game play limit counter
-      try {
-        const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
-        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
-        const key = `${today}_${gameType}`;
-        logs[key] = (logs[key] || 0) + 1;
-        localStorage.setItem('gamePlays', JSON.stringify(logs));
-      } catch (e) {}
-    }).catch(() => {});
+    }).catch(err => {
+      console.error('Firebase save error:', err);
+    });
   }, [phase]);
 
   if (phase === 'done') {
