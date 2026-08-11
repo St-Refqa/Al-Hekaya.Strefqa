@@ -230,9 +230,36 @@ export async function addDoc(coll: any, data: any) {
 
 export async function setDoc(ref: any, data: any, opts?: any) {
   const dt = typeof data === 'function' ? data() : data;
-  const cleanDt = cleanData(dt, ref._path);
-  const finalDt = { id: ref.id, ...cleanDt };
   const path = getTableName(ref._path);
+  
+  const { data: existingRow, error: fetchErr } = await supabase.from(path).select('*').eq('id', ref.id).single();
+  
+  const parsedData = { ...dt };
+  for (const k of Object.keys(parsedData)) {
+    if (parsedData[k] && parsedData[k]._isMockIncrement) {
+      if (!fetchErr && existingRow) {
+        if (path === 'users' && k === 'storePoints') {
+          const currentStore = existingRow.sidebarSettings?.storePoints ?? existingRow.totalPoints ?? 0;
+          parsedData[k] = currentStore + parsedData[k].amount;
+        } else {
+          parsedData[k] = (existingRow[k] || 0) + parsedData[k].amount;
+        }
+      } else {
+        parsedData[k] = parsedData[k].amount;
+      }
+    }
+  }
+
+  const cleanDt = cleanData(parsedData, ref._path);
+  
+  if (path === 'users' && cleanDt.sidebarSettings && !fetchErr && existingRow && existingRow.sidebarSettings) {
+    cleanDt.sidebarSettings = {
+      ...existingRow.sidebarSettings,
+      ...cleanDt.sidebarSettings
+    };
+  }
+
+  const finalDt = { id: ref.id, ...cleanDt };
   const { error } = await supabase.from(path).upsert(finalDt);
   if (error) throw error;
 }
