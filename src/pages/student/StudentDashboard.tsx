@@ -602,6 +602,14 @@ export default function StudentDashboard() {
       description: `درجات المرحلة الأولى محفوظة بأمان 🔒`,
     },
     {
+      label: "نقاط الألعاب 🎮",
+      value: user.gamePoints || 0,
+      icon: Zap,
+      color: "text-violet-600 bg-violet-50",
+      path: "/student/games",
+      description: `نقاطك في ألعاب الكتاب المقدس — منفصلة عن نقاط الترتيب والمتجر`,
+    },
+    {
       label: t("dashboard.level"),
 
       value: levelInfo.name,
@@ -619,6 +627,7 @@ export default function StudentDashboard() {
       path: "/student/analytics",
     },
   ];
+
 
   return (
     <div className="min-h-screen bg-brand-cream pb-20 overflow-x-hidden">

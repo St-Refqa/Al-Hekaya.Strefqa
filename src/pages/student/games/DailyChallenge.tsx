@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  doc, getDoc, setDoc, updateDoc, increment, serverTimestamp,
+  doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, collection,
 } from 'firebase/firestore';
 import { runTransaction } from 'firebase/firestore';
 import { parseISO, differenceInDays } from "date-fns";
@@ -144,6 +144,14 @@ export default function DailyChallenge() {
       dailyCompleted: increment(1),
       lastGame: new Date().toISOString(),
     }, { merge: true }).catch(e => console.error('Error saving score:', e));
+
+    // تحديث gamePoints في user profile — منفصل تماماً عن totalPoints/storePoints
+    if (score > 0) {
+      const gameUserRef = doc(db, 'users', user.uid);
+      updateDoc(gameUserRef, {
+        gamePoints: increment(score),
+      }).catch(() => {});
+    }
 
     // Update global user streak using unified logic
     const participantPhone = user.code || user.uid;

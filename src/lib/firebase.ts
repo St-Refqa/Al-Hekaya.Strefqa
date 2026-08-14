@@ -79,6 +79,10 @@ function restoreData(data: any, path: string) {
     if (clone.sidebarSettings.round1Points !== undefined) {
       clone.round1Points = clone.sidebarSettings.round1Points;
     }
+    // استرجاع gamePoints من sidebarSettings
+    if (clone.sidebarSettings.gamePoints !== undefined) {
+      clone.gamePoints = clone.sidebarSettings.gamePoints;
+    }
   }
   return clone;
 }
@@ -156,7 +160,7 @@ function cleanData(data: any, path: string) {
   }
   
   if (path === 'users') {
-    if (clone.storePoints !== undefined || clone.round1Points !== undefined) {
+    if (clone.storePoints !== undefined || clone.round1Points !== undefined || clone.gamePoints !== undefined) {
       if (!clone.sidebarSettings) clone.sidebarSettings = {};
       if (clone.storePoints !== undefined) {
         clone.sidebarSettings.storePoints = clone.storePoints;
@@ -165,6 +169,11 @@ function cleanData(data: any, path: string) {
       if (clone.round1Points !== undefined) {
         clone.sidebarSettings.round1Points = clone.round1Points;
         delete clone.round1Points;
+      }
+      // حفظ gamePoints جوا sidebarSettings — منفصل عن totalPoints
+      if (clone.gamePoints !== undefined) {
+        clone.sidebarSettings.gamePoints = clone.gamePoints;
+        delete clone.gamePoints;
       }
     }
   }
@@ -273,14 +282,17 @@ export async function updateDoc(ref: any, data: any) {
   for(const k of Object.keys(parsedData)) {
     if (parsedData[k] && parsedData[k]._isMockIncrement) {
       if (!fetchErr && existingRow) {
-        if (path === 'users' && k === 'storePoints') {
+        if (path === 'users' && k === 'gamePoints') {
+          const currentGamePoints = existingRow.sidebarSettings?.gamePoints || 0;
+          parsedData[k] = currentGamePoints + parsedData[k].amount;
+        } else if (path === 'users' && k === 'storePoints') {
           const currentStore = existingRow.sidebarSettings?.storePoints ?? existingRow.totalPoints ?? 0;
           parsedData[k] = currentStore + parsedData[k].amount;
         } else {
           parsedData[k] = (existingRow[k] || 0) + parsedData[k].amount;
         }
       } else {
-         parsedData[k] = parsedData[k].amount;
+        parsedData[k] = parsedData[k].amount;
       }
     }
   }
@@ -297,6 +309,7 @@ export async function updateDoc(ref: any, data: any) {
   const { error: err2 } = await supabase.from(path).update(cleanedData).eq('id', ref.id);
   if (err2) throw err2;
 }
+
 
 export async function deleteDoc(ref: any) {
   const path = getTableName(ref._path);

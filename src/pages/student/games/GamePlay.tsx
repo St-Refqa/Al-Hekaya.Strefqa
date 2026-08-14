@@ -328,6 +328,7 @@ export default function GamePlay() {
   useEffect(() => {
     if (phase !== 'done' || !user) return;
 
+<<<<<<< HEAD
     // 1. Increment local game play limit counter immediately
     try {
       const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
@@ -340,6 +341,9 @@ export default function GamePlay() {
     }
 
     // 2. Save score to database
+=======
+    // 1. حفظ في جدول gameScores الخاص بالألعاب
+>>>>>>> ac49f22 (fix: separate game points from total points completely)
     const ref = doc(db, 'gameScores', user.uid);
     setDoc(ref, {
       uid: user.uid,
@@ -349,18 +353,25 @@ export default function GamePlay() {
       gamesPlayed: increment(1),
       lastGame: new Date().toISOString(),
     }, { merge: true }).then(() => {
-      // 3. Update global user points safely
-      if (score > 0) {
-        const userRef = doc(db, 'users', user.uid);
-        return setDoc(userRef, {
-          storePoints: increment(score),
-          totalPoints: increment(score)
-        }, { merge: true });
-      }
-    }).catch(err => {
-      console.error('Firebase save error:', err);
-    });
+      // Increment local game play limit counter
+      try {
+        const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+        const key = `${today}_${gameType}`;
+        logs[key] = (logs[key] || 0) + 1;
+        localStorage.setItem('gamePlays', JSON.stringify(logs));
+      } catch (e) {}
+    }).catch(() => {});
+
+    // 2. تحديث gamePoints في user profile — منفصل تماماً عن totalPoints/storePoints
+    if (score > 0) {
+      const userRef = doc(db, 'users', user.uid);
+      updateDoc(userRef, {
+        gamePoints: increment(score),
+      }).catch(() => {});
+    }
   }, [phase]);
+
 
   if (phase === 'done') {
     const pct = Math.round((correct / questions.length) * 100);
@@ -392,13 +403,9 @@ export default function GamePlay() {
           <p className="text-xs font-bold text-brand-beige">{pct}% إجابات صحيحة</p>
         </div>
         <div className="flex flex-col gap-3 w-full max-w-xs">
-          <button onClick={() => { setQIndex(0); setScore(0); setCorrect(0); setPhase('playing'); }}
-            className="w-full py-4 bg-violet-600 text-white font-black rounded-2xl shadow-lg shadow-violet-500/20">
-            🔄 العب مرة ثانية
-          </button>
           <Link to="/student/games"
-            className="w-full py-4 bg-white border-2 border-brand-beige/20 text-brand-text font-black rounded-2xl text-center flex items-center justify-center gap-2">
-            <Home className="w-4 h-4" /> القائمة الرئيسية
+            className="w-full py-4 bg-violet-600 text-white font-black rounded-2xl shadow-lg shadow-violet-500/20 text-center flex items-center justify-center gap-2">
+            <Home className="w-5 h-5" /> العودة لألعاب الحكاية
           </Link>
         </div>
       </div>

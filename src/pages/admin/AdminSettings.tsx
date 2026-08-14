@@ -129,6 +129,14 @@ export default function AdminSettings() {
       const logsSnap = await getDocs(collection(db, "pointLogs"));
       const allLogs = logsSnap.docs.map(d => d.data());
 
+      // جلب نقط الألعاب (منفصلة — لا تدخل في totalPoints أبداً)
+      const gameScoresSnap = await getDocs(collection(db, "gameScores"));
+      const allGameScores: Record<string, number> = {};
+      gameScoresSnap.docs.forEach(d => {
+        const data = d.data();
+        allGameScores[d.id] = data.totalScore || 0;
+      });
+
       let batch = writeBatch(db);
       let processedCount = 0;
 
@@ -175,15 +183,19 @@ export default function AdminSettings() {
         const myLogs = allLogs.filter(l => l.userId === student.uid);
         const manualPoints = myLogs.reduce((acc, curr: any) => curr.type === 'add' ? acc + (curr.amount || 0) : acc - (curr.amount || 0), 0);
 
-        // Calculate final totalPoints
+        // Calculate final totalPoints (الحضور + الاختبارات + اليدوي — بدون نقط الألعاب)
         const totalPoints = Math.max(0, examPoints + attPoints + manualPoints - purPoints);
         const cumulativePoints = Math.max(0, examPoints + attPoints + manualPoints);
+
+        // نقط الألعاب منفصلة — من game_scores فقط
+        const gamePoints = allGameScores[student.uid] || 0;
         
         batch.update(doc(db, "users", student.uid), {
           totalExams,
           averageScore: Math.round(calculatedAvg),
           totalPoints,
-          cumulativePoints
+          cumulativePoints,
+          gamePoints, // منفصلة — لا تؤثر على totalPoints أو storePoints
         });
         
         processedCount++;

@@ -102,6 +102,18 @@ export default function StudentLeaderboard() {
             <p className="text-brand-beige font-bold text-xs md:text-lg">
               ترتيب الأبطال ومنافسة شريفة بين الجميع!
             </p>
+            {/* توضيح إن نقط الألعاب منفصلة */}
+            <div className="flex items-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-[10px] md:text-xs font-black px-3 py-1 rounded-full">
+                🏆 نقاط الحضور والاختبارات فقط
+              </span>
+              <Link
+                to="/student/games/leaderboard"
+                className="inline-flex items-center gap-1.5 bg-violet-50 border border-violet-200 text-violet-700 text-[10px] md:text-xs font-black px-3 py-1 rounded-full hover:bg-violet-100 transition-colors"
+              >
+                🎮 صدارة الألعاب
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -21,6 +21,7 @@ export interface User {
   totalPoints: number;
   cumulativePoints?: number;
   storePoints?: number;
+  gamePoints?: number; // نقط الألعاب — منفصلة تماماً عن totalPoints
   round1Points?: number;
   averageScore: number;
   xp: number;
