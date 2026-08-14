@@ -144,6 +144,8 @@ export default function AdminSettings() {
         // Find their submissions
         const mySubs = allSubs.filter(s => s.participantId === student.uid || s.participantName === student.normalizedName);
         
+        const STAGE_2_START = new Date("2026-08-01T00:00:00Z");
+
         // Group submissions by assessment to prevent duplicate scores from multiple attempts
         const uniqueSubsMap = new Map();
         for (const sub of mySubs) {
@@ -164,18 +166,29 @@ export default function AdminSettings() {
         }
         
         const uniqueSubs = Array.from(uniqueSubsMap.values());
+        
+        // Split submissions based on date
+        const round1Subs = uniqueSubs.filter(s => new Date(s.sub.date) < STAGE_2_START);
+        const round2Subs = uniqueSubs.filter(s => new Date(s.sub.date) >= STAGE_2_START);
+
         const totalExams = uniqueSubs.length;
+        
+        const round1ExamPoints = round1Subs.reduce((acc, curr) => acc + curr.score, 0);
+        const round2ExamPoints = round2Subs.reduce((acc, curr) => acc + curr.score, 0);
+
         const totalScoreSum = uniqueSubs.reduce((acc, curr) => acc + curr.score, 0);
         const maxScoreSum = uniqueSubs.reduce((acc, curr) => acc + curr.maxScore, 0);
-        
         const calculatedAvg = maxScoreSum > 0 ? (totalScoreSum / maxScoreSum) * 100 : 0;
-        const examPoints = totalScoreSum;
 
         // Find attendance
         const myAtts = allAtts.filter(a => a.studentId === student.uid);
-        const attPoints = myAtts.reduce((acc, curr) => acc + (curr.points || 0), 0);
+        const round1Atts = myAtts.filter(a => new Date(a.date || a.timestamp) < STAGE_2_START);
+        const round2Atts = myAtts.filter(a => new Date(a.date || a.timestamp) >= STAGE_2_START);
+        
+        const round1AttPoints = round1Atts.reduce((acc, curr) => acc + (curr.points || 0), 0);
+        const round2AttPoints = round2Atts.reduce((acc, curr) => acc + (curr.points || 0), 0);
 
-        // Find purchases
+        // Find purchases (usually stage 2)
         const myPurs = allPurs.filter(p => p.userId === student.uid);
         const purPoints = myPurs.reduce((acc, curr) => acc + (curr.pricePaid ?? curr.price ?? curr.totalPrice ?? 0), 0);
 
@@ -183,19 +196,25 @@ export default function AdminSettings() {
         const myLogs = allLogs.filter(l => l.userId === student.uid);
         const manualPoints = myLogs.reduce((acc, curr: any) => curr.type === 'add' ? acc + (curr.amount || 0) : acc - (curr.amount || 0), 0);
 
-        // Calculate final totalPoints (الحضور + الاختبارات + اليدوي — بدون نقط الألعاب)
-        const totalPoints = Math.max(0, examPoints + attPoints + manualPoints - purPoints);
-        const cumulativePoints = Math.max(0, examPoints + attPoints + manualPoints);
+        // Calculate points
+        const round1Points = round1ExamPoints + round1AttPoints;
+        const totalPoints = Math.max(0, round2ExamPoints + round2AttPoints + manualPoints - purPoints);
+        const cumulativePoints = Math.max(0, round1Points + round2ExamPoints + round2AttPoints + manualPoints);
 
         // نقط الألعاب منفصلة — من game_scores فقط
         const gamePoints = allGameScores[student.uid] || 0;
         
+        const sidebarSettings = student.sidebarSettings || {};
+        sidebarSettings.round1Points = round1Points;
+        sidebarSettings.gamePoints = gamePoints;
+
         batch.update(doc(db, "users", student.uid), {
           totalExams,
           averageScore: Math.round(calculatedAvg),
           totalPoints,
           cumulativePoints,
-          gamePoints, // منفصلة — لا تؤثر على totalPoints أو storePoints
+          gamePoints,
+          sidebarSettings
         });
         
         processedCount++;
