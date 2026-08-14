@@ -328,22 +328,7 @@ export default function GamePlay() {
   useEffect(() => {
     if (phase !== 'done' || !user) return;
 
-<<<<<<< HEAD
-    // 1. Increment local game play limit counter immediately
-    try {
-      const logs = JSON.parse(localStorage.getItem('gamePlays') || '{}');
-      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
-      const key = `${today}_${gameType}`;
-      logs[key] = (logs[key] || 0) + 1;
-      localStorage.setItem('gamePlays', JSON.stringify(logs));
-    } catch (e) {
-      console.error('Error saving local limit:', e);
-    }
-
-    // 2. Save score to database
-=======
     // 1. حفظ في جدول gameScores الخاص بالألعاب
->>>>>>> ac49f22 (fix: separate game points from total points completely)
     const ref = doc(db, 'gameScores', user.uid);
     setDoc(ref, {
       uid: user.uid,
